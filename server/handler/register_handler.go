@@ -1,0 +1,49 @@
+package handler
+
+import (
+	"basic_server/server/repository"
+	"basic_server/server/request"
+	"basic_server/server/response"
+	"basic_server/server/service"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
+	"net/http"
+)
+
+type RegisterHandler struct {
+	DB *gorm.DB
+}
+
+func (handler *RegisterHandler) Register() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		var UserRequest request.UserRequest
+		var newUserService service.NewUserService
+
+		err := context.ShouldBind(&UserRequest)
+
+		if err != nil {
+			response.ErrorResponse(context, http.StatusUnprocessableEntity, "Required fields are empty or email not valid")
+			return
+		}
+
+		userRepository := repository.UserRepository{DB: handler.DB}
+
+		if userRepository.FindUserByEmail(UserRequest.Email).ID != 0 {
+			response.ErrorResponse(context, http.StatusBadRequest, "User already exist")
+			return
+		}
+
+		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(UserRequest.Password), bcrypt.DefaultCost)
+
+		if err != nil {
+			context.Status(http.StatusInternalServerError)
+		}
+
+		newUser := newUserService.CreateUser(UserRequest.Email, string(encryptedPassword))
+
+		handler.DB.Create(&newUser)
+
+		response.SuccessResponse(context, "Successfully registered")
+	}
+}
