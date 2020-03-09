@@ -2,6 +2,7 @@ package server
 
 import (
 	"basic_server/server/db"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -20,4 +21,8 @@ func NewServer() *Server {
 
 func (server *Server) Run(addr string) error {
 	return server.engine.Run(":" + addr)
+}
+
+func (server *Server) Engine() *gin.Engine {
+	return server.engine
 }
