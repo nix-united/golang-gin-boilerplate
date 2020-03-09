@@ -5,10 +5,11 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type RegisterHandler struct {
@@ -17,10 +18,10 @@ type RegisterHandler struct {
 
 func (handler *RegisterHandler) Register() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var UserRequest request.UserRequest
+		var registerRequest request.RegisterRequest
 		var newUserService service.NewUserService
 
-		err := context.ShouldBind(&UserRequest)
+		err := context.ShouldBind(&registerRequest)
 
 		if err != nil {
 			response.ErrorResponse(context, http.StatusUnprocessableEntity, "Required fields are empty or email not valid")
@@ -29,18 +30,19 @@ func (handler *RegisterHandler) Register() gin.HandlerFunc {
 
 		userRepository := repository.UserRepository{DB: handler.DB}
 
-		if userRepository.FindUserByEmail(UserRequest.Email).ID != 0 {
+		if userRepository.FindUserByEmail(registerRequest.Email).ID != 0 {
 			response.ErrorResponse(context, http.StatusBadRequest, "User already exist")
 			return
 		}
 
-		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(UserRequest.Password), bcrypt.DefaultCost)
+		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(registerRequest.Password), bcrypt.DefaultCost)
 
 		if err != nil {
 			context.Status(http.StatusInternalServerError)
+			return
 		}
 
-		newUser := newUserService.CreateUser(UserRequest.Email, string(encryptedPassword))
+		newUser := newUserService.CreateUser(registerRequest.Email, string(encryptedPassword), registerRequest.FullName)
 
 		handler.DB.Create(&newUser)
 
