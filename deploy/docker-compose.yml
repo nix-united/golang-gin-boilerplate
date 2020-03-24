@@ -4,7 +4,7 @@ services:
     container_name: gin-demo
     image: hub.gitlab.nixdev.co/golang-general/gin_basic_app:staging
     ports:
-      - 9369:${PORT}
+      - 9369:80
     env_file:
       - .env
     restart: on-failure
