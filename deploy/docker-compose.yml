@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  gin-demo:
+    container_name: gin-demo
+    image: hub.gitlab.nixdev.co/golang-general/gin_basic_app:staging
+    ports:
+      - 9369:${PORT}
+    env_file:
+      - .env
+    restart: on-failure
+  mysql:
+    container_name: gin-demo-mysql
+    image: mysql:8
+    ports:
+      - 3366:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
