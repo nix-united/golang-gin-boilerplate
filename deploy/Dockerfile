@@ -23,8 +23,6 @@ COPY . .
 RUN  git config --global http.sslVerify true &&\
     # install project dependecies
     go get -v ./... &&\
-    # run tests
-    go test -v ./... &&\
     # build application
     go build -o demo-gin .
 
