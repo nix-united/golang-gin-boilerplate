@@ -17,7 +17,7 @@ func TestRegisterAttemptWithEmptyRequestPayload(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users", nil)
 	req.Header.Add("Content-Type", "application/json")
 
-	service.TestEngine().ServeHTTP(w, req)
+	service.TestServer().Engine().ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 }
@@ -33,14 +33,18 @@ func TestRegisterAttemptWithEmptyEmailField(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(requestPayload))
 	req.Header.Add("Content-Type", "application/json")
 
-	service.TestEngine().ServeHTTP(w, req)
+	service.TestServer().Engine().ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 }
 
 func TestSuccessfulRegisterAttempt(t *testing.T) {
+	service.TestServer().InitDatabaseCleaner()
+
+	defer service.TestServer().ClearDatabase()
+
 	requestPayload, _ := json.Marshal(map[string]string{
-		"email":     "test@test.com",
+		"email":     "test2@test.com",
 		"password":  "test password",
 		"full_name": "test test",
 	})
@@ -50,14 +54,18 @@ func TestSuccessfulRegisterAttempt(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(requestPayload))
 	req.Header.Add("Content-Type", "application/json")
 
-	service.TestEngine().ServeHTTP(w, req)
+	service.TestServer().Engine().ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestSuccessfulRegisterAttemptWithoutFullNameField(t *testing.T) {
+	service.TestServer().InitDatabaseCleaner()
+
+	defer service.TestServer().ClearDatabase()
+
 	requestPayload, _ := json.Marshal(map[string]string{
-		"email":    "test@test.com",
+		"email":    "test3@test.com",
 		"password": "test password",
 	})
 
@@ -66,7 +74,7 @@ func TestSuccessfulRegisterAttemptWithoutFullNameField(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(requestPayload))
 	req.Header.Add("Content-Type", "application/json")
 
-	service.TestEngine().ServeHTTP(w, req)
+	service.TestServer().Engine().ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
