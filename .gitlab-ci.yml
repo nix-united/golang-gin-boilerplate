@@ -7,7 +7,7 @@ variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   DOCKER_TLS_CERTDIR: ""
   MYSQL_DATABASE: test
-  MYSQL_ROOT_PASSWORD: 123456789
+  MYSQL_ROOT_PASSWORD: db_password
 
 # use gitlab image
 services:
@@ -31,6 +31,7 @@ test:
   stage: test
   before_script:
     - apk add --no-cache --update git build-base openssh-client
+    - cp .env.testing.gitlab-ci .env.testing
   script:
     # get dependencies
     - go get -v ./...
