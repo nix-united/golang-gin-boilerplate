@@ -1,5 +1,5 @@
 # base image
-FROM golang:1.13.3-alpine3.10
+FROM golang:1.13.3-alpine3.10 as build
 
 # install system utils
 RUN apk add --no-cache --update git build-base openssh-client
@@ -25,5 +25,10 @@ RUN  git config --global http.sslVerify true &&\
     go get -v ./... &&\
     # build application
     go build -o demo-gin .
+
+FROM alpine
+
+WORKDIR /app
+COPY --from=build /go/src/api/demo-gin /app/demo-gin
 
 CMD ["./demo-gin"]
