@@ -54,6 +54,8 @@ build:
       --build-arg WEB_PRIVATE_KEY="$WEB_PRIVATE_KEY"
       --build-arg GIT_DOMAIN=$CI_SERVER_HOST
       -t $CI_REGISTRY_IMAGE:staging .
+    # push image to docker hub
+    - docker push $CI_REGISTRY_IMAGE:staging
 
 # stage of deploy
 deploy staging:
