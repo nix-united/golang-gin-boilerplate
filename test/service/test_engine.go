@@ -6,13 +6,20 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 )
 
-var ts *server.Server
+var ts *testServer
 var once sync.Once
 
-func TestEngine() *gin.Engine {
+type testServer struct {
+	databaseClener
+	engine   *gin.Engine
+	database *gorm.DB
+}
+
+func TestServer() *testServer {
 	once.Do(func() {
 		err := godotenv.Load("../.env.testing")
 
@@ -20,10 +27,23 @@ func TestEngine() *gin.Engine {
 			log.Fatal("Error loading .env.testing file")
 		}
 
-		ts = server.NewServer()
+		srv := server.NewServer()
 
-		server.ConfigureRoutes(ts)
+		server.ConfigureRoutes(srv)
+
+		ts = &testServer{
+			engine:   srv.Engine(),
+			database: srv.Database(),
+		}
 	})
 
-	return ts.Engine()
+	return ts
+}
+
+func (ts *testServer) Engine() *gin.Engine {
+	return ts.engine
+}
+
+func (ts *testServer) DatabaseDriver() *gorm.DB {
+	return ts.database
 }

@@ -26,3 +26,7 @@ func (server *Server) Run(addr string) error {
 func (server *Server) Engine() *gin.Engine {
 	return server.engine
 }
+
+func (server *Server) Database() *gorm.DB {
+	return server.db
+}

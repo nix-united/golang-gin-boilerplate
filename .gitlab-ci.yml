@@ -6,19 +6,37 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   DOCKER_TLS_CERTDIR: ""
+  MYSQL_DATABASE: test
+  MYSQL_ROOT_PASSWORD: db_password
 
 # use gitlab image
 services:
   - docker:dind
 
-# login in docker hub for future image push
-before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
 # declare stages
 stages:
+  - test
   - build
   - deploy
+
+# stage of tests
+test:
+  image: golang:1.13.3-alpine3.10
+  services:
+    - name: mysql:latest
+      command: ["--default-authentication-plugin=mysql_native_password"]
+  tags:
+    - dind
+    - docker
+  stage: test
+  before_script:
+    - apk add --no-cache --update git build-base openssh-client
+    - cp .env.testing.gitlab-ci .env.testing
+  script:
+    # get dependencies
+    - go get -v ./...
+    # run tests
+    - go test -v ./...
 
 # stage of build
 build:
@@ -26,6 +44,9 @@ build:
     - dind
     - docker
   stage: build
+  before_script:
+    # login in docker hub for future image push
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     # build our image
     - cp deploy/Dockerfile .
@@ -48,6 +69,7 @@ deploy staging:
     - docker
   stage: deploy
   before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     # configuring our ssh client
     - apk add --update openssh-client bash
     - mkdir -p ~/.ssh
