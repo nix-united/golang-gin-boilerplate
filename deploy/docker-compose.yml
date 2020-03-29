@@ -12,6 +12,7 @@ services:
     restart: on-failure
   mysql:
     container_name: gin-demo-mysql
+    restart: on-failure
     image: mysql:8
     ports:
       - 3366:3306
