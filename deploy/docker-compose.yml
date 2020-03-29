@@ -14,5 +14,7 @@ services:
     container_name: gin-demo-mysql
     restart: on-failure
     image: mysql:8
+    env_file:
+      - ./.env
     ports:
       - 3366:3306
