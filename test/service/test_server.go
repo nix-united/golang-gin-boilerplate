@@ -14,7 +14,6 @@ var ts *testServer
 var once sync.Once
 
 type testServer struct {
-	databaseClener
 	engine   *gin.Engine
 	database *gorm.DB
 }
