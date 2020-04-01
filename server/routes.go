@@ -18,6 +18,13 @@ func ConfigureRoutes(server *Server) {
 	server.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server.engine.POST("/users", registerHandler.Register())
+	server.engine.GET("/", homeHandler.Index())
+	server.engine.POST("/posts", postHandler.SavePost())
+	server.engine.GET("/posts", postHandler.GetPosts())
+	server.engine.GET("/post/:id", postHandler.GetPostById())
+	server.engine.POST("/post/:id", postHandler.UpdatePost())
+	server.engine.DELETE("/post/:id", postHandler.DeletePost())
+
 	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)
 
 	needsAuth := server.engine.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
