@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"net/http"
+	"strconv"
 )
 
 type PostHandler struct {
@@ -17,8 +18,8 @@ type PostHandler struct {
 
 func (handler PostHandler) GetPostById() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id := context.Param("id")
-		post := handler.PostService.GetById(id)
+		id, _ := strconv.Atoi(context.Param("id"))
+		post := handler.PostService.GetById(uint(id))
 		response.SuccessResponse(context, response.GetPostResponse{
 			ID:      post.ID,
 			Title:   post.Title,
@@ -47,8 +48,8 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 
 func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id := context.Param("id")
-		post := handler.PostService.GetById(id)
+		id, _ := strconv.Atoi(context.Param("id"))
+		post := handler.PostService.GetById(uint(id))
 		if post == (model.Post{}) {
 			context.Status(http.StatusBadRequest)
 			return
@@ -85,8 +86,8 @@ func (handler PostHandler) GetPosts() gin.HandlerFunc {
 
 func (handler PostHandler) DeletePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id := context.Param("id")
-		post := handler.PostService.GetById(id)
+		id, _ := strconv.Atoi(context.Param("id"))
+		post := handler.PostService.GetById(uint(id))
 		if post == (model.Post{}) {
 			context.Status(http.StatusBadRequest)
 			return
