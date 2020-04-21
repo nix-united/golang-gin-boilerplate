@@ -1,15 +1,16 @@
-version: "3.7"
+version: "3.3"
 services:
   gin-demo:
-    container_name: gin-demo
-    image: hub.gitlab.nixdev.co/golang-general/gin_basic_app:staging
+    container_name: gin-demo-deploy
+    build: .
     ports:
       - 9369:80
     depends_on:
       - mysql
     volumes:
+      - ../:/app
       - ./.env:/app/.env
-    restart: on-failure
+    #restart: on-failure
   mysql:
     container_name: gin-demo-mysql
     restart: on-failure
