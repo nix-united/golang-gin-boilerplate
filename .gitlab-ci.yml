@@ -19,8 +19,7 @@ lint:
   image: golangci/golangci-lint:v1.25.0
   stage: test
   script:
-    - golangci-lint --version
-    - golangci-lint run --out-format code-climate | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
+    - golangci-lint run --out-format code-climate | tee gl-code-quality-report.json
   artifacts:
     reports:
       codequality: gl-code-quality-report.json
