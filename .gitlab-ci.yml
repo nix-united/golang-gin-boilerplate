@@ -19,12 +19,7 @@ lint:
   image: golangci/golangci-lint:v1.25.0
   stage: test
   script:
-    - golangci-lint run --out-format code-climate | tee gl-code-quality-report.json
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
-    paths:
-      - gl-code-quality-report.json
+    - golangci-lint run
   allow_failure: true
 
 test:
