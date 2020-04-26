@@ -64,7 +64,7 @@ func TestFailedRegisterAttemptIfUserAlreadyExists(t *testing.T) {
 
 	service.TestServer().Engine().ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 }
 
 func TestSuccessfulRegisterAttempt(t *testing.T) {
