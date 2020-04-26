@@ -19,6 +19,7 @@ lint:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
   stage: test
   script:
+    - golangci-lint --version
     - golangci-lint run --out-format code-climate | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
   artifacts:
     reports:
