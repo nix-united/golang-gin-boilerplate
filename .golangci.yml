@@ -22,12 +22,10 @@ linters-settings:
       - opinionated
       - performance
       - style
+    enable-checks:
+      - whyNoLint
     disabled-checks:
       - dupImport # https://github.com/go-critic/go-critic/issues/845
-      - ifElseChain
-      - octalLiteral
-      - whyNoLint
-      - wrapperFunc
   gocyclo:
     min-complexity: 15
   goimports:
