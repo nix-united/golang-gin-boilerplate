@@ -18,6 +18,10 @@ import (
 // @contact.url https://www.nixsolutions.com/
 // @contact.email ask@nixsolutions.com
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 // @BasePath /
 func main() {
 	err := godotenv.Load()
