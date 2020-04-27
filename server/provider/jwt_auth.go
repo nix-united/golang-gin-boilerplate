@@ -17,6 +17,12 @@ import (
 
 const identityKey = "user_id"
 
+type Success struct {
+	Code  int `json:"code" example:"200"`
+	Expire string `json:"expire"`
+	Token string `json:"token"`
+}
+
 var once sync.Once
 
 var mw *jwtAuthMiddleware
@@ -72,6 +78,16 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 	return middleware
 }
 
+// authenticate godoc
+// @Summary Authenticate a user
+// @Description Perform user login
+// @ID user-login
+// @Accept json
+// @Produce json
+// @Param params body request.AuthRequest true "User's credentials"
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Router /login [post]
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	var authRequest request.AuthRequest
 	var user model.User
