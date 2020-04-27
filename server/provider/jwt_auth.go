@@ -107,6 +107,19 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	return user, nil
 }
 
+// refresh godoc
+// @Summary Refresh token
+// @Description Refresh user's token
+// @ID refresh-token
+// @Produce json
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /refresh [get]
+func (mw jwtAuthMiddleware) Refresh(c *gin.Context) {
+	mw.Middleware().RefreshHandler(c)
+}
+
 func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
 	userID, ok := data.(float64)
 

@@ -25,7 +25,7 @@ func ConfigureRoutes(server *Server) {
 
 	{
 		needsAuth.GET("/", homeHandler.Index())
-		needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
+		needsAuth.GET("/refresh", jwtAuth.Refresh)
 		needsAuth.POST("/posts", postHandler.SavePost())
 		needsAuth.GET("/posts", postHandler.GetPosts())
 	}
