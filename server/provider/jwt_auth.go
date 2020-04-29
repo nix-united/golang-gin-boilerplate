@@ -82,6 +82,7 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 // @Summary Authenticate a user
 // @Description Perform user login
 // @ID user-login
+// @Tags User Actions
 // @Accept json
 // @Produce json
 // @Param params body request.AuthRequest true "User's credentials"
@@ -111,6 +112,7 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 // @Summary Refresh token
 // @Description Refresh user's token
 // @ID refresh-token
+// @Tags User Actions
 // @Produce json
 // @Success 200 {object} Success
 // @Failure 401 {object} response.Error

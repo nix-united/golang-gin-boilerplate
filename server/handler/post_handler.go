@@ -38,6 +38,7 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 // @Summary Get all posts
 // @Description Get all posts of all users
 // @ID get-posts
+// @Tags Post Actions
 // @Produce json
 // @Success 200 {object} response.CollectionResponse
 // @Failure 401 {object} response.Error

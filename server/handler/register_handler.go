@@ -20,6 +20,7 @@ type RegisterHandler struct {
 // @Summary Register
 // @Description New user registration
 // @ID user-register
+// @Tags User Actions
 // @Accept json
 // @Produce json
 // @Param params body request.RegisterRequest true "User's email, password, full name"
