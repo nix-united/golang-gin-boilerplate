@@ -1,18 +1,32 @@
 package main
 
 import (
-	"basic_server/server"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"basic_server/server"
+	"basic_server/server/db"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	app := server.NewServer()
+
+	connection := db.InitDB()
+
+	defer func() {
+		if err := connection.DB().Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	app := server.NewServer(connection)
 	server.ConfigureRoutes(app)
-	app.Run(os.Getenv("PORT"))
+
+	if err := app.Run(os.Getenv("PORT")); err != nil {
+		log.Fatal(err)
+	}
 }

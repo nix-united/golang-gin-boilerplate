@@ -1,6 +1,10 @@
 package db
 
 import (
+	"log"
+	"strconv"
+	"time"
+
 	"basic_server/server/db/seeder"
 	_ "github.com/go-sql-driver/mysql"
 
@@ -21,9 +25,32 @@ func InitDB() *gorm.DB {
 	fmt.Println(dataSourceName)
 
 	db, err := gorm.Open(os.Getenv("DB_DRIVER"), dataSourceName)
+
 	if err != nil {
 		panic(err.Error())
 	}
+
+	maxOpenConns, err := strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNS"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	maxIdleConns, err := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNS"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	connMaxLife, err := strconv.Atoi(os.Getenv("DB_CONN_MAX_LIFE"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db.DB().SetMaxOpenConns(maxOpenConns)
+	db.DB().SetMaxIdleConns(maxIdleConns)
+	db.DB().SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
 
 	db.AutoMigrate(&model.User{}, &model.Post{})
 
