@@ -1,17 +1,16 @@
 package db
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
 	"basic_server/server/db/seeder"
 	_ "github.com/go-sql-driver/mysql"
 
-	"basic_server/server/model"
-	"fmt"
 	"github.com/jinzhu/gorm"
-	"os"
 )
 
 func InitDB() *gorm.DB {
@@ -51,10 +50,6 @@ func InitDB() *gorm.DB {
 	db.DB().SetMaxOpenConns(maxOpenConns)
 	db.DB().SetMaxIdleConns(maxIdleConns)
 	db.DB().SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
-
-	db.AutoMigrate(&model.User{}, &model.Post{})
-
-	db.Model(&model.Post{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 
 	seeder.NewUserSeeder(db).Run()
 	seeder.NewPostSeeder(db).Run()
