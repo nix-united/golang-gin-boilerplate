@@ -5,8 +5,6 @@ import (
 	"basic_server/server/provider"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-
-	_ "basic_server/docs"
 )
 
 func ConfigureRoutes(server *Server) {
