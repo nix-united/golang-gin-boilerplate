@@ -30,5 +30,6 @@ FROM alpine
 
 WORKDIR /app
 COPY --from=build /go/src/api/demo-gin /app/demo-gin
+COPY --from=build /go/src/api/server/db/migrations /app/migrations
 
 CMD ["./demo-gin"]
