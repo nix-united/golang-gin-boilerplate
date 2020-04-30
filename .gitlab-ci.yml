@@ -23,6 +23,8 @@ stages:
 test:
   image: golang:1.13.3-alpine3.10
   services:
+    - name: docker:dind
+      alias: docker
     - name: mysql:latest
       command: ["--default-authentication-plugin=mysql_native_password"]
   tags:
@@ -30,9 +32,11 @@ test:
     - docker
   stage: test
   before_script:
+    - docker version
     - apk add --no-cache --update git build-base openssh-client
     - cp .env.testing.gitlab-ci .env.testing
   script:
+    - docker run migrate/migrate -path=/server/db/migrations -database "mysql://root:$MYSQL_ROOT_PASSWORD@tcp(mysql:$DB_PORT)/$MYSQL_DATABASE" up
     # get dependencies
     - go get -v ./...
     # run tests
