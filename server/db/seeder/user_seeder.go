@@ -2,6 +2,7 @@ package seeder
 
 import (
 	"basic_server/server/model"
+
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )

@@ -2,6 +2,7 @@ package seeder
 
 import (
 	"basic_server/server/model"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,18 +17,18 @@ func NewPostSeeder(db *gorm.DB) *PostSeeder {
 type postData struct {
 	Title   string
 	Content string
-	UserId  uint
+	UserID  uint
 }
 
 func (postSeeder *PostSeeder) Run() {
 	posts := map[int]postData{1: {
 		Title:   "Post 1",
 		Content: "Post1 Content",
-		UserId:  1,
+		UserID:  1,
 	}, 2: {
 		Title:   "Post 2",
 		Content: "Post2 Content",
-		UserId:  2,
+		UserID:  2,
 	}}
 	for key, value := range posts {
 		post := model.Post{}
@@ -36,7 +37,7 @@ func (postSeeder *PostSeeder) Run() {
 			post.ID = uint(key)
 			post.Title = value.Title
 			post.Content = value.Content
-			post.UserId = value.UserId
+			post.UserID = value.UserID
 			postSeeder.DB.Create(&post)
 		}
 	}

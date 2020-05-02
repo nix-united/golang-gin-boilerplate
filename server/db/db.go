@@ -2,12 +2,14 @@ package db
 
 import (
 	"basic_server/server/db/seeder"
-	_ "github.com/go-sql-driver/mysql"
+
+	_ "github.com/go-sql-driver/mysql" //nolint
 
 	"basic_server/server/model"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"os"
+
+	"github.com/jinzhu/gorm"
 )
 
 func InitDB() *gorm.DB {
