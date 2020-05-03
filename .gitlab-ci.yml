@@ -6,13 +6,10 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   DOCKER_TLS_CERTDIR: ""
-  MYSQL_DATABASE: test
-  MYSQL_ROOT_PASSWORD: db_password
 
 # use gitlab image
 services:
   - docker:dind
-  - mysql
 
 # declare stages
 stages:
@@ -23,6 +20,9 @@ stages:
 # stage of tests
 test:
   image: golang:1.13.3-alpine3.10
+  variables:
+    MYSQL_DATABASE: test
+    MYSQL_ROOT_PASSWORD: db_password
   services:
     - name: docker:dind
       alias: docker
