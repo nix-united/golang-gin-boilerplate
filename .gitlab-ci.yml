@@ -36,7 +36,7 @@ test:
     - cp .env.testing.gitlab-ci .env.testing
     - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.10.0/migrate.linux-amd64.tar.gz | tar xvz
   script:
-    - ./migrate.linux-amd64 -path=/server/db/migrations -database "mysql://root:$MYSQL_ROOT_PASSWORD@tcp(mysql:$DB_PORT)/$MYSQL_DATABASE" up
+    - ./migrate.linux-amd64 -path=./server/db/migrations -database "mysql://root:$MYSQL_ROOT_PASSWORD@tcp(mysql:$DB_PORT)/$MYSQL_DATABASE" up
     # get dependencies
     - go get -v ./...
     # run tests
