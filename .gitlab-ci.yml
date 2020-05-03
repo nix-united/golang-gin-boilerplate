@@ -32,7 +32,6 @@ test:
     - docker
   stage: test
   before_script:
-    - docker version
     - apk add --no-cache --update git build-base openssh-client
     - cp .env.testing.gitlab-ci .env.testing
     - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.10.0/migrate.linux-amd64.tar.gz | tar xvz
