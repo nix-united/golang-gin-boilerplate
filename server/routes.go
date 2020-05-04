@@ -3,6 +3,8 @@ package server
 import (
 	"basic_server/server/handler"
 	"basic_server/server/provider"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 func ConfigureRoutes(server *Server) {
@@ -12,6 +14,8 @@ func ConfigureRoutes(server *Server) {
 
 	jwtAuth := provider.NewJwtAuth(server.db)
 
+	server.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	server.engine.POST("/users", registerHandler.Register())
 	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)
 
@@ -19,7 +23,7 @@ func ConfigureRoutes(server *Server) {
 
 	{
 		needsAuth.GET("/", homeHandler.Index())
-		needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
+		needsAuth.GET("/refresh", jwtAuth.Refresh)
 		needsAuth.POST("/posts", postHandler.SavePost())
 		needsAuth.GET("/posts", postHandler.GetPosts())
 	}
