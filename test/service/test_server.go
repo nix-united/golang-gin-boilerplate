@@ -2,6 +2,7 @@ package service
 
 import (
 	"basic_server/server"
+	"basic_server/server/db"
 	"log"
 	"sync"
 
@@ -26,7 +27,15 @@ func TestServer() *testServer {
 			log.Fatal("Error loading .env.testing file")
 		}
 
-		srv := server.NewServer()
+		connection := db.InitDB()
+
+		defer func() {
+			if err := connection.DB().Close(); err != nil {
+				log.Fatal(err)
+			}
+		}()
+
+		srv := server.NewServer(connection)
 
 		server.ConfigureRoutes(srv)
 
