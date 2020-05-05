@@ -20,7 +20,6 @@ lint:
   stage: test
   script:
     - golangci-lint run
-  allow_failure: true
 
 test:
   image: golang:1.13.3-alpine3.10
