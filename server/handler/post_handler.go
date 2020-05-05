@@ -35,6 +35,16 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 	}
 }
 
+// GetPosts godoc
+// @Summary Get all posts
+// @Description Get all posts of all users
+// @ID get-posts
+// @Tags Post Actions
+// @Produce json
+// @Success 200 {object} response.CollectionResponse
+// @Failure 401 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /posts [get]
 func (handler PostHandler) GetPosts() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		postsRepository := repository.PostRepository{DB: handler.DB}
