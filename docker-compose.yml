@@ -1,25 +1,31 @@
-version: '3'
+version: '3.7'
 services:
   app:
-    container_name: gin-demo
+    container_name: gin_demo
     build: .
-    ports: 
-      - 80:80
+    ports:
+      - ${EXPOSE_PORT}:${PORT}
     restart: on-failure
     volumes:
-      - api:/usr/src/app/
+      - ./:/app/
     depends_on:
-      - gin-demo-mysql
+      - mysql
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: mysql:3306
+      WAIT_BEFORE_HOSTS: 15
+      WAIT_SLEEP_INTERVAL: 3
     networks:
       - gin-demo-stack
 
-  gin-demo-mysql:
+  mysql:
     image: mysql:5.7
-    container_name: gin-demo_db_mysql
-    ports: 
-      - 3306:3306
-    environment: 
-      - MYSQL_ROOT_HOST=${DB_HOST} 
+    container_name: gin_db
+    ports:
+      - ${EXPOSE_DB_PORT}:${DB_PORT}
+    environment:
+      - MYSQL_ROOT_HOST=${DB_HOST}
       - MYSQL_USER=${DB_USER}
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}
@@ -28,29 +34,10 @@ services:
       - database_mysql:/var/lib/mysql
     networks:
       - gin-demo-stack
-  
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin_container
-    depends_on:
-      - gin-demo-mysql
-    environment:
-      - PMA_HOST=gin-demo-mysql
-      - PMA_USER=${DB_USER}
-      - PMA_PORT=${DB_PORT}
-      - PMA_PASSWORD=${DB_PASSWORD}
-    ports:
-      - 9090:80
-    restart: always
-    networks:
-      - gin-demo-stack
-
 
 volumes:
-  api:
   database_mysql:
 
 networks:
   gin-demo-stack:
     driver: bridge
-
