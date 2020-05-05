@@ -3,7 +3,6 @@ package main
 import (
 	"basic_server/server"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 
