@@ -97,9 +97,9 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 		return user, jwt.ErrMissingLoginValues
 	}
 
-	userRepository := repository.UserRepository{DB: mw.databaseDriver}
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user = userRepository.FindUserByEmail(authRequest.Email)
+	user, _ = userRepository.FindByEmail(authRequest.Email)
 
 	if user.ID == 0 || (bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authRequest.Password)) != nil) {
 		return user, jwt.ErrFailedAuthentication
@@ -129,7 +129,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
 		return false
 	}
 
-	userRepository := repository.UserRepository{DB: mw.databaseDriver}
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
 	if userRepository.FindUserById(int(userID)).ID == 0 {
 		return false
