@@ -20,10 +20,10 @@ type testServer struct {
 
 func TestServer() *testServer {
 	once.Do(func() {
-		err := godotenv.Load("../.env.testing")
+		err := godotenv.Load("../.env")
 
 		if err != nil {
-			log.Fatal("Error loading .env.testing file")
+			log.Fatal("Error loading .env file")
 		}
 
 		srv := server.NewServer()

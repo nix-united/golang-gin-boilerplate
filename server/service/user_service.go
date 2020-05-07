@@ -30,7 +30,7 @@ func (srv newUserService) CreateUser(req request.RegisterRequest) error {
 	var err error
 	var user model.User
 
-	user, err = srv.userRepo.FindByEmail(req.Email)
+	user, err = srv.userRepo.FindUserByEmail(req.Email)
 
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (srv newUserService) CreateUser(req request.RegisterRequest) error {
 		return err
 	}
 
-	err = srv.userRepo.Store(model.User{
+	err = srv.userRepo.StoreUser(model.User{
 		Email:    req.Email,
 		Password: string(encryptedPassword),
 		FullName: req.FullName,

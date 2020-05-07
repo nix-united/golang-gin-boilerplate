@@ -43,7 +43,7 @@ func (repo usersRepository) FindUserByEmail(email string) (model.User, error) {
 
 func (repo usersRepository) FindUserById(ID int) model.User {
 	var user model.User
-	repo.storage.First(&user, ID)
+	repo.storage.Where("id = ?", ID).First(&user)
 
 	return user
 }

@@ -99,7 +99,7 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user, _ = userRepository.FindByEmail(authRequest.Email)
+	user, _ = userRepository.FindUserByEmail(authRequest.Email)
 
 	if user.ID == 0 || (bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authRequest.Password)) != nil) {
 		return user, jwt.ErrFailedAuthentication
