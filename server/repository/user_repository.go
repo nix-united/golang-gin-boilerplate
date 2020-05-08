@@ -25,8 +25,8 @@ type usersRepository struct {
 	storage *gorm.DB
 }
 
-// NewUserRepository returns an instance of the UserRepository
-func NewUserRepository(db *gorm.DB) usersRepository {
+// NewUsersRepository returns an instance of the UsersRepository
+func NewUsersRepository(db *gorm.DB) UsersRepository {
 	return usersRepository{storage: db}
 }
 

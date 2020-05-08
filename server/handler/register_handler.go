@@ -7,6 +7,8 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
+	"basic_server/server/utils"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -43,7 +45,7 @@ func (handler *RegisterHandler) RegisterUser(srv service.UserService) gin.Handle
 			return
 		}
 
-		err = srv.CreateUser(registerRequest)
+		err = srv.CreateUser(registerRequest, utils.NewBcryptEncoder(bcrypt.DefaultCost))
 
 		if err != nil {
 			if operationErr, ok := err.(operror.ErrInvalidStorageOperation); ok {

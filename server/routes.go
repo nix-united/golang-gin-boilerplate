@@ -20,7 +20,7 @@ func ConfigureRoutes(server *Server) {
 
 	server.engine.POST(
 		"/users",
-		registerHandler.RegisterUser(service.NewUserService(repository.NewUserRepository(server.db))),
+		registerHandler.RegisterUser(service.NewUserService(repository.NewUsersRepository(server.db))),
 	)
 
 	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)

@@ -4,7 +4,7 @@ import (
 	"basic_server/server/model"
 	"basic_server/server/repository"
 	"basic_server/server/request"
-	"golang.org/x/crypto/bcrypt"
+	"basic_server/server/utils"
 )
 
 // UserService provides a use case level for the user entity
@@ -12,21 +12,21 @@ type UserService interface {
 	// Create takes a request with new user credentials and registers it.
 	// An error will be returned if a user exists in the system, or
 	// if an error occurs during interaction with the database.
-	CreateUser(req request.RegisterRequest) error
+	CreateUser(req request.RegisterRequest, en utils.Encryptor) error
 }
 
-type newUserService struct {
+type userService struct {
 	userRepo repository.UsersRepository
 }
 
 // NewUserService returns an instance of the UserService
-func NewUserService(ur repository.UsersRepository) newUserService {
-	return newUserService{
+func NewUserService(ur repository.UsersRepository) UserService {
+	return userService{
 		userRepo: ur,
 	}
 }
 
-func (srv newUserService) CreateUser(req request.RegisterRequest) error {
+func (srv userService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
 	var err error
 	var user model.User
 
@@ -43,12 +43,9 @@ func (srv newUserService) CreateUser(req request.RegisterRequest) error {
 		)
 	}
 
-	var encryptedPassword []byte
+	var encryptedPassword string
 
-	encryptedPassword, err = bcrypt.GenerateFromPassword(
-		[]byte(req.Password),
-		bcrypt.DefaultCost,
-	)
+	encryptedPassword, err = en.Encrypt(req.Password)
 
 	if err != nil {
 		return err
@@ -56,7 +53,7 @@ func (srv newUserService) CreateUser(req request.RegisterRequest) error {
 
 	err = srv.userRepo.StoreUser(model.User{
 		Email:    req.Email,
-		Password: string(encryptedPassword),
+		Password: encryptedPassword,
 		FullName: req.FullName,
 	})
 
