@@ -8,17 +8,17 @@ import (
 )
 
 var (
-	errSecretKeyIsNotSet = errors.New("Jwt secret key is not set")
+	errSecretKeyIsNotSet = errors.New("jwt secret key is not set")
 
-	errRealmIsNotSet = errors.New("Jwt realm is not set")
+	errRealmIsNotSet = errors.New("jwt realm is not set")
 
-	errExpirationTimeHasNotBeenLoaded = errors.New("An error has occurred during jwt expiration time loading")
+	errExpirationTimeHasNotBeenLoaded = errors.New("an error has occurred during jwt expiration time loading")
 
-	errMaxRefreshTimeHasNotBeenLoadedE = errors.New("An error has occurred during jwt max refresh time loading")
+	errMaxRefreshTimeHasNotBeenLoadedE = errors.New("an error has occurred during jwt max refresh time loading")
 )
 
-func NewJwtEnvVars() (*jwtEnvVars, error) {
-	var jwtVars jwtEnvVars
+func NewJwtEnvVars() (JwtEnvVars, error) {
+	var jwtVars *jwtEnvVars
 	var jwtSecret string
 	var jwtRealm string
 	var jwtExpration int
@@ -26,19 +26,19 @@ func NewJwtEnvVars() (*jwtEnvVars, error) {
 	var err error
 
 	if jwtSecret = os.Getenv("JWT_SECRET"); jwtSecret == "" {
-		return &jwtVars, errSecretKeyIsNotSet
+		return jwtVars, errSecretKeyIsNotSet
 	}
 
 	if jwtRealm = os.Getenv("JWT_REALM"); jwtRealm == "" {
-		return &jwtVars, errRealmIsNotSet
+		return jwtVars, errRealmIsNotSet
 	}
 
 	if jwtExpration, err = strconv.Atoi(os.Getenv("JWT_EXPIRATION_TIME")); err != nil {
-		return &jwtVars, errExpirationTimeHasNotBeenLoaded
+		return jwtVars, errExpirationTimeHasNotBeenLoaded
 	}
 
 	if jwtMaxRefreshTime, err = strconv.Atoi(os.Getenv("JWT_REFRESH_TIME")); err != nil {
-		return &jwtVars, errMaxRefreshTimeHasNotBeenLoadedE
+		return jwtVars, errMaxRefreshTimeHasNotBeenLoadedE
 	}
 
 	return &jwtEnvVars{
@@ -47,6 +47,13 @@ func NewJwtEnvVars() (*jwtEnvVars, error) {
 		expirationTime: time.Duration(jwtExpration) * time.Second,
 		maxRefreshTime: time.Duration(jwtMaxRefreshTime) * time.Second,
 	}, nil
+}
+
+type JwtEnvVars interface {
+	Secret() string
+	Realm() string
+	Expiration() time.Duration
+	RefreshTime() time.Duration
 }
 
 type jwtEnvVars struct {
