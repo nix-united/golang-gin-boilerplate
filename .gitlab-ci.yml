@@ -21,7 +21,6 @@ lint:
   image: golangci/golangci-lint:v1.25.0
   stage: test
   before_script:
-    - apk add --no-cache --update git build-base openssh-client
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
     - $GOPATH/bin/swag init
@@ -34,17 +33,12 @@ test:
     - dind
     - docker
   stage: test
-  variables:
-    WAIT_HOSTS: mysql:3306
   before_script:
-    - wget https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait
-    - chmod +x wait
     - apk add --no-cache --update git build-base openssh-client
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
     - $GOPATH/bin/swag init
   script:
-    - ./wait
     - go get -v ./...
     - go test -v ./...
 
