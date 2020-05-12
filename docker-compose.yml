@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     environment:
-      WAIT_HOSTS: mysql:3306
+      WAIT_HOSTS: mysql:${DB_PORT}
       WAIT_BEFORE_HOSTS: 15
       WAIT_SLEEP_INTERVAL: 3
     networks:
