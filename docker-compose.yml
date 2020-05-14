@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  app:
+    container_name: gin_demo
+    build: .
+    ports:
+      - ${EXPOSE_PORT}:${PORT}
+    restart: on-failure
+    volumes:
+      - ./:/app/
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    environment:
+      WAIT_HOSTS: mysql:${DB_PORT}
+      WAIT_BEFORE_HOSTS: 15
+      WAIT_SLEEP_INTERVAL: 3
+    networks:
+      - gin-demo-stack
+
+  mysql:
+    image: mysql:5.7
+    container_name: gin_db
+    ports:
+      - ${EXPOSE_DB_PORT}:${DB_PORT}
+    environment:
+      - MYSQL_ROOT_HOST=${DB_HOST}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - database_mysql:/var/lib/mysql
+    networks:
+      - gin-demo-stack
+
+volumes:
+  database_mysql:
+
+networks:
+  gin-demo-stack:
+    driver: bridge
