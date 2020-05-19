@@ -9,8 +9,7 @@ variables:
 
 services:
   - docker:dind
-  - name: mysql:latest
-    command: ["--default-authentication-plugin=mysql_native_password"]
+  - name: mysql:5.7
 
 stages:
   - test
