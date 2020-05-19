@@ -3,9 +3,10 @@ package main
 import (
 	"basic_server/server"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 
 	"basic_server/docs"
 )
@@ -33,5 +34,8 @@ func main() {
 
 	app := server.NewServer()
 	server.ConfigureRoutes(app)
-	app.Run(os.Getenv("PORT"))
+	err = app.Run(os.Getenv("PORT"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }

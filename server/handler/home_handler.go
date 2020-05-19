@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-type HomeHandler struct {}
+type HomeHandler struct{}
 
 func (handler HomeHandler) Index() gin.HandlerFunc {
 	return func(context *gin.Context) {
