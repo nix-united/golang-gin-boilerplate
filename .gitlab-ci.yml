@@ -9,7 +9,7 @@ variables:
 
 services:
   - docker:dind
-  - name: mysql:5.7
+  - mysql:5.7
 
 stages:
   - test
