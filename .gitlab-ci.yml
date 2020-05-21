@@ -1,23 +1,29 @@
-# base image
 image: docker:stable
 
-# declare variables for easy using
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   DOCKER_TLS_CERTDIR: ""
 
-# use gitlab image
 services:
   - docker:dind
+  - mysql:5.7
 
-# declare stages
 stages:
   - test
   - build
   - deploy
 
-# stage of tests
+lint:
+  image: golangci/golangci-lint:v1.25.0
+  stage: test
+  before_script:
+    - cp .env.testing.gitlab-ci .env.testing
+    - go get -v github.com/swaggo/swag/cmd/swag
+    - $GOPATH/bin/swag init
+  script:
+    - golangci-lint run
+
 test:
   image: golang:1.13.3-alpine3.10
   variables:
@@ -40,33 +46,26 @@ test:
     - ./migrate.linux-amd64 -path=./server/db/migrations -database "mysql://root:$MYSQL_ROOT_PASSWORD@tcp(mysql:3306)/$MYSQL_DATABASE" up
     # get dependencies
     - go get -v ./...
-    # run tests
     - go test -v ./...
 
-# stage of build
 build:
   tags:
     - dind
     - docker
   stage: build
   before_script:
-    # login in docker hub for future image push
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    # build our image
     - cp deploy/Dockerfile .
     - docker build
       --build-arg WEB_PRIVATE_KEY="$WEB_PRIVATE_KEY"
       --build-arg GIT_DOMAIN=$CI_SERVER_HOST
       -t $CI_REGISTRY_IMAGE:staging .
-    # push image to docker hub
     - docker push $CI_REGISTRY_IMAGE:staging
 
-# stage of deploy
 deploy staging:
   environment:
     name: staging
-  # this pipline will be trigger only manually
   when: manual
   only:
     refs:
@@ -77,7 +76,6 @@ deploy staging:
   stage: deploy
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    # configuring our ssh client
     - apk add --update openssh-client bash
     - mkdir -p ~/.ssh
     - echo "$STAGING_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
@@ -86,11 +84,9 @@ deploy staging:
     - ssh-add ~/.ssh/id_rsa
     - ssh-keyscan -H $STAGING_IP >> ~/.ssh/known_hosts
   script:
-    # put to server needed files by ssh
     - ssh dev@${STAGING_IP} "mkdir -p ${PROJECT_PATH}"
     - scp -r ${STAGING_ENV} dev@${STAGING_IP}:${PROJECT_PATH}/.env
     - scp -r ./deploy/docker-compose.yml dev@${STAGING_IP}:${PROJECT_PATH}/docker-compose.yml
-    # next, pull our image and up the container
     - ssh dev@$STAGING_IP "docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
       docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}:staging;
       docker-compose -f ${PROJECT_PATH}/docker-compose.yml up -d"

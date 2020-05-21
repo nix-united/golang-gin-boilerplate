@@ -17,11 +17,17 @@ import (
 
 const identityKey = "user_id"
 
+type Success struct {
+	Code   int    `json:"code" example:"200"`
+	Expire string `json:"expire"`
+	Token  string `json:"token"`
+}
+
 var once sync.Once
 
 var mw *jwtAuthMiddleware
 
-func NewJwtAuth(db *gorm.DB) *jwtAuthMiddleware {
+func NewJwtAuth(db *gorm.DB) JwtAuthMiddleware {
 	once.Do(func() {
 		var err error
 
@@ -37,6 +43,11 @@ func NewJwtAuth(db *gorm.DB) *jwtAuthMiddleware {
 	})
 
 	return mw
+}
+
+type JwtAuthMiddleware interface {
+	Middleware() *jwt.GinJWTMiddleware
+	Refresh(c *gin.Context)
 }
 
 type jwtAuthMiddleware struct {
@@ -72,6 +83,17 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 	return middleware
 }
 
+// authenticate godoc
+// @Summary Authenticate a user
+// @Description Perform user login
+// @ID user-login
+// @Tags User Actions
+// @Accept json
+// @Produce json
+// @Param params body request.AuthRequest true "User's credentials"
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Router /login [post]
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	var authRequest request.AuthRequest
 	var user model.User
@@ -91,7 +113,21 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	return user, nil
 }
 
-func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
+// refresh godoc
+// @Summary Refresh token
+// @Description Refresh user's token
+// @ID refresh-token
+// @Tags User Actions
+// @Produce json
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /refresh [get]
+func (mw jwtAuthMiddleware) Refresh(c *gin.Context) {
+	mw.Middleware().RefreshHandler(c)
+}
+
+func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 	userID, ok := data.(float64)
 
 	if !ok {
@@ -100,11 +136,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
 
 	userRepository := repository.UserRepository{DB: mw.databaseDriver}
 
-	if userRepository.FindUserById(int(userID)).ID == 0 {
-		return false
-	}
-
-	return true
+	return userRepository.FindUserByID(int(userID)).ID != 0
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {
@@ -123,7 +155,7 @@ func addUserIDToClaims(data interface{}) jwt.MapClaims {
 	return jwt.MapClaims{}
 }
 
-func takeAppropriateErrorMessage(err error, c *gin.Context) string {
+func takeAppropriateErrorMessage(err error, _ *gin.Context) string {
 	switch err {
 	case jwt.ErrMissingLoginValues:
 		return "Email and password are required"

@@ -17,9 +17,9 @@ func (repository UserRepository) FindUserByEmail(email string) model.User {
 	return user
 }
 
-func (repository UserRepository) FindUserById(ID int) model.User {
+func (repository UserRepository) FindUserByID(id int) model.User {
 	var user model.User
-	repository.DB.First(&user, ID)
+	repository.DB.First(&user, id)
 
 	return user
 }

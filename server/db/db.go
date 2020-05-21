@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"basic_server/server/db/seeder"
-	_ "github.com/go-sql-driver/mysql"
 
+	_ "github.com/go-sql-driver/mysql" //nolint
 	"github.com/jinzhu/gorm"
 )
 
