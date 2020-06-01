@@ -2,9 +2,11 @@ package handler
 
 import (
 	"basic_server/server/model"
+	"basic_server/server/repository"
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"net/http"
@@ -18,8 +20,16 @@ type PostHandler struct {
 
 func (handler PostHandler) GetPostById() gin.HandlerFunc {
 	return func(context *gin.Context) {
+		postsRepository := repository.PostRepository{DB:handler.DB}
+		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
-		post := handler.PostService.GetById(uint(id))
+		postsRepository.GetById(id, &post)
+
+		if post.ID == 0 {
+			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
+			return
+		}
+
 		response.SuccessResponse(context, response.GetPostResponse{
 			ID:      post.ID,
 			Title:   post.Title,
@@ -36,8 +46,13 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 			return
 		}
 
-		newPost := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content)
-		post := handler.PostService.Save(newPost)
+		user := context.Get("user").(*jwt.Token)
+		claims := user.Claims.(*service.JwtCustomClaims)
+		id := claims.ID
+
+		newPost := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, id)
+		postsRepository := repository.PostRepository{DB:handler.DB}
+		postsRepository.Create(&newPost)
 		response.SuccessResponse(context, response.CreatePostResponse{
 			ID:      post.ID,
 			Title:   post.Title,
@@ -46,18 +61,29 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 	}
 }
 
+
 func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id, _ := strconv.Atoi(context.Param("id"))
-		post := handler.PostService.GetById(uint(id))
-		if post == (model.Post{}) {
-			context.Status(http.StatusBadRequest)
+		var updatePostRequest request.UpdatePostRequest
+
+		if err := context.ShouldBind(&updatePostRequest); err != nil {
+			response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
 			return
 		}
 
-		post.Title = context.Param("title")
-		post.Content = context.Param("content")
-		handler.PostService.Save(post)
+		postsRepository := repository.PostRepository{DB:handler.DB}
+		post := model.Post{}
+		id, _ := strconv.Atoi(context.Param("id"))
+		postsRepository.GetById(id, &post)
+
+		if post.ID == 0 {
+			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
+		}
+
+		post.Title = updatePostRequest.Title
+		post.Content = updatePostRequest.Content
+		postsRepository.Save(post)
+
 		response.SuccessResponse(context, response.GetPostResponse{
 			ID:      post.ID,
 			Title:   post.Title,
@@ -79,21 +105,26 @@ func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 // @Router /posts [get]
 func (handler PostHandler) GetPosts() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		posts := handler.PostService.GetAll()
+		postsRepository := repository.PostRepository{DB:handler.DB}
+		var posts []model.Post
+		postsRepository.GetAll(&posts)
 		response.SuccessResponse(context, response.CreatePostsCollectionResponse(posts))
 	}
 }
 
 func (handler PostHandler) DeletePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
+		postsRepository := repository.PostRepository{DB:handler.DB}
+		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
-		post := handler.PostService.GetById(uint(id))
-		if post == (model.Post{}) {
-			context.Status(http.StatusBadRequest)
-			return
+		postsRepository.GetById(id, &post)
+
+		if post.ID == 0 {
+			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
 		}
 
-		handler.PostService.Delete(post)
-		context.Status(http.StatusOK)
+		postsRepository.Delete(post)
+
+		response.SuccessResponse(context, "Post delete successfully")
 	}
 }

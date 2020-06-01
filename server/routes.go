@@ -18,19 +18,17 @@ func ConfigureRoutes(server *Server) {
 	server.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server.engine.POST("/users", registerHandler.Register())
-	server.engine.GET("/", homeHandler.Index())
-	server.engine.POST("/posts", postHandler.SavePost())
-	server.engine.GET("/posts", postHandler.GetPosts())
-	server.engine.GET("/post/:id", postHandler.GetPostById())
-	server.engine.POST("/post/:id", postHandler.UpdatePost())
-	server.engine.DELETE("/post/:id", postHandler.DeletePost())
-
 	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)
 
 	needsAuth := server.engine.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
 
-	needsAuth.GET("/", homeHandler.Index())
-	needsAuth.GET("/refresh", jwtAuth.Refresh)
-	needsAuth.POST("/posts", postHandler.SavePost())
-	needsAuth.GET("/posts", postHandler.GetPosts())
+	{
+		needsAuth.GET("/", homeHandler.Index())
+		needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
+		needsAuth.POST("/posts", postHandler.SavePost())
+		needsAuth.GET("/posts", postHandler.GetPosts())
+		needsAuth.GET("/post/:id", postHandler.GetPostById())
+		needsAuth.POST("/post/:id", postHandler.UpdatePost())
+		needsAuth.DELETE("/post/:id", postHandler.DeletePost())
+	}
 }
