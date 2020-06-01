@@ -18,6 +18,16 @@ type PostHandler struct {
 	PostService service.PostService
 }
 
+// GetPosts godoc
+// @Summary Get post by id
+// @Description Get post by id
+// @ID get-post
+// @Tags Post Actions
+// @Produce json
+// @Success 200 {object} response.GetPostResponse
+// @Failure 401 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /posts [get]
 func (handler PostHandler) GetPostById() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		postsRepository := repository.PostRepository{DB:handler.DB}
@@ -38,6 +48,18 @@ func (handler PostHandler) GetPostById() gin.HandlerFunc {
 	}
 }
 
+// CreatePost godoc
+// @Summary Create post
+// @Description Create post
+// @ID posts-create
+// @Tags Posts Actions
+// @Accept json
+// @Produce json
+// @Param params body requests.CreatePostRequest true "Post title and content"
+// @Success 200 {string} response.CreatePostResponse
+// @Failure 400 {string} string "Bad request"
+// @Security ApiKeyAuth
+// @Router /posts [post]
 func (handler PostHandler) SavePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var createPostRequest request.CreatePostRequest
@@ -61,7 +83,20 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 	}
 }
 
-
+// UpdatePost godoc
+// @Summary Update post
+// @Description Update post
+// @ID posts-update
+// @Tags Posts Actions
+// @Accept json
+// @Produce json
+// @Param id path int true "Post ID"
+// @Param params body requests.UpdatePostRequest true "Post title and content"
+// @Success 200 {string} response.GetPostResponse
+// @Failure 400 {string} string "Bad request"
+// @Failure 404 {object} responses.Error
+// @Security ApiKeyAuth
+// @Router /post/{id} [post]
 func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var updatePostRequest request.UpdatePostRequest
@@ -112,6 +147,17 @@ func (handler PostHandler) GetPosts() gin.HandlerFunc {
 	}
 }
 
+// DeletePost godoc
+// @Summary Delete post
+// @Description Delete post
+// @ID posts-delete
+// @Tags Posts Actions
+// @Param id path int true "Post ID"
+// @Success 200 {string} string "Post deleted successfully"
+// @Failure 400 {string} string "Post not found"
+// @Failure 404 {object} responses.Error
+// @Security ApiKeyAuth
+// @Router /post/{id} [delete]
 func (handler PostHandler) DeletePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		postsRepository := repository.PostRepository{DB:handler.DB}
