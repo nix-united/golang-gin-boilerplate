@@ -18,16 +18,16 @@ import (
 const identityKey = "user_id"
 
 type Success struct {
-	Code  int `json:"code" example:"200"`
+	Code   int    `json:"code" example:"200"`
 	Expire string `json:"expire"`
-	Token string `json:"token"`
+	Token  string `json:"token"`
 }
 
 var once sync.Once
 
 var mw *jwtAuthMiddleware
 
-func NewJwtAuth(db *gorm.DB) *jwtAuthMiddleware {
+func NewJwtAuth(db *gorm.DB) JwtAuthMiddleware {
 	once.Do(func() {
 		var err error
 
@@ -43,6 +43,11 @@ func NewJwtAuth(db *gorm.DB) *jwtAuthMiddleware {
 	})
 
 	return mw
+}
+
+type JwtAuthMiddleware interface {
+	Middleware() *jwt.GinJWTMiddleware
+	Refresh(c *gin.Context)
 }
 
 type jwtAuthMiddleware struct {
@@ -122,7 +127,7 @@ func (mw jwtAuthMiddleware) Refresh(c *gin.Context) {
 	mw.Middleware().RefreshHandler(c)
 }
 
-func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
+func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 	userID, ok := data.(float64)
 
 	if !ok {
@@ -131,11 +136,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
 
 	userRepository := repository.NewUsersRepository(mw.databaseDriver)
 
-	if userRepository.FindUserById(int(userID)).ID == 0 {
-		return false
-	}
-
-	return true
+	return userRepository.FindUserById(int(userID)).ID != 0
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {
@@ -154,7 +155,7 @@ func addUserIDToClaims(data interface{}) jwt.MapClaims {
 	return jwt.MapClaims{}
 }
 
-func takeAppropriateErrorMessage(err error, c *gin.Context) string {
+func takeAppropriateErrorMessage(err error, _ *gin.Context) string {
 	switch err {
 	case jwt.ErrMissingLoginValues:
 		return "Email and password are required"

@@ -4,8 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type Post struct {
 	gorm.Model
-	Title string `json:"title"`
+	Title   string `json:"title"`
 	Content string `json:"content"`
-	UserId uint
-	User User
+	UserID  uint
+	User    User
 }

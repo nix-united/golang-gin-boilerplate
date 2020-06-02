@@ -6,9 +6,10 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"net/http"
 )
 
 type PostHandler struct {
@@ -27,7 +28,7 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 		post := postService.CreatePost(createPostRequest.Title, createPostRequest.Content)
 		handler.DB.Create(&post)
 		response.SuccessResponse(context, response.CreatePostResponse{
-			Id:      post.ID,
+			ID:      post.ID,
 			Title:   post.Title,
 			Content: post.Content,
 		})
@@ -46,7 +47,7 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 // @Router /posts [get]
 func (handler PostHandler) GetPosts() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		postsRepository := repository.PostRepository{DB:handler.DB}
+		postsRepository := repository.PostRepository{DB: handler.DB}
 		var posts []model.Post
 		postsRepository.GetAll(&posts)
 		response.SuccessResponse(context, response.CreatePostsCollectionResponse(posts))

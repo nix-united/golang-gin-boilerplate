@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"basic_server/server/model"
+
 	"github.com/jinzhu/gorm"
 )
 

@@ -1,12 +1,13 @@
 package response
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Error struct {
-	Code  int `json:"code"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
