@@ -11,11 +11,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
-type RegisterHandler struct {
-	DB *gorm.DB
+type registerHandler struct {}
+
+func NewRegisterHandler() registerHandler {
+	return registerHandler{}
 }
 
 // Register godoc
@@ -29,7 +30,7 @@ type RegisterHandler struct {
 // @Success 200 {string} string "Successfully registered"
 // @Failure 422 {object} response.Error
 // @Router /users [post]
-func (handler *RegisterHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
+func (handler registerHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var registerRequest request.RegisterRequest
 		var err error

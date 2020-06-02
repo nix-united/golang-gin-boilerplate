@@ -1,13 +1,13 @@
 package db
 
 import (
-	"basic_server/server/db/seeder"
+	"fmt"
+	"os"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"basic_server/server/model"
-	"fmt"
 	"github.com/jinzhu/gorm"
-	"os"
 )
 
 func InitDB() *gorm.DB {
@@ -26,11 +26,7 @@ func InitDB() *gorm.DB {
 	}
 
 	db.AutoMigrate(&model.User{}, &model.Post{})
-
 	db.Model(&model.Post{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
-
-	seeder.NewUserSeeder(db).Run()
-	seeder.NewPostSeeder(db).Run()
 
 	return db
 }

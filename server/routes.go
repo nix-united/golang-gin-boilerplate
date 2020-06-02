@@ -12,7 +12,7 @@ import (
 func ConfigureRoutes(server *Server) {
 	homeHandler := handler.HomeHandler{}
 	postHandler := handler.PostHandler{DB: server.db}
-	registerHandler := handler.RegisterHandler{DB: server.db}
+	registerHandler := handler.NewRegisterHandler()
 
 	jwtAuth := provider.NewJwtAuth(server.db)
 
