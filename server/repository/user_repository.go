@@ -6,18 +6,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// UserRepository provides functionality for interacting with users storage
 type UsersRepository interface {
-	// FindByEmail takes an email and returns a user.
-	// If a user isn't found, the function returns an empty user model
 	FindUserByEmail(email string) (model.User, error)
-
-	// FindById takes user id an returns a user.
-	// If a user isn't found, the function returns an empty user model
 	FindUserById(ID int) model.User
-
-	// Store takes a user and saves it. The function returns
-	// an error if it occurs during interaction with a storage
 	StoreUser(user model.User) error
 }
 
@@ -25,7 +16,6 @@ type usersRepository struct {
 	storage *gorm.DB
 }
 
-// NewUsersRepository returns an instance of the UsersRepository
 func NewUsersRepository(db *gorm.DB) UsersRepository {
 	return usersRepository{storage: db}
 }
