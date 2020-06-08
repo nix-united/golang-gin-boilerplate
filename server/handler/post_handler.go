@@ -6,7 +6,7 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"net/http"
@@ -63,16 +63,16 @@ func (handler PostHandler) GetPostById() gin.HandlerFunc {
 func (handler PostHandler) SavePost() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var createPostRequest request.CreatePostRequest
+
 		if err := context.ShouldBind(&createPostRequest); err != nil {
 			response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
 			return
 		}
 
-		user := context.Get("user").(*jwt.Token)
-		claims := user.Claims.(*service.JwtCustomClaims)
-		id := claims.ID
+		claims := jwt.ExtractClaims(context)
+		id := claims["id"].(float64)
 
-		newPost := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, id)
+		newPost := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		postsRepository.Create(&newPost)
 		response.SuccessResponse(context, response.CreatePostResponse{
