@@ -91,10 +91,10 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
-// @Param params body requests.UpdatePostRequest true "Post title and content"
+// @Param params body request.UpdatePostRequest true "Post title and content"
 // @Success 200 {string} response.GetPostResponse
 // @Failure 400 {string} string "Bad request"
-// @Failure 404 {object} responses.Error
+// @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [post]
 func (handler PostHandler) UpdatePost() gin.HandlerFunc {
@@ -154,8 +154,7 @@ func (handler PostHandler) GetPosts() gin.HandlerFunc {
 // @Tags Posts Actions
 // @Param id path int true "Post ID"
 // @Success 200 {string} string "Post deleted successfully"
-// @Failure 400 {string} string "Post not found"
-// @Failure 404 {object} responses.Error
+// @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (handler PostHandler) DeletePost() gin.HandlerFunc {
