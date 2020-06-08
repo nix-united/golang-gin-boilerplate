@@ -76,9 +76,9 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		postsRepository.Create(&newPost)
 		response.SuccessResponse(context, response.CreatePostResponse{
-			ID:      post.ID,
-			Title:   post.Title,
-			Content: post.Content,
+			ID:      newPost.ID,
+			Title:   newPost.Title,
+			Content: newPost.Content,
 		})
 	}
 }
