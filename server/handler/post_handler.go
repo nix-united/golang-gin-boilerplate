@@ -28,12 +28,12 @@ type PostHandler struct {
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /posts [get]
-func (handler PostHandler) GetPostById() gin.HandlerFunc {
+func (handler PostHandler) GetPostByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
-		postsRepository.GetById(id, &post)
+		postsRepository.GetByID(id, &post)
 
 		if post.ID == 0 {
 			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
@@ -109,7 +109,7 @@ func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
-		postsRepository.GetById(id, &post)
+		postsRepository.GetByID(id, &post)
 
 		if post.ID == 0 {
 			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
@@ -125,7 +125,6 @@ func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 			Content: post.Content,
 		})
 	}
-
 }
 
 // GetPosts godoc
@@ -162,7 +161,7 @@ func (handler PostHandler) DeletePost() gin.HandlerFunc {
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
-		postsRepository.GetById(id, &post)
+		postsRepository.GetByID(id, &post)
 
 		if post.ID == 0 {
 			response.ErrorResponse(context, http.StatusNotFound, "Post not found")

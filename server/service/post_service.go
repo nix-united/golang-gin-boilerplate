@@ -12,11 +12,11 @@ type PostService struct {
 }
 
 
-func (service PostService) CreatePost(title, content string, userId uint) model.Post {
+func (service PostService) CreatePost(title, content string, userID uint) model.Post {
 	return model.Post{
 		Title:   title,
 		Content: content,
-		UserID: userId,
+		UserID: userID,
 	}
 }
 

@@ -14,7 +14,7 @@ func (repository PostRepository) GetAll(posts *[]model.Post) {
 }
 
 
-func (repository PostRepository) GetById(id int, post *model.Post) {
+func (repository PostRepository) GetByID(id int, post *model.Post) {
 	repository.DB.Where("id = ? ", id).Find(post)
 }
 
