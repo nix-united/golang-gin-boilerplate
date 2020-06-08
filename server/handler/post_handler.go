@@ -55,7 +55,7 @@ func (handler PostHandler) GetPostById() gin.HandlerFunc {
 // @Tags Posts Actions
 // @Accept json
 // @Produce json
-// @Param params body requests.CreatePostRequest true "Post title and content"
+// @Param params body request.CreatePostRequest true "Post title and content"
 // @Success 200 {string} response.CreatePostResponse
 // @Failure 400 {string} string "Bad request"
 // @Security ApiKeyAuth
