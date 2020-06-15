@@ -33,9 +33,7 @@ func main() {
 	connection := db.InitDB()
 
 	defer func() {
-		if err := connection.DB().Close(); err != nil {
-			log.Fatal(err)
-		}
+		connection.DB().Close()
 	}()
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
