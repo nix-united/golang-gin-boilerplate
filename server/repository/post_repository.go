@@ -2,6 +2,7 @@ package repository
 
 import (
 	"basic_server/server/model"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,10 +23,10 @@ func (repository PostRepository) Create(post *model.Post) {
 	repository.DB.Create(post)
 }
 
-func (repository PostRepository) Save(post model.Post) {
+func (repository PostRepository) Save(post *model.Post) {
 	repository.DB.Save(post)
 }
 
-func (repository PostRepository) Delete(post model.Post) {
-	repository.DB.Delete(&post)
+func (repository PostRepository) Delete(post *model.Post) {
+	repository.DB.Delete(post)
 }

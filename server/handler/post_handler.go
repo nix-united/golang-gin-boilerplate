@@ -6,11 +6,12 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
+	"net/http"
+	"strconv"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"net/http"
-	"strconv"
 )
 
 type PostHandler struct {
@@ -117,7 +118,7 @@ func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 
 		post.Title = updatePostRequest.Title
 		post.Content = updatePostRequest.Content
-		postsRepository.Save(post)
+		postsRepository.Save(&post)
 
 		response.SuccessResponse(context, response.GetPostResponse{
 			ID:      post.ID,
@@ -167,7 +168,7 @@ func (handler PostHandler) DeletePost() gin.HandlerFunc {
 			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
 		}
 
-		postsRepository.Delete(post)
+		postsRepository.Delete(&post)
 
 		response.SuccessResponse(context, "Post delete successfully")
 	}
