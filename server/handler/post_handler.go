@@ -28,8 +28,8 @@ type PostHandler struct {
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /posts [get]
-func (handler PostHandler) GetPostByID() gin.HandlerFunc {
-	return func(context *gin.Context) {
+func (handler PostHandler) GetPostByID(context *gin.Context) {
+	//return func(context *gin.Context) {
 		postsRepository := repository.PostRepository{DB:handler.DB}
 		post := model.Post{}
 		id, _ := strconv.Atoi(context.Param("id"))
@@ -45,7 +45,7 @@ func (handler PostHandler) GetPostByID() gin.HandlerFunc {
 			Title:   post.Title,
 			Content: post.Content,
 		})
-	}
+	//}
 }
 
 // CreatePost godoc
