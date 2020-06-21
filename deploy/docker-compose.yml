@@ -9,31 +9,12 @@ services:
       - db_migrations
     volumes:
       - ./.env:/app/.env
-      - ./migrations:/app/migrations
     restart: on-failure
   mysql:
     container_name: gin-demo-mysql
-    networks:
-      - db-network
     restart: on-failure
     image: mysql:8
     env_file:
       - .env
     ports:
       - 3367:3306
-  db_migrations:
-    container_name: db_migrations
-    networks:
-      - db-network
-    restart: on-failure
-    image: migrate/migrate
-    env_file:
-      - .env
-    volumes:
-      - ./migrations:/migrations
-    depends_on:
-      - mysql
-    command: -path=/migrations -database mysql://$DB_USER:$DB_PASSWORD@tcp(mysql:$DB_PORT)/$DB_NAME up
-networks:
-  db-network:
-    driver: bridge
