@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"basic_server/server/db/seeder"
-
 	_ "github.com/go-sql-driver/mysql" //nolint
 	"github.com/jinzhu/gorm"
 )
@@ -50,9 +48,6 @@ func InitDB() *gorm.DB {
 	db.DB().SetMaxOpenConns(maxOpenConns)
 	db.DB().SetMaxIdleConns(maxIdleConns)
 	db.DB().SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
-
-	seeder.NewUserSeeder(db).Run()
-	seeder.NewPostSeeder(db).Run()
 
 	return db
 }
