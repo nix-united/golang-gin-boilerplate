@@ -33,7 +33,9 @@ func main() {
 	connection := db.InitDB()
 
 	defer func() {
-		connection.DB().Close()
+		if err := connection.DB().Close(); err != nil {
+			log.Print(err)
+		}
 	}()
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
@@ -42,6 +44,6 @@ func main() {
 	server.ConfigureRoutes(app)
 
 	if err := app.Run(os.Getenv("PORT")); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
