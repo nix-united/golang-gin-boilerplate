@@ -4,6 +4,9 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   DOCKER_TLS_CERTDIR: ""
+  MYSQL_DATABASE: test
+  MYSQL_ROOT_PASSWORD: db_password
+
 
 services:
   - docker:dind
@@ -26,13 +29,6 @@ lint:
 
 test:
   image: golang:1.13.3-alpine3.10
-  variables:
-    MYSQL_DATABASE: test
-    MYSQL_ROOT_PASSWORD: db_password
-  services:
-    - name: docker:dind
-      alias: docker
-    - name: mysql:5.7
   tags:
     - dind
     - docker
@@ -40,10 +36,13 @@ test:
   before_script:
     - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
+    - go get -v github.com/swaggo/swag/cmd/swag
+    - go get -u github.com/pressly/goose/cmd/goose
+    - $GOPATH/bin/swag init
   script:
     # get dependencies
     - go get -v ./...
-    - goose -dir ./server/db/migrations  mysql "root:$MYSQL_ROOT_PASSWORD@/$MYSQL_DATABASE?parseTime=true" up
+    - $GOPATH/bin/goose -dir ./server/db/migrations mysql "root:$MYSQL_ROOT_PASSWORD@/$MYSQL_DATABASE?parseTime=true" up
     - go test -v ./...
 
 build:
