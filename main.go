@@ -38,7 +38,7 @@ func main() {
 		}
 	}()
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("EXPOSE_PORT"))
 
 	app := server.NewServer(connection)
 	server.ConfigureRoutes(app)
