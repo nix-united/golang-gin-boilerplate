@@ -1,4 +1,4 @@
-package error
+package errors
 
 type ErrInvalidStorageOperation interface {
 	Error() string

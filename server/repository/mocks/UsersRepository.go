@@ -35,7 +35,7 @@ func (_m *UsersRepository) FindUserByEmail(email string) (model.User, error) {
 }
 
 // FindUserById provides a mock function with given fields: ID
-func (_m *UsersRepository) FindUserById(ID int) model.User {
+func (_m *UsersRepository) FindUserByID(ID int) model.User {
 	ret := _m.Called(ID)
 
 	var r0 model.User

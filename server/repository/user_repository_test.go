@@ -183,7 +183,7 @@ func TestFindUserById(t *testing.T) {
 		FullName: userFullName,
 	}
 
-	got := NewUsersRepository(mockedDbConn).FindUserById(int(userID))
+	got := NewUsersRepository(mockedDbConn).FindUserByID(int(userID))
 
 	assert.Equal(t, want, got)
 

@@ -7,15 +7,15 @@ import (
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
-	"basic_server/server/utils"
+	"basic_server/server/utils" //nolint
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 )
 
-type registerHandler struct {}
+type registerHandler struct {} //nolint
 
-func NewRegisterHandler() registerHandler {
+func NewRegisterHandler() registerHandler { //nolint
 	return registerHandler{}
 }
 

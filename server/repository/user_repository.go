@@ -8,7 +8,7 @@ import (
 
 type UsersRepository interface {
 	FindUserByEmail(email string) (model.User, error)
-	FindUserById(ID int) model.User
+	FindUserByID(ID int) model.User
 	StoreUser(user model.User) error
 }
 
@@ -31,14 +31,14 @@ func (repo usersRepository) FindUserByEmail(email string) (model.User, error) {
 	return user, nil
 }
 
-func (repo usersRepository) FindUserById(ID int) model.User {
+func (repo usersRepository) FindUserByID(id int) model.User {
 	var user model.User
-	repo.storage.Where("id = ?", ID).First(&user)
+	repo.storage.Where("id = ?", id).First(&user)
 
 	return user
 }
 
-func (repo usersRepository) StoreUser(user model.User) error {
+func (repo usersRepository) StoreUser(user model.User) error { //nolint
 	return repo.storage.Create(&user).Error
 }
 

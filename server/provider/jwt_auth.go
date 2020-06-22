@@ -1,13 +1,14 @@
 package provider
 
 import (
+	"log"
+	"sync"
+	"time"
+
 	"basic_server/server/model"
 	"basic_server/server/repository"
 	"basic_server/server/request"
 	"basic_server/server/service"
-	"log"
-	"sync"
-	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -136,7 +137,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 
 	userRepository := repository.NewUsersRepository(mw.databaseDriver)
 
-	return userRepository.FindUserById(int(userID)).ID != 0
+	return userRepository.FindUserByID(int(userID)).ID != 0
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {
