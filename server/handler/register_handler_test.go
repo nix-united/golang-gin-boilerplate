@@ -31,7 +31,7 @@ type TestRegisterUserSuite struct {
 }
 
 func (suite *TestRegisterUserSuite) SetupSuite() {
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load("../../.env.testing"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
