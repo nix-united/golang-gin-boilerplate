@@ -23,7 +23,7 @@ lint:
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
-    - $GOPATH/bin/swag init
+    - swag init
   script:
     - golangci-lint run
 
@@ -38,11 +38,11 @@ test:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
     - go get -u github.com/pressly/goose/cmd/goose
-    - $GOPATH/bin/swag init
+    - swag init
   script:
     # get dependencies
     - go get -v ./...
-    - $GOPATH/bin/goose -dir ./server/db/migrations mysql "root:$MYSQL_ROOT_PASSWORD@/$MYSQL_DATABASE?parseTime=true" up
+    - goose -dir "./server/db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
     - go test -v ./...
 
 build:

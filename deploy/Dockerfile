@@ -23,7 +23,7 @@ COPY . .
 RUN  git config --global http.sslVerify true &&\
     # install swagger and initialize documentation
     go get -v github.com/swaggo/swag/cmd/swag &&\
-    $GOPATH/bin/swag init &&\
+    swag init &&\
     # install project dependecies
     go get -v ./... &&\
     # build application
