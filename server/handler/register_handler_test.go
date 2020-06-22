@@ -76,8 +76,6 @@ func (suite *TestRegisterUserSuite) TestRegisterUser() {
 
 	server.ServeHTTP(recorder, req)
 
-	fmt.Println(recorder.Body)
-
 	suite.Equal(http.StatusOK, recorder.Code)
 }
 
