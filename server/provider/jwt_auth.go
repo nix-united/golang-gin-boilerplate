@@ -165,4 +165,3 @@ func takeAppropriateErrorMessage(err error, _ *gin.Context) string {
 
 	return err.Error()
 }
-
