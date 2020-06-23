@@ -45,7 +45,6 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 		Title:   post.Title,
 		Content: post.Content,
 	})
-
 }
 
 // CreatePost godoc
