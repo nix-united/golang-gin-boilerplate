@@ -6,8 +6,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql" //nolint
 
-	"basic_server/server/model"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -25,9 +23,6 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	db.AutoMigrate(&model.User{}, &model.Post{})
-	db.Model(&model.Post{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 
 	return db
 }
