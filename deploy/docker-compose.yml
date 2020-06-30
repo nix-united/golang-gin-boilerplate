@@ -15,7 +15,7 @@ services:
       DB_HOST: mysql
       DB_PORT: ${DB_PORT}
     ports:
-      - ${EXPOSE_APP_PORT}:${PORT}
+      - ${EXPOSE_PORT}:${PORT}
     volumes:
       - ./.env:/app/.env
     restart: on-failure
