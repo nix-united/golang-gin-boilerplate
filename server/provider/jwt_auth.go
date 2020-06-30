@@ -15,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const identityKey = "user_id"
+const identityKey = "id"
 
 type Success struct {
 	Code   int    `json:"code" example:"200"`

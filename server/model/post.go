@@ -7,5 +7,5 @@ type Post struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	UserID  uint
-	User    User
+	User    User `gorm:"foreignkey:UserID"`
 }
