@@ -16,7 +16,6 @@ import (
 
 type PostHandler struct {
 	DB          *gorm.DB
-	PostService service.PostService
 }
 
 // GetPosts godoc
@@ -25,10 +24,11 @@ type PostHandler struct {
 // @ID get-post
 // @Tags Post Actions
 // @Produce json
+// @Param id path int true "Post ID"
 // @Success 200 {object} response.GetPostResponse
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
-// @Router /posts [get]
+// @Router /post/{id} [get]
 func (handler PostHandler) GetPostByID(context *gin.Context) {
 	postsRepository := repository.PostRepository{DB: handler.DB}
 	post := model.Post{}
@@ -59,27 +59,26 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 // @Failure 400 {string} string "Bad request"
 // @Security ApiKeyAuth
 // @Router /posts [post]
-func (handler PostHandler) SavePost() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		var createPostRequest request.CreatePostRequest
+func (handler PostHandler) SavePost(context *gin.Context) {
+	var createPostRequest request.CreatePostRequest
 
-		if err := context.ShouldBind(&createPostRequest); err != nil {
-			response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
-			return
-		}
-
-		claims := jwt.ExtractClaims(context)
-		id := claims["id"].(float64)
-
-		newPost := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
-		postsRepository := repository.PostRepository{DB: handler.DB}
-		postsRepository.Create(&newPost)
-		response.SuccessResponse(context, response.CreatePostResponse{
-			ID:      newPost.ID,
-			Title:   newPost.Title,
-			Content: newPost.Content,
-		})
+	if err := context.ShouldBind(&createPostRequest); err != nil {
+		response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
+		return
 	}
+
+	claims := jwt.ExtractClaims(context)
+	id := claims["id"].(float64)
+
+	postsService := service.PostService{DB: handler.DB}
+	newPost := postsService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
+	postsRepository := repository.PostRepository{DB: handler.DB}
+	postsRepository.Create(&newPost)
+	response.SuccessResponse(context, response.CreatePostResponse{
+		ID:      newPost.ID,
+		Title:   newPost.Title,
+		Content: newPost.Content,
+	})
 }
 
 // UpdatePost godoc
@@ -96,34 +95,32 @@ func (handler PostHandler) SavePost() gin.HandlerFunc {
 // @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [post]
-func (handler PostHandler) UpdatePost() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		var updatePostRequest request.UpdatePostRequest
+func (handler PostHandler) UpdatePost(context *gin.Context) {
+	var updatePostRequest request.UpdatePostRequest
 
-		if err := context.ShouldBind(&updatePostRequest); err != nil {
-			response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
-			return
-		}
-
-		postsRepository := repository.PostRepository{DB: handler.DB}
-		post := model.Post{}
-		id, _ := strconv.Atoi(context.Param("id"))
-		postsRepository.GetByID(id, &post)
-
-		if post.ID == 0 {
-			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
-		}
-
-		post.Title = updatePostRequest.Title
-		post.Content = updatePostRequest.Content
-		postsRepository.Save(&post)
-
-		response.SuccessResponse(context, response.GetPostResponse{
-			ID:      post.ID,
-			Title:   post.Title,
-			Content: post.Content,
-		})
+	if err := context.ShouldBind(&updatePostRequest); err != nil {
+		response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
+		return
 	}
+
+	postsRepository := repository.PostRepository{DB: handler.DB}
+	post := model.Post{}
+	id, _ := strconv.Atoi(context.Param("id"))
+	postsRepository.GetByID(id, &post)
+
+	if post.ID == 0 {
+		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
+	}
+
+	post.Title = updatePostRequest.Title
+	post.Content = updatePostRequest.Content
+	postsRepository.Save(&post)
+
+	response.SuccessResponse(context, response.GetPostResponse{
+		ID:      post.ID,
+		Title:   post.Title,
+		Content: post.Content,
+	})
 }
 
 // GetPosts godoc
@@ -136,13 +133,11 @@ func (handler PostHandler) UpdatePost() gin.HandlerFunc {
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /posts [get]
-func (handler PostHandler) GetPosts() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		postsRepository := repository.PostRepository{DB: handler.DB}
-		var posts []model.Post
-		postsRepository.GetAll(&posts)
-		response.SuccessResponse(context, response.CreatePostsCollectionResponse(posts))
-	}
+func (handler PostHandler) GetPosts(context *gin.Context) {
+	postsRepository := repository.PostRepository{DB: handler.DB}
+	var posts []model.Post
+	postsRepository.GetAll(&posts)
+	response.SuccessResponse(context, response.CreatePostsCollectionResponse(posts))
 }
 
 // DeletePost godoc
@@ -155,19 +150,17 @@ func (handler PostHandler) GetPosts() gin.HandlerFunc {
 // @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
-func (handler PostHandler) DeletePost() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		postsRepository := repository.PostRepository{DB: handler.DB}
-		post := model.Post{}
-		id, _ := strconv.Atoi(context.Param("id"))
-		postsRepository.GetByID(id, &post)
+func (handler PostHandler) DeletePost(context *gin.Context) {
+	postsRepository := repository.PostRepository{DB: handler.DB}
+	post := model.Post{}
+	id, _ := strconv.Atoi(context.Param("id"))
+	postsRepository.GetByID(id, &post)
 
-		if post.ID == 0 {
-			response.ErrorResponse(context, http.StatusNotFound, "Post not found")
-		}
-
-		postsRepository.Delete(&post)
-
-		response.SuccessResponse(context, "Post delete successfully")
+	if post.ID == 0 {
+		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
 	}
+
+	postsRepository.Delete(&post)
+
+	response.SuccessResponse(context, "Post delete successfully")
 }
