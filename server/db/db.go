@@ -1,14 +1,13 @@
 package db
 
 import (
-	"basic_server/server/db/seeder"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql" //nolint
-
-	"basic_server/server/model"
-	"fmt"
-	"os"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -23,16 +22,32 @@ func InitDB() *gorm.DB {
 	fmt.Println(dataSourceName)
 
 	db, err := gorm.Open(os.Getenv("DB_DRIVER"), dataSourceName)
+
 	if err != nil {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Post{})
+	maxOpenConns, err := strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNS"))
 
-	db.Model(&model.Post{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	seeder.NewUserSeeder(db).Run()
-	seeder.NewPostSeeder(db).Run()
+	maxIdleConns, err := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNS"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	connMaxLife, err := strconv.Atoi(os.Getenv("DB_CONN_MAX_LIFE"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db.DB().SetMaxOpenConns(maxOpenConns)
+	db.DB().SetMaxIdleConns(maxIdleConns)
+	db.DB().SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
 
 	return db
 }
