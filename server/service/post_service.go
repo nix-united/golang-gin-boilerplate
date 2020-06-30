@@ -6,7 +6,7 @@ import (
 )
 
 type PostService struct {
-	DB             *gorm.DB
+	DB *gorm.DB
 }
 
 func (service PostService) CreatePost(title, content string, userID uint) model.Post {

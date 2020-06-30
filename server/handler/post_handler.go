@@ -15,7 +15,7 @@ import (
 )
 
 type PostHandler struct {
-	DB          *gorm.DB
+	DB *gorm.DB
 }
 
 // GetPosts godoc
