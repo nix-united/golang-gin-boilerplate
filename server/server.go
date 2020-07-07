@@ -1,8 +1,6 @@
 package server
 
 import (
-	"basic_server/server/db"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -12,10 +10,10 @@ type Server struct {
 	db     *gorm.DB
 }
 
-func NewServer() *Server {
+func NewServer(dbConnection *gorm.DB) *Server {
 	return &Server{
 		engine: gin.Default(),
-		db:     db.InitDB(),
+		db:     dbConnection,
 	}
 }
 

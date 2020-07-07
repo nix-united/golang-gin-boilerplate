@@ -7,6 +7,7 @@ variables:
   MYSQL_DATABASE: test
   MYSQL_ROOT_PASSWORD: db_password
 
+
 services:
   - docker:dind
   - mysql:5.7
@@ -22,7 +23,7 @@ lint:
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
-    - $GOPATH/bin/swag init
+    - swag init
   script:
     - golangci-lint run
 
@@ -33,12 +34,15 @@ test:
     - docker
   stage: test
   before_script:
-    - apk add --no-cache --update git build-base openssh-client
+    - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
-    - $GOPATH/bin/swag init
+    - go get -u github.com/pressly/goose/cmd/goose
+    - swag init
   script:
+    # get dependencies
     - go get -v ./...
+    - goose -dir "./server/db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
     - go test -v ./...
 
 build:

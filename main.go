@@ -1,14 +1,15 @@
 package main
 
 import (
-	"basic_server/server"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-
 	"basic_server/docs"
+	"basic_server/server"
+	"basic_server/server/db"
+
+	"github.com/joho/godotenv"
 )
 
 // @title Gin Demo App
@@ -25,17 +26,24 @@ import (
 
 // @BasePath /
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	connection := db.InitDB()
 
-	app := server.NewServer()
+	defer func() {
+		if err := connection.DB().Close(); err != nil {
+			log.Print(err)
+		}
+	}()
+
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("EXPOSE_PORT"))
+
+	app := server.NewServer(connection)
 	server.ConfigureRoutes(app)
-	err = app.Run(os.Getenv("PORT"))
-	if err != nil {
-		log.Fatal(err)
+
+	if err := app.Run(os.Getenv("PORT")); err != nil {
+		log.Print(err)
 	}
 }
