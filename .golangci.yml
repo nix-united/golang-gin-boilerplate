@@ -94,8 +94,8 @@ linters:
   # - prealloc
 
 run:
-  skip-dirs:
-    - test
+  skip-files:
+    - ".*_test.go"
 
 service:
   golangci-lint-version: 1.25.0

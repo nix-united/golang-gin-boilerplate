@@ -1,19 +1,22 @@
 package handler
 
 import (
-	"basic_server/server/repository"
+	"net/http"
+
+	operror "basic_server/server/errors"
 	"basic_server/server/request"
 	"basic_server/server/response"
 	"basic_server/server/service"
-	"net/http"
+	"basic_server/server/utils" //nolint
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type RegisterHandler struct {
-	DB *gorm.DB
+type registerHandler struct {} //nolint
+
+func NewRegisterHandler() registerHandler { //nolint
+	return registerHandler{}
 }
 
 // Register godoc
@@ -27,12 +30,12 @@ type RegisterHandler struct {
 // @Success 200 {string} string "Successfully registered"
 // @Failure 422 {object} response.Error
 // @Router /users [post]
-func (handler *RegisterHandler) Register() gin.HandlerFunc {
+func (handler registerHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var registerRequest request.RegisterRequest
-		var newUserService service.NewUserService
+		var err error
 
-		err := context.ShouldBind(&registerRequest)
+		err = context.ShouldBind(&registerRequest)
 
 		if err != nil {
 			response.ErrorResponse(
@@ -43,34 +46,25 @@ func (handler *RegisterHandler) Register() gin.HandlerFunc {
 			return
 		}
 
-		userRepository := repository.UserRepository{DB: handler.DB}
+		err = srv.CreateUser(registerRequest, utils.NewBcryptEncoder(bcrypt.DefaultCost))
 
-		if userRepository.FindUserByEmail(registerRequest.Email).ID != 0 {
+		if err != nil {
+			if operationErr, ok := err.(operror.ErrInvalidStorageOperation); ok {
+				response.ErrorResponse(
+					context,
+					http.StatusUnprocessableEntity,
+					operationErr.Error(),
+				)
+				return
+			}
+
 			response.ErrorResponse(
 				context,
-				http.StatusUnprocessableEntity,
-				"User already exists",
+				http.StatusInternalServerError,
+				"Oops, something went wrong...",
 			)
 			return
 		}
-
-		encryptedPassword, err := bcrypt.GenerateFromPassword(
-			[]byte(registerRequest.Password),
-			bcrypt.DefaultCost,
-		)
-
-		if err != nil {
-			context.Status(http.StatusInternalServerError)
-			return
-		}
-
-		newUser := newUserService.CreateUser(
-			registerRequest.Email,
-			string(encryptedPassword),
-			registerRequest.FullName,
-		)
-
-		handler.DB.Create(&newUser)
 
 		response.SuccessResponse(context, "Successfully registered")
 	}
