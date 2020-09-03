@@ -18,7 +18,7 @@ There is a useful set of tools that described below. Feel free to contribute!
 1. Copy .env.dist to .env and set the environment variables.
 2. Run your application using the command in the terminal:
 
-    `docker-compose up -d`
+    `docker-compose up`
 3. Browse to {HOST}:{EXPOSE_PORT}/swagger/index.html. You will see Swagger 2.0 API documents.
 4. Using the API documentation, make requests to register a user (if necessary) and login.
 5. After the successful login, copy a token from the response, then click "Authorize" and in a popup that opened, enter the value for "apiKey" in a form:
