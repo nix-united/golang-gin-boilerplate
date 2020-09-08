@@ -18,11 +18,11 @@ type PostHandler struct {
 	DB *gorm.DB
 }
 
-// GetPosts godoc
+// GetPost godoc
 // @Summary Get post by id
 // @Description Get post by id
 // @ID get-post
-// @Tags Post Actions
+// @Tags Posts Actions
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} response.GetPostResponse
@@ -127,7 +127,7 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 // @Summary Get all posts
 // @Description Get all posts of all users
 // @ID get-posts
-// @Tags Post Actions
+// @Tags Posts Actions
 // @Produce json
 // @Success 200 {object} response.CollectionResponse
 // @Failure 401 {object} response.Error
@@ -158,6 +158,7 @@ func (handler PostHandler) DeletePost(context *gin.Context) {
 
 	if post.ID == 0 {
 		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
+		return
 	}
 
 	postsRepository.Delete(&post)
