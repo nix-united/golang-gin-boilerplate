@@ -94,7 +94,7 @@ func (handler PostHandler) SavePost(context *gin.Context) {
 // @Failure 400 {string} string "Bad request"
 // @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
-// @Router /post/{id} [post]
+// @Router /post/{id} [put]
 func (handler PostHandler) UpdatePost(context *gin.Context) {
 	var updatePostRequest request.UpdatePostRequest
 
