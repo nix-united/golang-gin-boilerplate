@@ -18,7 +18,7 @@ stages:
   - deploy
 
 lint:
-  image: golangci/golangci-lint:v1.25.0
+  image: golangci/golangci-lint:v1.36.0
   stage: test
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
