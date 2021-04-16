@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"basic_server/server/model"
+	"basic_server/model"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
