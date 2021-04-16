@@ -1,7 +1,7 @@
 package service
 
 import (
-	"basic_server/server/model"
+	"basic_server/model"
 
 	"github.com/jinzhu/gorm"
 )

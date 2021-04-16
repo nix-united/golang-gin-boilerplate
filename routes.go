@@ -1,11 +1,10 @@
-package server
+package application
 
 import (
-	"basic_server/server/handler"
+	"basic_server/handler"
 	"basic_server/server/provider"
 	"basic_server/server/repository"
 	"basic_server/server/service"
-
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

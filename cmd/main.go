@@ -1,14 +1,13 @@
 package main
 
 import (
+	db2 "basic_server/db"
 	"fmt"
 	"log"
 	"os"
 
 	"basic_server/docs"
 	"basic_server/server"
-	"basic_server/server/db"
-
 	"github.com/joho/godotenv"
 )
 
@@ -30,7 +29,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	connection := db.InitDB()
+	connection := db2.InitDB()
 
 	defer func() {
 		if err := connection.DB().Close(); err != nil {

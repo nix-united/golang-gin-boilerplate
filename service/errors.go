@@ -1,6 +1,6 @@
 package service
 
-import "basic_server/server/errors"
+import "basic_server/errors"
 
 type errUserAlreadyExists struct {
 	message   string

@@ -91,7 +91,7 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 // @Tags User Actions
 // @Accept json
 // @Produce json
-// @Param params body request.AuthRequest true "User's credentials"
+// @Param params body request.BasicAuthRequest true "User's credentials"
 // @Success 200 {object} Success
 // @Failure 401 {object} response.Error
 // @Router /login [post]

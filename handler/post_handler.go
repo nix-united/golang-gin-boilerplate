@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"basic_server/server/model"
+	"basic_server/model"
 	"basic_server/server/repository"
 	"basic_server/server/request"
 	"basic_server/server/response"

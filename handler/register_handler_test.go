@@ -1,6 +1,7 @@
 package handler
 
 import (
+	db2 "basic_server/db"
 	"bytes"
 	"fmt"
 	"log"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"testing"
 
-	"basic_server/server/db"
 	"basic_server/server/repository"
 	"basic_server/server/service"
 
@@ -47,7 +47,7 @@ func (suite *TestRegisterUserSuite) SetupSuite() {
 }
 
 func (suite *TestRegisterUserSuite) SetupTest() {
-	storage = db.InitDB()
+	storage = db2.InitDB()
 	cleaner.Acquire(dbTableNameToClean)
 }
 

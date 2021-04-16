@@ -23,7 +23,7 @@ lint:
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
-    - swag init
+    - swag init -g cmd/main.go
   script:
     - golangci-lint run
 
@@ -38,7 +38,7 @@ test:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
     - go get -u github.com/pressly/goose/cmd/goose
-    - swag init
+    - swag init -g cmd/main.go
   script:
     # get dependencies
     - go get -v ./...
