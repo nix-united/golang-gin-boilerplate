@@ -1,4 +1,4 @@
-package application
+package server
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,25 +6,25 @@ import (
 )
 
 type Server struct {
-	engine *gin.Engine
-	db     *gorm.DB
+	Gin *gin.Engine
+	DB  *gorm.DB
 }
 
 func NewServer(dbConnection *gorm.DB) *Server {
 	return &Server{
-		engine: gin.Default(),
-		db:     dbConnection,
+		Gin: gin.Default(),
+		DB:  dbConnection,
 	}
 }
 
 func (server *Server) Run(addr string) error {
-	return server.engine.Run(":" + addr)
+	return server.Gin.Run(":" + addr)
 }
 
 func (server *Server) Engine() *gin.Engine {
-	return server.engine
+	return server.Gin
 }
 
 func (server *Server) Database() *gorm.DB {
-	return server.db
+	return server.DB
 }

@@ -10,8 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"basic_server/server/repository"
-	"basic_server/server/service"
+	"basic_server/repository"
+	"basic_server/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -62,7 +62,7 @@ func (suite *TestRegisterUserSuite) TestRegisterUser() {
 	server := gin.New()
 	server.POST(
 		"/users",
-		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUsersRepository(storage))),
+		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUserRepository(storage))),
 	)
 
 	recorder := httptest.NewRecorder()

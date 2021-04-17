@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"basic_server/server/model"
-	"basic_server/server/repository"
-	"basic_server/server/request"
-	"basic_server/server/service"
+	"basic_server/model"
+	"basic_server/repository"
+	"basic_server/request"
+	"basic_server/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -96,14 +96,14 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 // @Failure 401 {object} response.Error
 // @Router /login [post]
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
-	var authRequest request.AuthRequest
+	var authRequest request.BasicAuthRequest
 	var user model.User
 
 	if err := c.ShouldBind(&authRequest); err != nil {
 		return user, jwt.ErrMissingLoginValues
 	}
 
-	userRepository := repository.NewUsersRepository(mw.databaseDriver)
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
 	user, _ = userRepository.FindUserByEmail(authRequest.Email)
 
@@ -135,7 +135,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 		return false
 	}
 
-	userRepository := repository.NewUsersRepository(mw.databaseDriver)
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
 	return userRepository.FindUserByID(int(userID)).ID != 0
 }

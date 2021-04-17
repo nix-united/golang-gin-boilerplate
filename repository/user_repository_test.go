@@ -77,7 +77,7 @@ func TestFindUserByEmail(t *testing.T) {
 		FullName: userFullName,
 	}
 
-	got, err := NewUsersRepository(mockedDbConn).FindUserByEmail(userEmail)
+	got, err := NewUserRepository(mockedDbConn).FindUserByEmail(userEmail)
 
 	assert.NoError(t, err)
 	assert.Equal(t, want, got)
@@ -112,7 +112,7 @@ func TestFindUserByEmailReturnsError(t *testing.T) {
 
 	want := model.User{}
 
-	got, err := NewUsersRepository(mockedDbConn).FindUserByEmail("test@email.com")
+	got, err := NewUserRepository(mockedDbConn).FindUserByEmail("test@email.com")
 
 	assert.Error(t, err)
 	assert.Equal(t, want, got)
@@ -183,7 +183,7 @@ func TestFindUserById(t *testing.T) {
 		FullName: userFullName,
 	}
 
-	got := NewUsersRepository(mockedDbConn).FindUserByID(int(userID))
+	got := NewUserRepository(mockedDbConn).FindUserByID(int(userID))
 
 	assert.Equal(t, want, got)
 
@@ -230,7 +230,7 @@ func TestStoreUser(t *testing.T) {
 		)
 	}
 
-	savingErr := NewUsersRepository(mockedDbConn).StoreUser(model.User{
+	savingErr := NewUserRepository(mockedDbConn).StoreUser(model.User{
 		Model: gorm.Model{
 			ID:        userID,
 			CreatedAt: testTime,
@@ -287,7 +287,7 @@ func TestStoreUserReturnsError(t *testing.T) {
 		)
 	}
 
-	savingErr := NewUsersRepository(mockedDbConn).StoreUser(model.User{
+	savingErr := NewUserRepository(mockedDbConn).StoreUser(model.User{
 		Model: gorm.Model{
 			ID:        userID,
 			CreatedAt: testTime,

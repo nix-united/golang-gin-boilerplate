@@ -16,7 +16,7 @@ type UserRepository struct {
 	storage *gorm.DB
 }
 
-func NewUsersRepository(db *gorm.DB) UserRepositoryI {
+func NewUserRepository(db *gorm.DB) UserRepositoryI {
 	return &UserRepository{storage: db}
 }
 
@@ -25,9 +25,8 @@ func (repo *UserRepository) FindUserByEmail(email string) (model.User, error) {
 	err := repo.storage.Where("email = ?", email).Find(&user).Error
 
 	if err != nil {
-		return handleErr(err)
+		return model.User{}, err
 	}
-
 	return user, nil
 }
 
@@ -40,12 +39,4 @@ func (repo *UserRepository) FindUserByID(id int) model.User {
 
 func (repo *UserRepository) StoreUser(user model.User) error { //nolint
 	return repo.storage.Create(&user).Error
-}
-
-func handleErr(err error) (model.User, error) {
-	if gorm.IsRecordNotFoundError(err) {
-		return model.User{}, nil
-	}
-
-	return model.User{}, err
 }

@@ -1,13 +1,13 @@
 package main
 
 import (
-	db2 "basic_server/db"
+	application "basic_server"
+	"basic_server/config"
 	"fmt"
 	"log"
 	"os"
 
 	"basic_server/docs"
-	"basic_server/server"
 	"github.com/joho/godotenv"
 )
 
@@ -28,21 +28,6 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	connection := db2.InitDB()
-
-	defer func() {
-		if err := connection.DB().Close(); err != nil {
-			log.Print(err)
-		}
-	}()
-
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("EXPOSE_PORT"))
-
-	app := server.NewServer(connection)
-	server.ConfigureRoutes(app)
-
-	if err := app.Run(os.Getenv("PORT")); err != nil {
-		log.Print(err)
-	}
+	application.Start(config.NewConfig())
 }

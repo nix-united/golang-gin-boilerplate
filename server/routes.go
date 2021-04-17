@@ -1,31 +1,31 @@
-package application
+package server
 
 import (
 	"basic_server/handler"
-	"basic_server/server/provider"
-	"basic_server/server/repository"
-	"basic_server/server/service"
+	"basic_server/provider"
+	"basic_server/repository"
+	"basic_server/service"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func ConfigureRoutes(server *Server) {
 	homeHandler := handler.HomeHandler{}
-	postHandler := handler.PostHandler{DB: server.db}
+	postHandler := handler.PostHandler{DB: server.DB}
 	registerHandler := handler.NewRegisterHandler()
 
-	jwtAuth := provider.NewJwtAuth(server.db)
+	jwtAuth := provider.NewJwtAuth(server.DB)
 
-	server.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	server.Gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	server.engine.POST(
+	server.Gin.POST(
 		"/users",
-		registerHandler.RegisterUser(service.NewUserService(repository.NewUsersRepository(server.db))),
+		registerHandler.RegisterUser(service.NewUserService(repository.NewUserRepository(server.DB))),
 	)
 
-	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)
+	server.Gin.POST("/login", jwtAuth.Middleware().LoginHandler)
 
-	needsAuth := server.engine.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
+	needsAuth := server.Gin.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
 	needsAuth.GET("/", homeHandler.Index())
 	needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
 	needsAuth.POST("/posts", postHandler.SavePost)

@@ -2,10 +2,10 @@ package handler
 
 import (
 	"basic_server/model"
-	"basic_server/server/repository"
-	"basic_server/server/request"
-	"basic_server/server/response"
-	"basic_server/server/service"
+	"basic_server/repository"
+	"basic_server/request"
+	"basic_server/response"
+	"basic_server/service"
 	"net/http"
 	"strconv"
 

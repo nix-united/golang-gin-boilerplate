@@ -2,9 +2,9 @@ package service
 
 import (
 	"basic_server/model"
-	"basic_server/server/repository"
-	"basic_server/server/request"
-	"basic_server/server/utils"
+	"basic_server/repository"
+	"basic_server/request"
+	"basic_server/utils"
 )
 
 // UserService provides a use case level for the user entity
@@ -16,11 +16,11 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo repository.UsersRepository
+	userRepo repository.UserRepositoryI
 }
 
 // NewUserService returns an instance of the UserService
-func NewUserService(ur repository.UsersRepository) UserService {
+func NewUserService(ur repository.UserRepositoryI) UserService {
 	return userService{
 		userRepo: ur,
 	}
