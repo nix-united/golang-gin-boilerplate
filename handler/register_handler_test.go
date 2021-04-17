@@ -1,68 +1,33 @@
 package handler
 
 import (
-	db2 "basic_server/db"
+	"basic_server/model"
+	"basic_server/repository/mocks"
 	"bytes"
-	"fmt"
-	"log"
+	"github.com/go-playground/assert/v2"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
-	"basic_server/repository"
 	"basic_server/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/suite"
-	"gopkg.in/khaiql/dbcleaner.v2"
-	"gopkg.in/khaiql/dbcleaner.v2/engine"
 )
 
-const dbTableNameToClean = "users"
-
-var cleaner = dbcleaner.New()
-var storage *gorm.DB
-
-type TestRegisterUserSuite struct {
-	suite.Suite
-}
-
-func (suite *TestRegisterUserSuite) SetupSuite() {
-	if err := godotenv.Load("../../.env.testing"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-	)
-
-	cleaner.SetEngine(engine.NewMySQLEngine(dsn))
-}
-
-func (suite *TestRegisterUserSuite) SetupTest() {
-	storage = db2.InitDB()
-	cleaner.Acquire(dbTableNameToClean)
-}
-
-func (suite *TestRegisterUserSuite) TearDownTest() {
-	cleaner.Clean(dbTableNameToClean)
-	storage.Close()
-}
-
-func (suite *TestRegisterUserSuite) TestRegisterUser() {
+func TestRegisterUser(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+
+	testData := model.User{
+		Email:    "test@test.com",
+		Password: "11111111",
+		FullName: "test name",
+	}
+	userRepoMock := mocks.NewUserRepositoryMock(testData)
 
 	server := gin.New()
 	server.POST(
 		"/users",
-		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUserRepository(storage))),
+		NewAuthHandler(service.NewUserService(userRepoMock)).RegisterUser,
 	)
 
 	recorder := httptest.NewRecorder()
@@ -76,9 +41,5 @@ func (suite *TestRegisterUserSuite) TestRegisterUser() {
 
 	server.ServeHTTP(recorder, req)
 
-	suite.Equal(http.StatusOK, recorder.Code)
-}
-
-func TestRunSuite(t *testing.T) {
-	suite.Run(t, new(TestRegisterUserSuite))
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }
