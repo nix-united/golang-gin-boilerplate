@@ -24,11 +24,3 @@ func NewServer(cfg *config.Config) *Server {
 func (server *Server) Run(addr string) error {
 	return server.Gin.Run(":" + addr)
 }
-
-func (server *Server) Engine() *gin.Engine {
-	return server.Gin
-}
-
-func (server *Server) Database() *gorm.DB {
-	return server.DB
-}
