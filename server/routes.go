@@ -14,13 +14,15 @@ func ConfigureRoutes(server *Server) {
 
 	// Repository Initialization
 	userRepo := repository.NewUserRepository(server.DB)
+	postRepo := repository.NewPostRepository(server.DB)
 
 	// Services initialization
 	userService := service.NewUserService(userRepo)
+	postService := service.NewPostService(postRepo)
 
 	// Handlers initialization
-	homeHandler := handler.HomeHandler{}
-	postHandler := handler.PostHandler{DB: server.DB}
+	homeHandler := handler.NewHomeHandler()
+	postHandler := handler.NewPostHandler(postService)
 	authHandler := handler.NewAuthHandler(userService)
 
 	// Routes initialization
