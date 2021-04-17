@@ -18,9 +18,9 @@ type BasicAuthRequest struct {
 	Password string `json:"password" binding:"required" example:"11111111"`
 }
 
-func (ar *BasicAuthRequest) Validate() error {
-	return validation.ValidateStruct(ar,
-		validation.Field(ar.Email, is.Email),
-		validation.Field(ar.Password, validation.Length(minPathLength, 0)),
+func (ar BasicAuthRequest) Validate() error {
+	return validation.ValidateStruct(&ar,
+		validation.Field(&ar.Email, is.Email),
+		validation.Field(&ar.Password, validation.Length(minPathLength, 0)),
 	)
 }

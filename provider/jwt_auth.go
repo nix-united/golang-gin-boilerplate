@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"basic_server/utils"
 	"log"
 	"sync"
 	"time"
@@ -8,8 +9,6 @@ import (
 	"basic_server/model"
 	"basic_server/repository"
 	"basic_server/request"
-	"basic_server/service"
-
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -61,7 +60,7 @@ func (mw *jwtAuthMiddleware) Middleware() *jwt.GinJWTMiddleware {
 }
 
 func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
-	jwtSettings, err := service.NewJwtEnvVars()
+	jwtSettings, err := utils.NewJwtEnvVars()
 
 	if err != nil {
 		log.Fatal(err)

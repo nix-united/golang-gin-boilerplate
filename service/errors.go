@@ -2,6 +2,11 @@ package service
 
 import "basic_server/errors"
 
+type RestError struct {
+	Status int   `json:"Status"`
+	Error  error `json:"Error"`
+}
+
 type errUserAlreadyExists struct {
 	message   string
 	operation string

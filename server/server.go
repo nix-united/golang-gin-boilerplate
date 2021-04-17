@@ -1,19 +1,23 @@
 package server
 
 import (
+	"basic_server/config"
+	"basic_server/db"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
 type Server struct {
+	Cfg *config.Config
 	Gin *gin.Engine
 	DB  *gorm.DB
 }
 
-func NewServer(dbConnection *gorm.DB) *Server {
+func NewServer(cfg *config.Config) *Server {
 	return &Server{
+		Cfg: cfg,
 		Gin: gin.Default(),
-		DB:  dbConnection,
+		DB:  db.InitDB(cfg.DB),
 	}
 }
 

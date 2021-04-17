@@ -8,29 +8,29 @@ import (
 )
 
 // UserService provides a use case level for the user entity
-type UserService interface {
+type UserServiceI interface {
 	// Create takes a request with new user credentials and registers it.
 	// An error will be returned if a user exists in the system, or
 	// if an error occurs during interaction with the database.
 	CreateUser(req request.RegisterRequest, en utils.Encryptor) error
 }
 
-type userService struct {
-	userRepo repository.UserRepositoryI
+type UserService struct {
+	UserRepo repository.UserRepositoryI
 }
 
 // NewUserService returns an instance of the UserService
-func NewUserService(ur repository.UserRepositoryI) UserService {
-	return userService{
-		userRepo: ur,
+func NewUserService(ur repository.UserRepositoryI) UserServiceI {
+	return &UserService{
+		UserRepo: ur,
 	}
 }
 
-func (srv userService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
+func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
 	var err error
 	var user model.User
 
-	user, err = srv.userRepo.FindUserByEmail(req.Email)
+	user, err = srv.UserRepo.FindUserByEmail(req.Email)
 
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (srv userService) CreateUser(req request.RegisterRequest, en utils.Encrypto
 		return err
 	}
 
-	err = srv.userRepo.StoreUser(model.User{
+	err = srv.UserRepo.StoreUser(model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,

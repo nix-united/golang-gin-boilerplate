@@ -10,19 +10,23 @@ import (
 )
 
 func ConfigureRoutes(server *Server) {
-	homeHandler := handler.HomeHandler{}
-	postHandler := handler.PostHandler{DB: server.DB}
-	registerHandler := handler.NewRegisterHandler()
-
-	jwtAuth := provider.NewJwtAuth(server.DB)
-
 	server.Gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	server.Gin.POST(
-		"/users",
-		registerHandler.RegisterUser(service.NewUserService(repository.NewUserRepository(server.DB))),
-	)
+	// Repository Initialization
+	userRepo := repository.NewUserRepository(server.DB)
 
+	// Services initialization
+	userService := service.NewUserService(userRepo)
+
+	// Handlers initialization
+	homeHandler := handler.HomeHandler{}
+	postHandler := handler.PostHandler{DB: server.DB}
+	authHandler := handler.NewAuthHandler(userService)
+
+	// Routes initialization
+	server.Gin.POST("/users", authHandler.RegisterUser)
+
+	jwtAuth := provider.NewJwtAuth(server.DB)
 	server.Gin.POST("/login", jwtAuth.Middleware().LoginHandler)
 
 	needsAuth := server.Gin.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())

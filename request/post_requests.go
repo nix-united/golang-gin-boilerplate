@@ -15,9 +15,9 @@ type UpdatePostRequest struct {
 	*BasicPost
 }
 
-func (bp *BasicPost) Validate() error {
-	return validation.ValidateStruct(bp,
-		validation.Field(bp.Title, validation.Required),
-		validation.Field(bp.Content, validation.Required),
+func (bp BasicPost) Validate() error {
+	return validation.ValidateStruct(&bp,
+		validation.Field(&bp.Title, validation.Required),
+		validation.Field(&bp.Content, validation.Required),
 	)
 }

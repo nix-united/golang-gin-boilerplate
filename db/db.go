@@ -9,23 +9,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func InitDB(cfg *config.Config) *gorm.DB {
+func InitDB(cfg *config.DBConfig) *gorm.DB {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		cfg.DB.User,
-		cfg.DB.Password,
-		cfg.DB.Host,
-		cfg.DB.Port,
-		cfg.DB.Name,
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Name,
 	)
 
-	db, err := gorm.Open(cfg.DB.Driver, dataSourceName)
+	db, err := gorm.Open(cfg.Driver, dataSourceName)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	db.DB().SetMaxOpenConns(cfg.DB.DBMaxOpenConns)
-	db.DB().SetMaxIdleConns(cfg.DB.DBMaxIdleConns)
-	db.DB().SetConnMaxLifetime(time.Duration(cfg.DB.DBConnMaxLife) * time.Second)
+	db.DB().SetMaxOpenConns(cfg.DBMaxOpenConns)
+	db.DB().SetMaxIdleConns(cfg.DBMaxIdleConns)
+	db.DB().SetConnMaxLifetime(time.Duration(cfg.DBConnMaxLife) * time.Second)
 
 	return db
 }
