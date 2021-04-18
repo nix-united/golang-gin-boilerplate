@@ -38,7 +38,7 @@ test:
     - cp .env.testing.gitlab-ci .env.testing
     - go get -v github.com/swaggo/swag/cmd/swag
     - go get -u github.com/pressly/goose/cmd/goose
-    - swag init -g cmd/main.gogot
+    - swag init -g cmd/main.go
   script:
     # get dependencies
     - go get -v ./...
