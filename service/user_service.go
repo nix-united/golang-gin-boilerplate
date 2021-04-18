@@ -48,7 +48,7 @@ func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encrypto
 		return err
 	}
 
-	err = srv.UserRepo.StoreUser(&model.User{
+	err = srv.UserRepo.StoreUser(model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,

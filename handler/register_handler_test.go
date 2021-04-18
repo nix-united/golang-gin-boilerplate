@@ -22,7 +22,7 @@ func TestRegisterUser(t *testing.T) {
 		Password: "11111111",
 		FullName: "test name",
 	}
-	userRepoMock := mocks.NewUserRepositoryMock(testData)
+	userRepoMock := mocks.NewUserRepositoryMock(&testData)
 
 	server := gin.New()
 	server.POST(

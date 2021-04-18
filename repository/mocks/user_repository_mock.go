@@ -24,7 +24,7 @@ func (u *UserRepositoryMock) FindUserByID(ID int) model.User {
 	return *u.User
 }
 
-func (u *UserRepositoryMock) StoreUser(*model.User) error {
+func (u *UserRepositoryMock) StoreUser(model.User) error {
 	return nil
 }
 
