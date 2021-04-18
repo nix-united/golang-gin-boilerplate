@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"basic_server/request"
 	"basic_server/utils"
 	"log"
 	"sync"
@@ -8,7 +9,6 @@ import (
 
 	"basic_server/model"
 	"basic_server/repository"
-	"basic_server/request"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -96,15 +96,14 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 // @Router /login [post]
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	var authRequest request.BasicAuthRequest
-	var user model.User
 
 	if err := c.ShouldBind(&authRequest); err != nil {
-		return user, jwt.ErrMissingLoginValues
+		return model.User{}, jwt.ErrMissingLoginValues
 	}
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user, _ = userRepository.FindUserByEmail(authRequest.Email)
+	user, _ := userRepository.FindUserByEmail(authRequest.Email)
 
 	if user.ID == 0 || (bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authRequest.Password)) != nil) {
 		return user, jwt.ErrFailedAuthentication

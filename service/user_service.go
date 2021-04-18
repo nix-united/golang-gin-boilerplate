@@ -27,10 +27,7 @@ func NewUserService(ur repository.UserRepositoryI) UserServiceI {
 }
 
 func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
-	var err error
-	var user model.User
-
-	user, err = srv.UserRepo.FindUserByEmail(req.Email)
+	user, err := srv.UserRepo.FindUserByEmail(req.Email)
 
 	if err != nil {
 		return err
@@ -51,7 +48,7 @@ func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encrypto
 		return err
 	}
 
-	err = srv.UserRepo.StoreUser(model.User{
+	err = srv.UserRepo.StoreUser(&model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,

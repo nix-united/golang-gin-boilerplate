@@ -66,5 +66,4 @@ func (h *AuthHandler) RegisterUser(context *gin.Context) {
 	}
 
 	response.SuccessResponse(context, "Successfully registered")
-
 }

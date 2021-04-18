@@ -10,7 +10,7 @@ import (
 type UserRepositoryI interface {
 	FindUserByEmail(email string) (model.User, error)
 	FindUserByID(ID int) model.User
-	StoreUser(user model.User) error
+	StoreUser(user *model.User) error
 }
 
 type UserRepository struct {
@@ -38,6 +38,6 @@ func (repo *UserRepository) FindUserByID(id int) model.User {
 	return user
 }
 
-func (repo *UserRepository) StoreUser(user model.User) error { //nolint
-	return repo.storage.Create(&user).Error
+func (repo *UserRepository) StoreUser(user *model.User) error { //nolint
+	return repo.storage.Create(user).Error
 }
