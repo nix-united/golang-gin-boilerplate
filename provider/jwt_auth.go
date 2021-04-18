@@ -1,14 +1,14 @@
 package provider
 
 import (
+	"basic_server/model"
+	"basic_server/repository"
 	"basic_server/request"
 	"basic_server/utils"
 	"log"
 	"sync"
 	"time"
 
-	"basic_server/model"
-	"basic_server/repository"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"

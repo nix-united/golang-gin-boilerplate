@@ -6,9 +6,10 @@ import (
 	"basic_server/response"
 	"basic_server/service"
 	"basic_server/utils"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type AuthHandler struct {

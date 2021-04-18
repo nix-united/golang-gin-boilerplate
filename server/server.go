@@ -3,6 +3,7 @@ package server
 import (
 	"basic_server/config"
 	"basic_server/db"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )

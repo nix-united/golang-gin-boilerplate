@@ -17,8 +17,8 @@ func (u *UserRepositoryMock) FindUserByEmail(email string) (model.User, error) {
 	return *u.User, nil
 }
 
-func (u *UserRepositoryMock) FindUserByID(ID int) model.User {
-	if u.User.ID != uint(ID) {
+func (u *UserRepositoryMock) FindUserByID(id int) model.User {
+	if u.User.ID != uint(id) {
 		return model.User{}
 	}
 	return *u.User

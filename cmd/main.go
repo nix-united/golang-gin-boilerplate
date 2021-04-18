@@ -3,11 +3,11 @@ package main
 import (
 	application "basic_server"
 	"basic_server/config"
+	"basic_server/docs"
 	"fmt"
 	"log"
 	"os"
 
-	"basic_server/docs"
 	"github.com/joho/godotenv"
 )
 

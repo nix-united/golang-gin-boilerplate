@@ -9,7 +9,7 @@ import (
 
 type UserRepositoryI interface {
 	FindUserByEmail(email string) (model.User, error)
-	FindUserByID(ID int) model.User
+	FindUserByID(id int) model.User
 	StoreUser(user model.User) error
 }
 
