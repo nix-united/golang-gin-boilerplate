@@ -18,5 +18,5 @@ RUN chmod +x /wait
 #Command to run the executable
 CMD swag init -g cmd/main.go \
   && /wait \
-  && goose -dir "./server/db/migrations" ${DB_DRIVER} "${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}" up \
+  && goose -dir "./db/migrations" ${DB_DRIVER} "${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}" up \
   && CompileDaemon --build="go build cmd/main.go" --command="./main" --color

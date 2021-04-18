@@ -44,7 +44,7 @@ ENV DB_HOST     ''
 ENV DB_PORT     ''
 
 COPY --from=build /go/src/api/demo-gin /app/demo-gin
-COPY --from=build /go/src/api/server/db/migrations /app/migrations
+COPY --from=build /go/src/api/db/migrations /app/migrations
 COPY --from=build /go/bin/goose /app/migrations
 
 CMD /wait &&\
