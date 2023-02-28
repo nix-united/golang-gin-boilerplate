@@ -10,7 +10,7 @@ variables:
 
 services:
   - docker:dind
-  - mysql:5.7
+  - mysql:8.0
 
 stages:
   - test
@@ -18,17 +18,17 @@ stages:
   - deploy
 
 lint:
-  image: golangci/golangci-lint:v1.36.0
+  image: golangci/golangci-lint:v1.51.0
   stage: test
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
-    - go get -v github.com/swaggo/swag/cmd/swag
+    - go install github.com/swaggo/swag/cmd/swag@latest
     - swag init
   script:
     - golangci-lint run
 
 test:
-  image: golang:1.13.3-alpine3.10
+  image: golang:1.20.1-alpine3.17
   tags:
     - dind
     - docker
@@ -36,8 +36,8 @@ test:
   before_script:
     - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
-    - go get -v github.com/swaggo/swag/cmd/swag
-    - go get -u github.com/pressly/goose/cmd/goose
+    - go install github.com/swaggo/swag/cmd/swag@latest
+    - go install github.com/pressly/goose/cmd/goose@latest
     - swag init
   script:
     # get dependencies

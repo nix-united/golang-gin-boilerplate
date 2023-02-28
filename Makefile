@@ -1,4 +1,4 @@
-lint_docker_compose_file = "./development/golangci_lint/docker-compose.yml"
+lint_docker_compose_file = "./development/golangci_lint/compose.yml"
 
 lint-build:
 	@echo "🌀 ️container are building..."
