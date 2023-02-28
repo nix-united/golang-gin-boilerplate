@@ -83,7 +83,7 @@ deploy staging:
   script:
     - ssh dev@${STAGING_IP} "mkdir -p ${PROJECT_PATH}"
     - scp -r ${STAGING_ENV} dev@${STAGING_IP}:${PROJECT_PATH}/.env
-    - scp -r ./deploy/docker-compose.yml dev@${STAGING_IP}:${PROJECT_PATH}/docker-compose.yml
+    - scp -r ./deploy/compose.yml dev@${STAGING_IP}:${PROJECT_PATH}/compose.yml
     - ssh dev@$STAGING_IP "docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
       docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}:staging;
-      docker-compose -f ${PROJECT_PATH}/docker-compose.yml up -d"
+      docker compose -f ${PROJECT_PATH}/compose.yml up -d"

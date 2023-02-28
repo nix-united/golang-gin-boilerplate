@@ -20,7 +20,7 @@ services:
       - gin-demo-stack
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: gin_db
     ports:
       - ${EXPOSE_DB_PORT}:${DB_PORT}
