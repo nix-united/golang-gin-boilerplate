@@ -21,7 +21,6 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: gin_db
     ports:
       - ${EXPOSE_DB_PORT}:${DB_PORT}
     environment:

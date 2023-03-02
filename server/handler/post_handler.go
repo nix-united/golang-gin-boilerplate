@@ -18,7 +18,7 @@ type PostHandler struct {
 	DB *gorm.DB
 }
 
-// GetPostByID GetPost godoc
+// GetPostByID godoc
 // @Summary Get post by id
 // @Description Get post by id
 // @ID get-post
@@ -47,7 +47,7 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 	})
 }
 
-// SavePost CreatePost godoc
+// SavePost godoc
 // @Summary Create post
 // @Description Create post
 // @ID posts-create

@@ -19,7 +19,6 @@ services:
       - ./.env:/app/.env
     restart: on-failure
   mysql:
-    container_name: gin-demo-mysql
     restart: on-failure
     image: mysql:8.0
     env_file:

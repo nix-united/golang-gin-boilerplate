@@ -19,7 +19,7 @@ func NewRegisterHandler() RegisterHandler { //nolint
 	return RegisterHandler{}
 }
 
-// RegisterUser Register godoc
+// RegisterUser godoc
 // @Summary Register
 // @Description New user registration
 // @ID user-register
