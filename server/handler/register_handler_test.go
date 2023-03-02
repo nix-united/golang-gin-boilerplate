@@ -14,17 +14,17 @@ import (
 	"basic_server/server/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/khaiql/dbcleaner.v2"
 	"gopkg.in/khaiql/dbcleaner.v2/engine"
+	"gorm.io/gorm"
 )
 
 const dbTableNameToClean = "users"
 
 var cleaner = dbcleaner.New()
-var storage *gorm.DB
+var connection *gorm.DB
 
 type TestRegisterUserSuite struct {
 	suite.Suite
@@ -47,13 +47,19 @@ func (suite *TestRegisterUserSuite) SetupSuite() {
 }
 
 func (suite *TestRegisterUserSuite) SetupTest() {
-	storage = db.InitDB()
+	connection = db.InitDB()
 	cleaner.Acquire(dbTableNameToClean)
 }
 
 func (suite *TestRegisterUserSuite) TearDownTest() {
 	cleaner.Clean(dbTableNameToClean)
-	storage.Close()
+	storage, err := connection.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if err := storage.Close(); err != nil {
+		log.Print(err)
+	}
 }
 
 func (suite *TestRegisterUserSuite) TestRegisterUser() {
@@ -62,7 +68,7 @@ func (suite *TestRegisterUserSuite) TestRegisterUser() {
 	server := gin.New()
 	server.POST(
 		"/users",
-		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUsersRepository(storage))),
+		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUsersRepository(connection))),
 	)
 
 	recorder := httptest.NewRecorder()

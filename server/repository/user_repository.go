@@ -2,8 +2,9 @@ package repository
 
 import (
 	"basic_server/server/model"
+	"errors"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type UsersRepository interface {
@@ -43,7 +44,7 @@ func (repo usersRepository) StoreUser(user model.User) error { //nolint
 }
 
 func handleErr(err error) (model.User, error) {
-	if gorm.IsRecordNotFoundError(err) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return model.User{}, nil
 	}
 

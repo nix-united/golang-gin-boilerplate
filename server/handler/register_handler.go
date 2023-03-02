@@ -13,13 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type registerHandler struct {} //nolint
+type RegisterHandler struct{} //nolint
 
-func NewRegisterHandler() registerHandler { //nolint
-	return registerHandler{}
+func NewRegisterHandler() RegisterHandler { //nolint
+	return RegisterHandler{}
 }
 
-// Register godoc
+// RegisterUser Register godoc
 // @Summary Register
 // @Description New user registration
 // @ID user-register
@@ -30,7 +30,7 @@ func NewRegisterHandler() registerHandler { //nolint
 // @Success 200 {string} string "Successfully registered"
 // @Failure 422 {object} response.Error
 // @Router /users [post]
-func (handler registerHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
+func (handler RegisterHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var registerRequest request.RegisterRequest
 		var err error

@@ -11,14 +11,14 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type PostHandler struct {
 	DB *gorm.DB
 }
 
-// GetPost godoc
+// GetPostByID GetPost godoc
 // @Summary Get post by id
 // @Description Get post by id
 // @ID get-post
@@ -47,7 +47,7 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 	})
 }
 
-// CreatePost godoc
+// SavePost CreatePost godoc
 // @Summary Create post
 // @Description Create post
 // @ID posts-create

@@ -9,8 +9,9 @@ import (
 	"basic_server/server/model"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var testTime = time.Now()
@@ -49,14 +50,16 @@ func TestFindUserByEmail(t *testing.T) {
 			userFullName,
 		)
 
-	query := "SELECT * FROM `users`  WHERE `users`.`deleted_at` IS NULL AND ((email = ?))"
+	query := "SELECT * FROM `users`  WHERE email = ? AND `users`.`deleted_at` IS NULL"
 
+	mock.ExpectQuery("SELECT VERSION()").WillReturnRows(mock.NewRows([]string{"VERSION()"}).AddRow("8.0.32"))
 	mock.
 		ExpectQuery(regexp.QuoteMeta(query)).
 		WithArgs("test@email.com").
 		WillReturnRows(rows)
-
-	mockedDbConn, connErr := gorm.Open("mysql", db)
+	mockedDbConn, connErr := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
 
 	if connErr != nil {
 		t.Fatalf(
@@ -70,7 +73,10 @@ func TestFindUserByEmail(t *testing.T) {
 			ID:        userID,
 			CreatedAt: testTime,
 			UpdatedAt: testTime,
-			DeletedAt: nil,
+			DeletedAt: struct {
+				Time  time.Time
+				Valid bool
+			}{Valid: false},
 		},
 		Email:    userEmail,
 		Password: userPassword,
@@ -95,13 +101,16 @@ func TestFindUserByEmailReturnsError(t *testing.T) {
 		)
 	}
 
-	query := "SELECT * FROM `users`  WHERE `users`.`deleted_at` IS NULL AND ((email = ?))"
+	query := "SELECT * FROM `users`  WHERE email = ? AND `users`.`deleted_at` IS NULL"
 
+	mock.ExpectQuery("SELECT VERSION()").WillReturnRows(mock.NewRows([]string{"VERSION()"}).AddRow("8.0.32"))
 	mock.
 		ExpectQuery(regexp.QuoteMeta(query)).
 		WillReturnError(errors.New("test"))
 
-	mockedDbConn, connErr := gorm.Open("mysql", db)
+	mockedDbConn, connErr := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
 
 	if connErr != nil {
 		t.Fatalf(
@@ -154,15 +163,17 @@ func TestFindUserById(t *testing.T) {
 			userFullName,
 		)
 
-	query := "SELECT * FROM `users`  WHERE `users`.`deleted_at` IS NULL " +
-		"AND ((id = ?)) ORDER BY `users`.`id` ASC LIMIT 1  "
+	query := "SELECT * FROM `users`  WHERE id = ? AND `users`.`deleted_at` IS NULL ORDER BY `users`.`id` LIMIT 1"
 
+	mock.ExpectQuery("SELECT VERSION()").WillReturnRows(mock.NewRows([]string{"VERSION()"}).AddRow("8.0.32"))
 	mock.
 		ExpectQuery(regexp.QuoteMeta(query)).
 		WithArgs(userID).
 		WillReturnRows(rows)
 
-	mockedDbConn, connErr := gorm.Open("mysql", db)
+	mockedDbConn, connErr := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
 
 	if connErr != nil {
 		t.Fatalf(
@@ -176,7 +187,10 @@ func TestFindUserById(t *testing.T) {
 			ID:        userID,
 			CreatedAt: testTime,
 			UpdatedAt: testTime,
-			DeletedAt: nil,
+			DeletedAt: struct {
+				Time  time.Time
+				Valid bool
+			}{Valid: false},
 		},
 		Email:    userEmail,
 		Password: userPassword,
@@ -205,23 +219,26 @@ func TestStoreUser(t *testing.T) {
 	userPassword := "test pass"
 	userFullName := "test full name"
 
+	mock.ExpectQuery("SELECT VERSION()").WillReturnRows(mock.NewRows([]string{"VERSION()"}).AddRow("8.0.32"))
 	mock.ExpectBegin()
 
 	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
 		WithArgs(
-			userID,
 			testTime,
 			testTime,
 			nil,
 			userEmail,
 			userPassword,
 			userFullName,
+			userID,
 		).
 		WillReturnResult(sqlmock.NewResult(int64(userID), 1))
 
 	mock.ExpectCommit()
 
-	mockedDbConn, connErr := gorm.Open("mysql", db)
+	mockedDbConn, connErr := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
 
 	if connErr != nil {
 		t.Fatalf(
@@ -235,7 +252,10 @@ func TestStoreUser(t *testing.T) {
 			ID:        userID,
 			CreatedAt: testTime,
 			UpdatedAt: testTime,
-			DeletedAt: nil,
+			DeletedAt: struct {
+				Time  time.Time
+				Valid bool
+			}{Valid: false},
 		},
 		Email:    userEmail,
 		Password: userPassword,
@@ -262,23 +282,26 @@ func TestStoreUserReturnsError(t *testing.T) {
 	userPassword := "test pass"
 	userFullName := "test full name"
 
+	mock.ExpectQuery("SELECT VERSION()").WillReturnRows(mock.NewRows([]string{"VERSION()"}).AddRow("8.0.32"))
 	mock.ExpectBegin()
 
 	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
 		WithArgs(
-			userID,
 			testTime,
 			testTime,
 			nil,
 			userEmail,
 			userPassword,
 			userFullName,
+			userID,
 		).
 		WillReturnError(errors.New("test"))
 
 	mock.ExpectRollback()
 
-	mockedDbConn, connErr := gorm.Open("mysql", db)
+	mockedDbConn, connErr := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
 
 	if connErr != nil {
 		t.Fatalf(
@@ -292,7 +315,10 @@ func TestStoreUserReturnsError(t *testing.T) {
 			ID:        userID,
 			CreatedAt: testTime,
 			UpdatedAt: testTime,
-			DeletedAt: nil,
+			DeletedAt: struct {
+				Time  time.Time
+				Valid bool
+			}{Valid: false},
 		},
 		Email:    userEmail,
 		Password: userPassword,
