@@ -10,7 +10,7 @@ variables:
 
 services:
   - docker:dind
-  - mysql:8.0
+  - mysql:8
 
 stages:
   - test
