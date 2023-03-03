@@ -1,5 +1,5 @@
 # base image
-FROM golang:1.13.3-alpine3.10 as build
+FROM golang:1.20.1-alpine3.17 as build
 
 # install system utils
 RUN apk add --no-cache --update git build-base openssh-client
@@ -22,8 +22,8 @@ COPY . .
 
 RUN  git config --global http.sslVerify true &&\
      # install swagger and initialize documentation
-     go get -u github.com/pressly/goose/cmd/goose &&\
-     go get -v github.com/swaggo/swag/cmd/swag &&\
+     go install github.com/pressly/goose/v3/cmd/goose@latest &&\
+     go install github.com/swaggo/swag/cmd/swag@latest &&\
      swag init &&\
      # install project dependecies
      go get -v ./... &&\

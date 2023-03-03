@@ -9,8 +9,8 @@ import (
 	"basic_server/server/request"
 	emock "basic_server/server/utils/mocks"
 
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func TestCreateUser(t *testing.T) {

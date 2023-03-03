@@ -33,7 +33,11 @@ func main() {
 	connection := db.InitDB()
 
 	defer func() {
-		if err := connection.DB().Close(); err != nil {
+		database, err := connection.DB()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if err := database.Close(); err != nil {
 			log.Print(err)
 		}
 	}()
