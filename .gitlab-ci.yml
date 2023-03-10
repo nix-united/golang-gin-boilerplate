@@ -76,7 +76,7 @@ deploy staging:
     - chmod 600 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H $STAGING_IP >> ~/.ssh/authorized_keys
+    - ssh-keyscan -p 221 -H $STAGING_IP >> ~/.ssh/known_hosts
   script:
     - ssh dev@${STAGING_IP} "mkdir -p ${PROJECT_PATH}"
     - scp -r ${STAGING_ENV} dev@${STAGING_IP}:${PROJECT_PATH}/.env
