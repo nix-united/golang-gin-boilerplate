@@ -64,6 +64,9 @@ deploy staging:
   environment:
     name: staging
   when: manual
+  only:
+    refs:
+      - develop
   tags:
     - dind
     - docker
