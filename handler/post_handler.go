@@ -1,21 +1,25 @@
 package handler
 
 import (
-	"basic_server/server/model"
-	"basic_server/server/repository"
-	"basic_server/server/request"
-	"basic_server/server/response"
-	"basic_server/server/service"
+	"basic_server/model"
+	"basic_server/request"
+	"basic_server/response"
+	"basic_server/service"
 	"net/http"
 	"strconv"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type PostHandler struct {
-	DB *gorm.DB
+	PostService service.PostServiceI
+}
+
+func NewPostHandler(postService service.PostServiceI) *PostHandler {
+	return &PostHandler{
+		PostService: postService,
+	}
 }
 
 // GetPostByID godoc
@@ -30,10 +34,13 @@ type PostHandler struct {
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
 func (handler PostHandler) GetPostByID(context *gin.Context) {
-	postsRepository := repository.PostRepository{DB: handler.DB}
-	post := model.Post{}
 	id, _ := strconv.Atoi(context.Param("id"))
-	postsRepository.GetByID(id, &post)
+
+	post := model.Post{}
+	if err := handler.PostService.GetByID(id, &post); err != nil {
+		response.ErrorResponse(context, err.Status, "Server error")
+		return
+	}
 
 	if post.ID == 0 {
 		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
@@ -70,10 +77,12 @@ func (handler PostHandler) SavePost(context *gin.Context) {
 	claims := jwt.ExtractClaims(context)
 	id := claims["id"].(float64)
 
-	postsService := service.PostService{DB: handler.DB}
-	newPost := postsService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
-	postsRepository := repository.PostRepository{DB: handler.DB}
-	postsRepository.Create(&newPost)
+	newPost, restError := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
+	if restError != nil {
+		response.ErrorResponse(context, restError.Status, "Post can't be created")
+		return
+	}
+
 	response.SuccessResponse(context, response.CreatePostResponse{
 		ID:      newPost.ID,
 		Title:   newPost.Title,
@@ -103,18 +112,25 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 		return
 	}
 
-	postsRepository := repository.PostRepository{DB: handler.DB}
-	post := model.Post{}
 	id, _ := strconv.Atoi(context.Param("id"))
-	postsRepository.GetByID(id, &post)
+
+	post := model.Post{}
+	if err := handler.PostService.GetByID(id, &post); err != nil {
+		response.ErrorResponse(context, err.Status, "Server error")
+		return
+	}
 
 	if post.ID == 0 {
 		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
+		return
 	}
 
 	post.Title = updatePostRequest.Title
 	post.Content = updatePostRequest.Content
-	postsRepository.Save(&post)
+	if err := handler.PostService.Save(&post); err != nil {
+		response.ErrorResponse(context, err.Status, "Data was not saved")
+		return
+	}
 
 	response.SuccessResponse(context, response.GetPostResponse{
 		ID:      post.ID,
@@ -134,9 +150,11 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (handler PostHandler) GetPosts(context *gin.Context) {
-	postsRepository := repository.PostRepository{DB: handler.DB}
 	var posts []model.Post
-	postsRepository.GetAll(&posts)
+	if err := handler.PostService.GetAll(&posts); err != nil {
+		response.ErrorResponse(context, http.StatusInternalServerError, "Server error")
+		return
+	}
 	response.SuccessResponse(context, response.CreatePostsCollectionResponse(posts))
 }
 
@@ -151,17 +169,22 @@ func (handler PostHandler) GetPosts(context *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (handler PostHandler) DeletePost(context *gin.Context) {
-	postsRepository := repository.PostRepository{DB: handler.DB}
 	post := model.Post{}
 	id, _ := strconv.Atoi(context.Param("id"))
-	postsRepository.GetByID(id, &post)
+	if err := handler.PostService.GetByID(id, &post); err != nil {
+		response.ErrorResponse(context, err.Status, "Server error")
+		return
+	}
 
 	if post.ID == 0 {
 		response.ErrorResponse(context, http.StatusNotFound, "Post not found")
 		return
 	}
 
-	postsRepository.Delete(&post)
+	if err := handler.PostService.Delete(&post); err != nil {
+		response.ErrorResponse(context, err.Status, "Server error")
+		return
+	}
 
 	response.SuccessResponse(context, "Post delete successfully")
 }

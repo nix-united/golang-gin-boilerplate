@@ -1,14 +1,13 @@
 package provider
 
 import (
+	"basic_server/model"
+	"basic_server/repository"
+	"basic_server/request"
+	"basic_server/utils"
 	"log"
 	"sync"
 	"time"
-
-	"basic_server/server/model"
-	"basic_server/server/repository"
-	"basic_server/server/request"
-	"basic_server/server/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -61,7 +60,7 @@ func (mw *jwtAuthMiddleware) Middleware() *jwt.GinJWTMiddleware {
 }
 
 func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
-	jwtSettings, err := service.NewJwtEnvVars()
+	jwtSettings, err := utils.NewJwtEnvVars()
 
 	if err != nil {
 		log.Fatal(err)
@@ -91,21 +90,20 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 // @Tags User Actions
 // @Accept json
 // @Produce json
-// @Param params body request.AuthRequest true "User's credentials"
+// @Param params body request.BasicAuthRequest true "User's credentials"
 // @Success 200 {object} Success
 // @Failure 401 {object} response.Error
 // @Router /login [post]
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
-	var authRequest request.AuthRequest
-	var user model.User
+	var authRequest request.BasicAuthRequest
 
 	if err := c.ShouldBind(&authRequest); err != nil {
-		return user, jwt.ErrMissingLoginValues
+		return model.User{}, jwt.ErrMissingLoginValues
 	}
 
-	userRepository := repository.NewUsersRepository(mw.databaseDriver)
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user, _ = userRepository.FindUserByEmail(authRequest.Email)
+	user, _ := userRepository.FindUserByEmail(authRequest.Email)
 
 	if user.ID == 0 || (bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authRequest.Password)) != nil) {
 		return user, jwt.ErrFailedAuthentication
@@ -135,7 +133,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 		return false
 	}
 
-	userRepository := repository.NewUsersRepository(mw.databaseDriver)
+	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
 	return userRepository.FindUserByID(int(userID)).ID != 0
 }

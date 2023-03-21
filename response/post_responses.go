@@ -1,6 +1,6 @@
 package response
 
-import "basic_server/server/model"
+import "basic_server/model"
 
 type CreatePostResponse struct {
 	ID      uint   `json:"id"`
