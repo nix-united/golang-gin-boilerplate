@@ -38,6 +38,6 @@ func (repo *UserRepository) FindUserByID(id int) model.User {
 	return user
 }
 
-func (repo *UserRepository) StoreUser(user model.User) error {
+func (repo *UserRepository) StoreUser(user model.User) error { //nolint
 	return repo.storage.Create(&user).Error
 }
