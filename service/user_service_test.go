@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"basic_server/server/model"
-	rmock "basic_server/server/repository/mocks"
-	"basic_server/server/request"
-	emock "basic_server/server/utils/mocks"
+	"basic_server/model"
+	rmock "basic_server/repository/mocks"
+	"basic_server/request"
+	emock "basic_server/utils/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -34,8 +34,10 @@ func TestCreateUser(t *testing.T) {
 		{
 			"test successful creating a new user",
 			request.RegisterRequest{
-				Email:    "test@test.com",
-				Password: "test pass",
+				BasicAuthRequest: &request.BasicAuthRequest{
+					Email:    "test@test.com",
+					Password: "test pass",
+				},
 				FullName: "test full name",
 			},
 			"test pass",
@@ -65,8 +67,10 @@ func TestCreateUser(t *testing.T) {
 		{
 			"test returning an error if a user exists in the database",
 			request.RegisterRequest{
-				Email:    "test@test.com",
-				Password: "",
+				BasicAuthRequest: &request.BasicAuthRequest{
+					Email:    "test@test.com",
+					Password: "",
+				},
 				FullName: "",
 			},
 			"",
@@ -93,8 +97,10 @@ func TestCreateUser(t *testing.T) {
 		{
 			"test returning an error if it occurs during finding a user in the database",
 			request.RegisterRequest{
-				Email:    "test@test.com",
-				Password: "",
+				BasicAuthRequest: &request.BasicAuthRequest{
+					Email:    "test@test.com",
+					Password: "",
+				},
 				FullName: "",
 			},
 			"",
@@ -117,8 +123,10 @@ func TestCreateUser(t *testing.T) {
 		{
 			"test returning an error if it occurs during password encryption",
 			request.RegisterRequest{
-				Email:    "test@test.com",
-				Password: "test pass",
+				BasicAuthRequest: &request.BasicAuthRequest{
+					Email:    "test@test.com",
+					Password: "test pass",
+				},
 				FullName: "test full name",
 			},
 			"test pass",
@@ -144,8 +152,10 @@ func TestCreateUser(t *testing.T) {
 		{
 			"test returning an error if it occurs during saving a user to the database",
 			request.RegisterRequest{
-				Email:    "test@test.com",
-				Password: "test pass",
+				BasicAuthRequest: &request.BasicAuthRequest{
+					Email:    "test@test.com",
+					Password: "test pass",
+				},
 				FullName: "test full name",
 			},
 			"test pass",

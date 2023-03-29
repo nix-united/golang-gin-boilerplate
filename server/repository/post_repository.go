@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"basic_server/server/model"
+	"basic_server/model"
 
 	"gorm.io/gorm"
 )

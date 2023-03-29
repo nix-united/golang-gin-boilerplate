@@ -24,7 +24,7 @@ RUN  git config --global http.sslVerify true &&\
      # install swagger and initialize documentation
      go install github.com/pressly/goose/v3/cmd/goose@latest &&\
      go install github.com/swaggo/swag/cmd/swag@latest &&\
-     swag init &&\
+     swag init -g cmd/main.go &&\
      # install project dependecies
      go get -v ./... &&\
      # build application
@@ -44,7 +44,7 @@ ENV DB_HOST     ''
 ENV DB_PORT     ''
 
 COPY --from=build /go/src/api/demo-gin /app/demo-gin
-COPY --from=build /go/src/api/server/db/migrations /app/migrations
+COPY --from=build /go/src/api/db/migrations /app/migrations
 COPY --from=build /go/bin/goose /app/migrations
 
 CMD /wait &&\

@@ -9,9 +9,10 @@ import (
 	"os"
 	"testing"
 
-	"basic_server/server/db"
-	"basic_server/server/repository"
-	"basic_server/server/service"
+	"basic_server/config"
+	"basic_server/db"
+	"basic_server/repository"
+	"basic_server/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -47,7 +48,7 @@ func (suite *TestRegisterUserSuite) SetupSuite() {
 }
 
 func (suite *TestRegisterUserSuite) SetupTest() {
-	connection = db.InitDB()
+	connection = db.InitDB(config.NewConfig().DB)
 	cleaner.Acquire(dbTableNameToClean)
 }
 
@@ -68,7 +69,7 @@ func (suite *TestRegisterUserSuite) TestRegisterUser() {
 	server := gin.New()
 	server.POST(
 		"/users",
-		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUsersRepository(connection))),
+		NewRegisterHandler().RegisterUser(service.NewUserService(repository.NewUserRepository(connection))),
 	)
 
 	recorder := httptest.NewRecorder()
