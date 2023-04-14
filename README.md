@@ -31,6 +31,56 @@ There is a useful set of tools that described below. Feel free to contribute!
 Then, click "Authorize" and close the popup.
 Now, you are able to make requests which require authentication.
 
+## Usage with Kubernetes
+### Prerequisites
+- Docker
+- Minikube
+
+### Sequence of actions to run
+Start minikube
+
+    minikube start
+
+Connect to minikube Docker
+
+    eval $(minikube docker-env)
+
+Update env file of project (update db values)
+
+    DB_HOST=gin-demo # host inside kubernetes
+    DB_PORT=3306 # port inside kubernetes
+
+Build docker container locally
+
+    docker build -t gin_demo:dev .
+
+Run database
+
+    kubectl create -f mysql-secret.yaml
+
+    kubectl apply -f mysql-db-pv.yaml
+    kubectl apply -f mysql-db-pvc.yaml
+    kubectl apply -f mysql-db-deployment.yaml
+    kubectl apply -f mysql-db-service.yaml
+
+    kubectl get pods # check the status of the pod
+
+Run application
+
+    kubectl apply -f app-postgres-deployment.yaml
+    kubectl apply -f app-postgres-service.yaml
+
+    kubectl get pods # check the status of the pod
+
+After that, the application should work (look at the pods to check)
+To redirect an application from Kubernetes to the local machine, run the command (you will probably have to enable the ingress addon in the minikube):
+
+    kubectl apply -f kubernetes/ingress.yaml
+
+    minikube service app-gin-demo
+
+You can now make requests to the application using `Postman`
+
 # Basic Project Structure
 
 ## main.go
