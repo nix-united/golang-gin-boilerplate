@@ -15,7 +15,7 @@ spec:
         app: app-gin-demo
     spec:
       containers:
-        - name: fullstack-app-postgres
+        - name: app-gin-demo
           image: gin_demo:dev
           imagePullPolicy: Never
           ports:
