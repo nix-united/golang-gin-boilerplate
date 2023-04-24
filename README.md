@@ -56,19 +56,19 @@ Build docker container locally
 
 Run database
 
-    kubectl create -f mysql-secret.yaml
+    kubectl create -f kubernetes/mysql-secret.yaml
 
-    kubectl apply -f mysql-db-pv.yaml
-    kubectl apply -f mysql-db-pvc.yaml
-    kubectl apply -f mysql-db-deployment.yaml
-    kubectl apply -f mysql-db-service.yaml
+    kubectl apply -f kubernetes/mysql-db-pv.yaml
+    kubectl apply -f kubernetes/mysql-db-pvc.yaml
+    kubectl apply -f kubernetes/mysql-db-deployment.yaml
+    kubectl apply -f kubernetes/mysql-db-service.yaml
 
     kubectl get pods # check the status of the pod
 
 Run application
 
-    kubectl apply -f app-postgres-deployment.yaml
-    kubectl apply -f app-postgres-service.yaml
+    kubectl apply -f kubernetes/app-postgres-deployment.yaml
+    kubectl apply -f kubernetes/app-postgres-service.yaml
 
     kubectl get pods # check the status of the pod
 
