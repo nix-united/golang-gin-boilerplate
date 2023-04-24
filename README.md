@@ -67,8 +67,8 @@ Run database
 
 Run application
 
-    kubectl apply -f kubernetes/app-postgres-deployment.yaml
-    kubectl apply -f kubernetes/app-postgres-service.yaml
+    kubectl apply -f kubernetes/app-gin-demo-deployment.yaml
+    kubectl apply -f kubernetes/app-gin-demo-service.yaml
 
     kubectl get pods # check the status of the pod
 
