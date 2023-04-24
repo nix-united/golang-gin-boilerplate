@@ -63,7 +63,7 @@ Run database
     minikube kubectl -- apply -f kubernetes/mysql-db-deployment.yaml
     minikube kubectl -- apply -f kubernetes/mysql-db-service.yaml
 
-    kubectl get pods # check the status of the pod
+    minikube kubectl -- get pods # check the status of the pod
 
 Run application
 
