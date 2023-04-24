@@ -56,26 +56,26 @@ Build docker container locally
 
 Run database
 
-    kubectl create -f kubernetes/mysql-secret.yaml
+    minikube kubectl -- create -f kubernetes/mysql-secret.yaml
 
-    kubectl apply -f kubernetes/mysql-db-pv.yaml
-    kubectl apply -f kubernetes/mysql-db-pvc.yaml
-    kubectl apply -f kubernetes/mysql-db-deployment.yaml
-    kubectl apply -f kubernetes/mysql-db-service.yaml
+    minikube kubectl -- apply -f kubernetes/mysql-db-pv.yaml
+    minikube kubectl -- apply -f kubernetes/mysql-db-pvc.yaml
+    minikube kubectl -- apply -f kubernetes/mysql-db-deployment.yaml
+    minikube kubectl -- apply -f kubernetes/mysql-db-service.yaml
 
     kubectl get pods # check the status of the pod
 
 Run application
 
-    kubectl apply -f kubernetes/app-gin-demo-deployment.yaml
-    kubectl apply -f kubernetes/app-gin-demo-service.yaml
+    minikube kubectl -- apply -f kubernetes/app-gin-demo-deployment.yaml
+    minikube kubectl -- apply -f kubernetes/app-gin-demo-service.yaml
 
-    kubectl get pods # check the status of the pod
+    minikube kubectl -- get pods # check the status of the pod
 
 After that, the application should work (look at the pods to check)
 To redirect an application from Kubernetes to the local machine, run the command (you will probably have to enable the ingress addon in the minikube):
 
-    kubectl apply -f kubernetes/ingress.yaml
+    minikube kubectl -- apply -f kubernetes/ingress.yaml
 
     minikube service app-gin-demo
 
