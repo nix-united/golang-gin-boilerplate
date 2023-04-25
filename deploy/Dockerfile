@@ -47,6 +47,8 @@ COPY --from=build /go/src/api/demo-gin /app/demo-gin
 COPY --from=build /go/src/api/db/migrations /app/migrations
 COPY --from=build /go/bin/goose /app/migrations
 
+RUN ["chmod", "+x", "./demo-gin"]
+
 CMD /wait &&\
     ./migrations/goose -dir "./migrations" mysql "$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\
     ./demo-gin
