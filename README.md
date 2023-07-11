@@ -54,28 +54,40 @@ Build docker container locally
 
     docker build -t gin_demo:dev .
 
-Run database
+#### Then you need to apply kubernetes config files
 
-    minikube kubectl -- create -f kubernetes/mysql-secret.yaml
+You can use one command to do this
 
-    minikube kubectl -- apply -f kubernetes/mysql-db-pv.yaml
-    minikube kubectl -- apply -f kubernetes/mysql-db-pvc.yaml
-    minikube kubectl -- apply -f kubernetes/mysql-db-deployment.yaml
-    minikube kubectl -- apply -f kubernetes/mysql-db-service.yaml
+    minikube kubectl -- create -f kubernetes/
 
-    minikube kubectl -- get pods # check the status of the pod
+or do it separately:
 
-Run application
+- Run database
+    ```bash
+        minikube kubectl -- create -f kubernetes/mysql-secret.yaml
+    
+        minikube kubectl -- apply -f kubernetes/mysql-db-pv.yaml
+        minikube kubectl -- apply -f kubernetes/mysql-db-pvc.yaml
+        minikube kubectl -- apply -f kubernetes/mysql-db-deployment.yaml
+        minikube kubectl -- apply -f kubernetes/mysql-db-service.yaml
+    
+        minikube kubectl -- get pods # check the status of the pod
+    ```
 
-    minikube kubectl -- apply -f kubernetes/app-gin-demo-deployment.yaml
-    minikube kubectl -- apply -f kubernetes/app-gin-demo-service.yaml
+- Run application
+    ```bash
+        minikube kubectl -- apply -f kubernetes/app-gin-demo-deployment.yaml
+        minikube kubectl -- apply -f kubernetes/app-gin-demo-service.yaml
+    
+        minikube kubectl -- get pods # check the status of the pod
+    ```
+- After that, the application should work (look at the pods to check)
+**To redirect an application from Kubernetes to the local machine**, run the command (you will probably have to enable the ingress addon in the minikube):
+    ```bash
+        minikube kubectl -- apply -f kubernetes/ingress.yaml
+    ```
 
-    minikube kubectl -- get pods # check the status of the pod
-
-After that, the application should work (look at the pods to check)
-To redirect an application from Kubernetes to the local machine, run the command (you will probably have to enable the ingress addon in the minikube):
-
-    minikube kubectl -- apply -f kubernetes/ingress.yaml
+#### Then you need to run service
 
     minikube service app-gin-demo
 
