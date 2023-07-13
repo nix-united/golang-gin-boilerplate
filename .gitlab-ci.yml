@@ -22,7 +22,7 @@ lint:
   stage: test
   before_script:
     - cp .env.testing.gitlab-ci .env.testing
-    - go install github.com/swaggo/swag/cmd/swag@latest
+    - go install github.com/swaggo/swag/cmd/swag@v1.8.10
     - swag init -g cmd/main.go
   script:
     - golangci-lint run
@@ -36,7 +36,7 @@ test:
   before_script:
     - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
-    - go install github.com/swaggo/swag/cmd/swag@latest
+    - go install github.com/swaggo/swag/cmd/swag@v1.8.10
     - go install github.com/pressly/goose/cmd/goose@latest
     - swag init -g cmd/main.go
   script:
@@ -64,9 +64,6 @@ deploy staging:
   environment:
     name: staging
   when: manual
-  only:
-    refs:
-      - develop
   tags:
     - dind
     - docker

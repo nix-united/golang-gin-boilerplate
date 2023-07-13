@@ -29,6 +29,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("EXPOSE_PORT"))
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	application.Start(config.NewConfig())
 }
