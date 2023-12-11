@@ -1,4 +1,15 @@
-# Overview
+<h1 align="center">Welcome to <span style="color:mediumseagreen">Gin boilerplate</span> 👋</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/golang-v1.21-lightblue" height="25"/>
+  <img src="https://img.shields.io/badge/gin-v1.9-blue" height="25"/>
+  <img src="https://img.shields.io/badge/gorm-v1.25-green" height="25"/>
+  <img src="https://img.shields.io/badge/swagger-v1.16-orange" height="25"/>
+  <img src="https://img.shields.io/badge/gin--jwt-v2.9-yellow" height="25"/>
+  <img src="https://img.shields.io/badge/docker-support-darkgreeen" height="25"/>
+  <img src="https://img.shields.io/badge/kubernetes-support-darkgreeen" height="25"/>
+</p>
+
 It's an API Skeleton project based on Gin framework.
 Our aim is reducing development time on default features that you can meet very often when your work on API.
 There is a useful set of tools that described below. Feel free to contribute!
@@ -19,7 +30,7 @@ There is a useful set of tools that described below. Feel free to contribute!
 2. Run your application using the command in the terminal:
 
     `docker-compose up`
-3. Browse to {HOST}:{EXPOSE_PORT}/swagger/index.html. You will see Swagger 2.0 API documents.
+3. Browse to `{HOST}:{EXPOSE_PORT}/swagger/index.html`. You will see Swagger 2.0 API documents.
 4. Using the API documentation, make requests to register a user (if necessary) and login.
 5. After the successful login, copy a token from the response, then click "Authorize" and in a popup that opened, enter the value for "apiKey" in a form:
 "Bearer {token}". For example:
