@@ -159,3 +159,11 @@ Next you need to run linter to check bugs ant errors
 Finally, you need to fix all problems manually or using autofixing (if it's supported by the linter)
 
 - `make lint-fix` 
+
+
+## License
+
+The project is developed by [NIX][1] and distributed under [MIT LICENSE][2]
+
+[1]: https://nixs.com/
+[2]: https://github.com/nixsolutions/golang-gin-boilerplate/blob/master/LICENSE
