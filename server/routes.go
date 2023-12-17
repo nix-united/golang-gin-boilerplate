@@ -1,32 +1,38 @@
 package server
 
 import (
-	"basic_server/server/handler"
-	"basic_server/server/provider"
-	"basic_server/server/repository"
-	"basic_server/server/service"
+	"basic_server/handler"
+	"basic_server/provider"
+	"basic_server/repository"
+	"basic_server/service"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func ConfigureRoutes(server *Server) {
-	homeHandler := handler.HomeHandler{}
-	postHandler := handler.PostHandler{DB: server.db}
-	registerHandler := handler.NewRegisterHandler()
+	server.Gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	jwtAuth := provider.NewJwtAuth(server.db)
+	// Repository Initialization
+	userRepo := repository.NewUserRepository(server.DB)
+	postRepo := repository.NewPostRepository(server.DB)
 
-	server.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Services initialization
+	userService := service.NewUserService(userRepo)
+	postService := service.NewPostService(postRepo)
 
-	server.engine.POST(
-		"/users",
-		registerHandler.RegisterUser(service.NewUserService(repository.NewUsersRepository(server.db))),
-	)
+	// Handlers initialization
+	homeHandler := handler.NewHomeHandler()
+	postHandler := handler.NewPostHandler(postService)
+	authHandler := handler.NewAuthHandler(userService)
 
-	server.engine.POST("/login", jwtAuth.Middleware().LoginHandler)
+	// Routes initialization
+	server.Gin.POST("/users", authHandler.RegisterUser)
 
-	needsAuth := server.engine.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
+	jwtAuth := provider.NewJwtAuth(server.DB)
+	server.Gin.POST("/login", jwtAuth.Middleware().LoginHandler)
+
+	needsAuth := server.Gin.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
 	needsAuth.GET("/", homeHandler.Index())
 	needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
 	needsAuth.POST("/posts", postHandler.SavePost)

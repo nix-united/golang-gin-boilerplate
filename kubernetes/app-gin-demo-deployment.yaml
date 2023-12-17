@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-gin-demo
+  labels:
+    app: app-gin-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-gin-demo
+  template:
+    metadata:
+      labels:
+        app: app-gin-demo
+    spec:
+      containers:
+        - name: app-gin-demo
+          image: gin_demo:dev
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+

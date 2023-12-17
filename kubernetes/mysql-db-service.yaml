@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gin-demo
+  labels:
+    app: gin-demo
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+  selector:
+    app: gin-demo
+    tier: mysql

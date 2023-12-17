@@ -1,30 +1,27 @@
 package server
 
 import (
+	"basic_server/config"
+	"basic_server/db"
+
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Server struct {
-	engine *gin.Engine
-	db     *gorm.DB
+	Cfg *config.Config
+	Gin *gin.Engine
+	DB  *gorm.DB
 }
 
-func NewServer(dbConnection *gorm.DB) *Server {
+func NewServer(cfg *config.Config) *Server {
 	return &Server{
-		engine: gin.Default(),
-		db:     dbConnection,
+		Cfg: cfg,
+		Gin: gin.Default(),
+		DB:  db.InitDB(cfg.DB),
 	}
 }
 
 func (server *Server) Run(addr string) error {
-	return server.engine.Run(":" + addr)
-}
-
-func (server *Server) Engine() *gin.Engine {
-	return server.engine
-}
-
-func (server *Server) Database() *gorm.DB {
-	return server.db
+	return server.Gin.Run(":" + addr)
 }

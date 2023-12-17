@@ -1,5 +1,5 @@
 # base image
-FROM golang:1.13.3-alpine3.10 as build
+FROM golang:1.20.1-alpine3.17 as build
 
 # install system utils
 RUN apk add --no-cache --update git build-base openssh-client
@@ -22,13 +22,13 @@ COPY . .
 
 RUN  git config --global http.sslVerify true &&\
      # install swagger and initialize documentation
-     go get -u github.com/pressly/goose/cmd/goose &&\
-     go get -v github.com/swaggo/swag/cmd/swag &&\
-     swag init &&\
+     go install github.com/pressly/goose/v3/cmd/goose@latest &&\
+     go install github.com/swaggo/swag/cmd/swag@v1.8.10 &&\
+     swag init -g cmd/main.go &&\
      # install project dependecies
      go get -v ./... &&\
      # build application
-     go build -o demo-gin
+     go build -o demo-gin ./cmd
 
 FROM alpine
 
@@ -44,8 +44,10 @@ ENV DB_HOST     ''
 ENV DB_PORT     ''
 
 COPY --from=build /go/src/api/demo-gin /app/demo-gin
-COPY --from=build /go/src/api/server/db/migrations /app/migrations
+COPY --from=build /go/src/api/db/migrations /app/migrations
 COPY --from=build /go/bin/goose /app/migrations
+
+RUN ["chmod", "+x", "./demo-gin"]
 
 CMD /wait &&\
     ./migrations/goose -dir "./migrations" mysql "$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\

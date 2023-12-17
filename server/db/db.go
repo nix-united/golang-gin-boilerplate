@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql" //nolint
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func InitDB() *gorm.DB {
@@ -21,7 +21,7 @@ func InitDB() *gorm.DB {
 
 	fmt.Println(dataSourceName)
 
-	db, err := gorm.Open(os.Getenv("DB_DRIVER"), dataSourceName)
+	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{})
 
 	if err != nil {
 		panic(err.Error())
@@ -45,9 +45,14 @@ func InitDB() *gorm.DB {
 		log.Fatal(err)
 	}
 
-	db.DB().SetMaxOpenConns(maxOpenConns)
-	db.DB().SetMaxIdleConns(maxIdleConns)
-	db.DB().SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
+	connection, err := db.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	connection.SetMaxOpenConns(maxOpenConns)
+	connection.SetMaxIdleConns(maxIdleConns)
+	connection.SetConnMaxLifetime(time.Duration(connMaxLife) * time.Second)
 
 	return db
 }

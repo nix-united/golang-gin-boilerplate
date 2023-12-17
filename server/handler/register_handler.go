@@ -3,23 +3,23 @@ package handler
 import (
 	"net/http"
 
-	operror "basic_server/server/errors"
-	"basic_server/server/request"
-	"basic_server/server/response"
-	"basic_server/server/service"
-	"basic_server/server/utils" //nolint
+	operror "basic_server/errors"
+	"basic_server/request"
+	"basic_server/response"
+	"basic_server/service"
+	"basic_server/utils" //nolint
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 )
 
-type registerHandler struct {} //nolint
+type RegisterHandler struct{} //nolint
 
-func NewRegisterHandler() registerHandler { //nolint
-	return registerHandler{}
+func NewRegisterHandler() RegisterHandler { //nolint
+	return RegisterHandler{}
 }
 
-// Register godoc
+// RegisterUser godoc
 // @Summary Register
 // @Description New user registration
 // @ID user-register
@@ -30,7 +30,7 @@ func NewRegisterHandler() registerHandler { //nolint
 // @Success 200 {string} string "Successfully registered"
 // @Failure 422 {object} response.Error
 // @Router /users [post]
-func (handler registerHandler) RegisterUser(srv service.UserService) gin.HandlerFunc {
+func (handler RegisterHandler) RegisterUser(srv service.UserServiceI) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var registerRequest request.RegisterRequest
 		var err error

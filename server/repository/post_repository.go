@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"basic_server/server/model"
+	"basic_server/model"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type PostRepository struct {
