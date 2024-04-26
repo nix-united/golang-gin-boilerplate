@@ -4,7 +4,6 @@ import (
 	"basic_server/model"
 	"basic_server/repository/mocks"
 	"bytes"
-	"github.com/go-playground/assert/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,6 +11,7 @@ import (
 	"basic_server/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
 )
 
 func TestRegisterUser(t *testing.T) {
