@@ -69,7 +69,7 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 func (handler PostHandler) SavePost(context *gin.Context) {
 	var createPostRequest request.CreatePostRequest
 
-	if err := context.ShouldBind(&createPostRequest); err != nil {
+	if err := context.ShouldBindJSON(&createPostRequest); err != nil {
 		response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
 		return
 	}
@@ -107,7 +107,7 @@ func (handler PostHandler) SavePost(context *gin.Context) {
 func (handler PostHandler) UpdatePost(context *gin.Context) {
 	var updatePostRequest request.UpdatePostRequest
 
-	if err := context.ShouldBind(&updatePostRequest); err != nil {
+	if err := context.ShouldBindJSON(&updatePostRequest); err != nil {
 		response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
 		return
 	}

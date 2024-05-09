@@ -4,10 +4,11 @@ import (
 	"basic_server/model"
 	"basic_server/repository/mocks"
 	"bytes"
-	"github.com/go-playground/assert/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
 
 	"basic_server/service"
 

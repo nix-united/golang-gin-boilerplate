@@ -39,7 +39,7 @@ func (h *AuthHandler) RegisterUser(context *gin.Context) {
 		err             error
 	)
 
-	if err = context.ShouldBind(&registerRequest); err != nil {
+	if err = context.ShouldBindJSON(&registerRequest); err != nil {
 		response.ErrorResponse(
 			context,
 			http.StatusUnprocessableEntity,
