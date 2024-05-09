@@ -97,7 +97,7 @@ func (mw *jwtAuthMiddleware) prepareMiddleware() *jwt.GinJWTMiddleware {
 func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 	var authRequest request.BasicAuthRequest
 
-	if err := c.ShouldBind(&authRequest); err != nil {
+	if err := c.ShouldBindJSON(&authRequest); err != nil {
 		return model.User{}, jwt.ErrMissingLoginValues
 	}
 
