@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"basic_server/model"
+	"basic_server/internal/model"
 	rmock "basic_server/repository/mocks"
 	"basic_server/request"
 	emock "basic_server/utils/mocks"

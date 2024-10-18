@@ -1,7 +1,7 @@
 package service
 
 import (
-	"basic_server/model"
+	"basic_server/internal/model"
 	"basic_server/repository"
 	"net/http"
 )

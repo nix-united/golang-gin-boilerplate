@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "basic_server/model"
+	model "basic_server/internal/model"
 
 	mock "github.com/stretchr/testify/mock"
 )
