@@ -1,7 +1,7 @@
 package db
 
 import (
-	"basic_server/config"
+	"basic_server/internal/config"
 	"database/sql"
 	"fmt"
 	"time"
