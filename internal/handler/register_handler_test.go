@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-playground/assert/v2"
 
-	"basic_server/service"
+	"basic_server/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

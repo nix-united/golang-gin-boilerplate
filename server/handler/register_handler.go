@@ -6,7 +6,7 @@ import (
 	operror "basic_server/internal/errors"
 	"basic_server/internal/request"
 	"basic_server/internal/response"
-	"basic_server/service"
+	"basic_server/internal/service"
 	"basic_server/utils" //nolint
 
 	"golang.org/x/crypto/bcrypt"

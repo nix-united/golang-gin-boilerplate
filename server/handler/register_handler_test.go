@@ -12,7 +12,7 @@ import (
 	"basic_server/db"
 	"basic_server/internal/config"
 	"basic_server/internal/repository"
-	"basic_server/service"
+	"basic_server/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
