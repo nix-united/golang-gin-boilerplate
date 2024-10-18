@@ -1,6 +1,6 @@
 package service
 
-import "basic_server/errors"
+import "basic_server/internal/errors"
 
 type RestError struct {
 	Status int   `json:"Status"`
