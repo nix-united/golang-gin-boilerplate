@@ -2,7 +2,7 @@ package application
 
 import (
 	"basic_server/internal/config"
-	"basic_server/server"
+	"basic_server/internal/server"
 	"log"
 )
 
