@@ -1,4 +1,4 @@
-### 🎫 Jira Ticket Reference
+### 🎫 Ticket Reference
 <!-- Please provide a link to your ticket if exists -->
 
 ### 📝 Changes
