@@ -4,7 +4,7 @@ import (
 	"basic_server/internal/model"
 	"basic_server/internal/repository"
 	"basic_server/internal/request"
-	"basic_server/utils"
+	"basic_server/internal/utils"
 	"log"
 	"sync"
 	"time"

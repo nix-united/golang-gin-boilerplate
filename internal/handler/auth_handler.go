@@ -5,7 +5,7 @@ import (
 	"basic_server/internal/request"
 	"basic_server/internal/response"
 	"basic_server/internal/service"
-	"basic_server/utils"
+	"basic_server/internal/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

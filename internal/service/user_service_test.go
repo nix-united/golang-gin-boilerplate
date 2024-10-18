@@ -7,7 +7,7 @@ import (
 	"basic_server/internal/model"
 	rmock "basic_server/internal/repository/mocks"
 	"basic_server/internal/request"
-	emock "basic_server/utils/mocks"
+	emock "basic_server/internal/utils/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
