@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"basic_server/config"
 	"basic_server/db"
+	"basic_server/internal/config"
 	"basic_server/repository"
 	"basic_server/service"
 

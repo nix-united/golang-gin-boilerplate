@@ -1,8 +1,8 @@
 package server
 
 import (
-	"basic_server/config"
 	"basic_server/db"
+	"basic_server/internal/config"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
