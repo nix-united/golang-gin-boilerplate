@@ -1,8 +1,8 @@
 package main
 
 import (
-	application "basic_server"
 	"basic_server/docs"
+	application "basic_server/internal"
 	"basic_server/internal/config"
 	"fmt"
 	"log"
