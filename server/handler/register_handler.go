@@ -7,7 +7,7 @@ import (
 	"basic_server/internal/request"
 	"basic_server/internal/response"
 	"basic_server/internal/service"
-	"basic_server/utils" //nolint
+	"basic_server/internal/utils" //nolint
 
 	"golang.org/x/crypto/bcrypt"
 
