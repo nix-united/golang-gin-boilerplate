@@ -11,7 +11,7 @@ import (
 
 	"basic_server/db"
 	"basic_server/internal/config"
-	"basic_server/repository"
+	"basic_server/internal/repository"
 	"basic_server/service"
 
 	"github.com/gin-gonic/gin"

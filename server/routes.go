@@ -3,7 +3,7 @@ package server
 import (
 	"basic_server/internal/handler"
 	"basic_server/internal/provider"
-	"basic_server/repository"
+	"basic_server/internal/repository"
 	"basic_server/service"
 
 	swaggerFiles "github.com/swaggo/files"

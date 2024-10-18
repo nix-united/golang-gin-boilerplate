@@ -2,8 +2,8 @@ package service
 
 import (
 	"basic_server/internal/model"
+	"basic_server/internal/repository"
 	"basic_server/internal/request"
-	"basic_server/repository"
 	"basic_server/utils"
 )
 

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"basic_server/internal/model"
-	"basic_server/repository/mocks"
+	"basic_server/internal/repository/mocks"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
