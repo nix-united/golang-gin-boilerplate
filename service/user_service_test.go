@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"basic_server/internal/model"
+	"basic_server/internal/request"
 	rmock "basic_server/repository/mocks"
-	"basic_server/request"
 	emock "basic_server/utils/mocks"
 
 	"github.com/stretchr/testify/assert"
