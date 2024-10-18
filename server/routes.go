@@ -2,7 +2,7 @@ package server
 
 import (
 	"basic_server/handler"
-	"basic_server/provider"
+	"basic_server/internal/provider"
 	"basic_server/repository"
 	"basic_server/service"
 
