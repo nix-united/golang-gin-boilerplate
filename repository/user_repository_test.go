@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"basic_server/model"
+	"basic_server/internal/model"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"

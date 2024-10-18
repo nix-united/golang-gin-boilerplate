@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"basic_server/model"
+	"basic_server/internal/model"
 	"basic_server/repository"
 	"basic_server/request"
 	"basic_server/utils"
