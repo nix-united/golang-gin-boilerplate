@@ -2,7 +2,7 @@ package handler
 
 import (
 	operror "basic_server/internal/errors"
-	"basic_server/request"
+	"basic_server/internal/request"
 	"basic_server/response"
 	"basic_server/service"
 	"basic_server/utils"
