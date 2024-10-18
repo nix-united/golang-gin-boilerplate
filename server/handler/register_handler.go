@@ -3,11 +3,12 @@ package handler
 import (
 	"net/http"
 
-	operror "basic_server/errors"
+	operror "basic_server/internal/errors"
 	"basic_server/request"
 	"basic_server/response"
 	"basic_server/service"
 	"basic_server/utils" //nolint
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
