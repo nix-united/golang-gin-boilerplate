@@ -2,7 +2,7 @@ package mocks
 
 import (
 	"basic_server/internal/model"
-	"basic_server/repository"
+	"basic_server/internal/repository"
 	"errors"
 )
 
