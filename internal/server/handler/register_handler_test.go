@@ -32,8 +32,8 @@ type TestRegisterUserSuite struct {
 }
 
 func (suite *TestRegisterUserSuite) SetupSuite() {
-	if err := godotenv.Load("../../.env.testing"); err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(".../../../.env.testing"); err != nil {
+		suite.Fail("Error loading .env file", "error_message", err.Error())
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
