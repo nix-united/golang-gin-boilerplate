@@ -3,7 +3,7 @@ package handler
 import (
 	"basic_server/internal/model"
 	"basic_server/internal/request"
-	"basic_server/response"
+	"basic_server/internal/response"
 	"basic_server/service"
 	"net/http"
 	"strconv"
