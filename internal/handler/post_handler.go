@@ -4,7 +4,7 @@ import (
 	"basic_server/internal/model"
 	"basic_server/internal/request"
 	"basic_server/internal/response"
-	"basic_server/service"
+	"basic_server/internal/service"
 	"net/http"
 	"strconv"
 

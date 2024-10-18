@@ -4,7 +4,7 @@ import (
 	"basic_server/internal/handler"
 	"basic_server/internal/provider"
 	"basic_server/internal/repository"
-	"basic_server/service"
+	"basic_server/internal/service"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
