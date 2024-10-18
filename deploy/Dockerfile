@@ -24,7 +24,7 @@ RUN  git config --global http.sslVerify true &&\
      # install swagger and initialize documentation
      go install github.com/pressly/goose/v3/cmd/goose@latest &&\
      go install github.com/swaggo/swag/cmd/swag@v1.8.10 &&\
-     swag init -g cmd/main.go &&\
+     swag init -g cmd/service/main.go &&\
      # install project dependecies
      go get -v ./... &&\
      # build application
