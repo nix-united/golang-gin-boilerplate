@@ -58,7 +58,7 @@ jobs:
         run: |
           cp .env.testing.github-ci .env.testing
           go install github.com/pressly/goose/cmd/goose@latest
-          goose -dir "./db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
+          goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
           go test -race ./...
 
   detect-secrets:

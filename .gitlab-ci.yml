@@ -42,7 +42,7 @@ test:
   script:
     # get dependencies
     - go get -v ./...
-    - goose -dir "./db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
+    - goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
     - go test -v ./...
 
 build:
