@@ -21,7 +21,7 @@ jobs:
       - name: Setup Swagger
         run: |
           go install github.com/swaggo/swag/cmd/swag@v1.16.2
-          swag init -g cmd/main.go
+          swag init -g cmd/service/main.go
       - uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
@@ -53,12 +53,12 @@ jobs:
       - name: Setup Swagger
         run: |
           go install github.com/swaggo/swag/cmd/swag@v1.16.2
-          swag init -g cmd/main.go
+          swag init -g cmd/service/main.go
       - name: Run tests
         run: |
           cp .env.testing.github-ci .env.testing
           go install github.com/pressly/goose/cmd/goose@latest
-          goose -dir "./db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
+          goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
           go test -race ./...
 
   detect-secrets:
@@ -87,7 +87,7 @@ jobs:
       - name: Setup Swagger
         run: |
           go install github.com/swaggo/swag/cmd/swag@v1.16.2
-          swag init -g cmd/main.go
+          swag init -g cmd/service/main.go
       - name: Run govulncheck
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@v1.1.3
