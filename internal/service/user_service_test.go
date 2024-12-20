@@ -1,14 +1,18 @@
 package service_test
 
 import (
+	"errors"
 	"testing"
 
+	srverrors "basic_server/internal/errors"
 	"basic_server/internal/model"
 	"basic_server/internal/request"
 	"basic_server/internal/service"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"gorm.io/gorm"
 )
 
 type userServiceMocks struct {
@@ -33,16 +37,40 @@ func newUserService(t *testing.T) (service.UserService, userServiceMocks) {
 }
 
 func TestUserService_CreateUser(t *testing.T) {
-	t.Run("It should create a new user", func(t *testing.T) {
+	registerRequest := request.RegisterRequest{
+		BasicAuthRequest: &request.BasicAuthRequest{
+			Email:    "test@test.com",
+			Password: "password",
+		},
+		FullName: "test full name",
+	}
+
+	storedUser := model.User{
+		Email:    "test@test.com",
+		Password: "encrypted password",
+		FullName: "test full name",
+	}
+
+	userInDB := model.User{
+		Model: gorm.Model{
+			ID: 1,
+		},
+	}
+
+	t.Run("It should propagate an error if failed to find user in database", func(t *testing.T) {
 		service, mocks := newUserService(t)
 
-		registerRequest := request.RegisterRequest{
-			BasicAuthRequest: &request.BasicAuthRequest{
-				Email:    "test@test.com",
-				Password: "test pass",
-			},
-			FullName: "test full name",
-		}
+		mocks.userRepository.
+			EXPECT().
+			FindUserByEmail("test@test.com").
+			Return(model.User{}, errors.New("unkown db error"))
+
+		err := service.CreateUser(registerRequest, mocks.encryptor)
+		assert.ErrorContains(t, err, "find user by email")
+	})
+
+	t.Run("It should propagate an error if failed to encrypt password", func(t *testing.T) {
+		service, mocks := newUserService(t)
 
 		mocks.userRepository.
 			EXPECT().
@@ -51,215 +79,71 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.encryptor.
 			EXPECT().
-			Encrypt("test pass").
-			Return("encrypted test pass", nil)
+			Encrypt("password").
+			Return("", errors.New("encryption error"))
+
+		err := service.CreateUser(registerRequest, mocks.encryptor)
+		assert.ErrorContains(t, err, "encrypt password")
+	})
+
+	t.Run("It should propagate an error if failed to store an user", func(t *testing.T) {
+		service, mocks := newUserService(t)
 
 		mocks.userRepository.
 			EXPECT().
-			StoreUser(model.User{
-				Email:    "test@test.com",
-				Password: "encrypted test pass",
-				FullName: "test full name",
-			}).
+			FindUserByEmail("test@test.com").
+			Return(model.User{}, nil)
+
+		mocks.encryptor.
+			EXPECT().
+			Encrypt("password").
+			Return("encrypted password", nil)
+
+		mocks.userRepository.
+			EXPECT().
+			StoreUser(storedUser).
+			Return(errors.New("store user error"))
+
+		err := service.CreateUser(registerRequest, mocks.encryptor)
+		assert.ErrorContains(t, err, "store user")
+	})
+
+	t.Run("It should return an error if user already exists in database", func(t *testing.T) {
+		service, mocks := newUserService(t)
+
+		mocks.userRepository.
+			EXPECT().
+			FindUserByEmail("test@test.com").
+			Return(userInDB, nil)
+
+		err := service.CreateUser(registerRequest, mocks.encryptor)
+
+		var errInvalidStorageOperation srverrors.ErrInvalidStorageOperation
+		require.ErrorAs(t, err, &errInvalidStorageOperation)
+
+		assert.Equal(t, "user already exist", errInvalidStorageOperation.Error())
+		assert.Equal(t, "store a user", errInvalidStorageOperation.Operation())
+	})
+
+	t.Run("It should create a new user", func(t *testing.T) {
+		service, mocks := newUserService(t)
+
+		mocks.userRepository.
+			EXPECT().
+			FindUserByEmail("test@test.com").
+			Return(model.User{}, nil)
+
+		mocks.encryptor.
+			EXPECT().
+			Encrypt("password").
+			Return("encrypted password", nil)
+
+		mocks.userRepository.
+			EXPECT().
+			StoreUser(storedUser).
 			Return(nil)
 
 		err := service.CreateUser(registerRequest, mocks.encryptor)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	})
 }
-
-// func TestCreateUser(t *testing.T) {
-// 	tests := []struct {
-// 		name            string
-// 		arg             request.RegisterRequest
-// 		encryptReceives string
-// 		encryptReturns  struct {
-// 			pass string
-// 			err  error
-// 		}
-// 		findUserByEmailReceives string
-// 		findUserByEmailReturns  struct {
-// 			user model.User
-// 			err  error
-// 		}
-// 		storeReceives model.User
-// 		storeReturns  error
-// 		wantErr       bool
-// 	}{
-// 		{
-// 			"test successful creating a new user",
-// 			request.RegisterRequest{
-// 				BasicAuthRequest: &request.BasicAuthRequest{
-// 					Email:    "test@test.com",
-// 					Password: "test pass",
-// 				},
-// 				FullName: "test full name",
-// 			},
-// 			"test pass",
-// 			struct {
-// 				pass string
-// 				err  error
-// 			}{
-// 				pass: "encrypted test pass",
-// 				err:  nil,
-// 			},
-// 			"test@test.com",
-// 			struct {
-// 				user model.User
-// 				err  error
-// 			}{
-// 				user: model.User{},
-// 				err:  nil,
-// 			},
-// 			model.User{
-// 				Email:    "test@test.com",
-// 				Password: "encrypted test pass",
-// 				FullName: "test full name",
-// 			},
-// 			nil,
-// 			false,
-// 		},
-// 		{
-// 			"test returning an error if a user exists in the database",
-// 			request.RegisterRequest{
-// 				BasicAuthRequest: &request.BasicAuthRequest{
-// 					Email:    "test@test.com",
-// 					Password: "",
-// 				},
-// 				FullName: "",
-// 			},
-// 			"",
-// 			struct {
-// 				pass string
-// 				err  error
-// 			}{},
-// 			"test@test.com",
-// 			struct {
-// 				user model.User
-// 				err  error
-// 			}{
-// 				user: model.User{
-// 					Model: gorm.Model{
-// 						ID: 1,
-// 					},
-// 				},
-// 				err: nil,
-// 			},
-// 			model.User{},
-// 			nil,
-// 			true,
-// 		},
-// 		{
-// 			"test returning an error if it occurs during finding a user in the database",
-// 			request.RegisterRequest{
-// 				BasicAuthRequest: &request.BasicAuthRequest{
-// 					Email:    "test@test.com",
-// 					Password: "",
-// 				},
-// 				FullName: "",
-// 			},
-// 			"",
-// 			struct {
-// 				pass string
-// 				err  error
-// 			}{},
-// 			"test@test.com",
-// 			struct {
-// 				user model.User
-// 				err  error
-// 			}{
-// 				user: model.User{},
-// 				err:  errors.New("test"),
-// 			},
-// 			model.User{},
-// 			nil,
-// 			true,
-// 		},
-// 		{
-// 			"test returning an error if it occurs during password encryption",
-// 			request.RegisterRequest{
-// 				BasicAuthRequest: &request.BasicAuthRequest{
-// 					Email:    "test@test.com",
-// 					Password: "test pass",
-// 				},
-// 				FullName: "test full name",
-// 			},
-// 			"test pass",
-// 			struct {
-// 				pass string
-// 				err  error
-// 			}{
-// 				pass: "",
-// 				err:  errors.New("test"),
-// 			},
-// 			"test@test.com",
-// 			struct {
-// 				user model.User
-// 				err  error
-// 			}{
-// 				user: model.User{},
-// 				err:  nil,
-// 			},
-// 			model.User{},
-// 			nil,
-// 			true,
-// 		},
-// 		{
-// 			"test returning an error if it occurs during saving a user to the database",
-// 			request.RegisterRequest{
-// 				BasicAuthRequest: &request.BasicAuthRequest{
-// 					Email:    "test@test.com",
-// 					Password: "test pass",
-// 				},
-// 				FullName: "test full name",
-// 			},
-// 			"test pass",
-// 			struct {
-// 				pass string
-// 				err  error
-// 			}{
-// 				pass: "encrypted test pass",
-// 				err:  nil,
-// 			},
-// 			"test@test.com",
-// 			struct {
-// 				user model.User
-// 				err  error
-// 			}{
-// 				user: model.User{},
-// 				err:  nil,
-// 			},
-// 			model.User{
-// 				Email:    "test@test.com",
-// 				Password: "encrypted test pass",
-// 				FullName: "test full name",
-// 			},
-// 			errors.New("test"),
-// 			true,
-// 		},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			encryptor := &emock.Encryptor{}
-// 			encryptor.
-// 				On("Encrypt", tt.encryptReceives).
-// 				Return(tt.encryptReturns.pass, tt.encryptReturns.err)
-
-// 			userRepo := &rmock.UsersRepository{}
-// 			userRepo.
-// 				On("FindUserByEmail", tt.findUserByEmailReceives).
-// 				Return(tt.findUserByEmailReturns.user, tt.findUserByEmailReturns.err).
-// 				On("StoreUser", tt.storeReceives).
-// 				Return(tt.storeReturns)
-
-// 			err := NewUserService(userRepo).CreateUser(tt.arg, encryptor)
-
-// 			if tt.wantErr {
-// 				assert.Error(t, err)
-// 			} else {
-// 				assert.NoError(t, err)
-// 			}
-// 		})
-// 	}
-// }
