@@ -7,9 +7,16 @@ import (
 	"fmt"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=user_service_mock_test.go -package=${GOPACKAGE}_test -typed=true
+
 type userRepository interface {
 	FindUserByEmail(email string) (model.User, error)
 	StoreUser(user model.User) error
+}
+
+// TODO: Change to private
+type Encryptor interface {
+	Encrypt(str string) (string, error)
 }
 
 // UserServiceI provides a use case level for the user entity
@@ -20,19 +27,22 @@ type UserServiceI interface {
 	CreateUser(req request.RegisterRequest, en utils.Encryptor) error
 }
 
+// UserService provides a use case level for the user entity
 type UserService struct {
 	userRepository userRepository
 }
 
-// NewUserService returns an instance of the UserService
 func NewUserService(userRepository userRepository) UserService {
 	return UserService{
 		userRepository: userRepository,
 	}
 }
 
-func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
-	user, err := srv.userRepository.FindUserByEmail(req.Email)
+// CreateUser Create takes a request with new user credentials and registers it.
+// An error will be returned if a user exists in the system, or
+// if an error occurs during interaction with the database.
+func (s UserService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
+	user, err := s.userRepository.FindUserByEmail(req.Email)
 	if err != nil {
 		return fmt.Errorf("find user by email: %w", err)
 	}
@@ -44,14 +54,12 @@ func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encrypto
 		)
 	}
 
-	var encryptedPassword string
-
-	encryptedPassword, err = en.Encrypt(req.Password)
+	encryptedPassword, err := en.Encrypt(req.Password)
 	if err != nil {
 		return fmt.Errorf("encrypt password: %w", err)
 	}
 
-	err = srv.userRepository.StoreUser(model.User{
+	err = s.userRepository.StoreUser(model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,
