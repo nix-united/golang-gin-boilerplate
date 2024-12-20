@@ -1,29 +1,28 @@
 package utils
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"fmt"
 
-type Encryptor interface {
-	Encrypt(str string) (string, error)
-}
+	"golang.org/x/crypto/bcrypt"
+)
 
-type bcryptEncoder struct {
+type BcryptEncoder struct {
 	cost int
 }
 
-func NewBcryptEncoder(cost int) Encryptor {
-	return bcryptEncoder{
+func NewBcryptEncoder(cost int) BcryptEncoder {
+	return BcryptEncoder{
 		cost: cost,
 	}
 }
 
-func (en bcryptEncoder) Encrypt(pass string) (string, error) {
+func (en BcryptEncoder) Encrypt(pass string) (string, error) {
 	enPass, err := bcrypt.GenerateFromPassword(
 		[]byte(pass),
 		en.cost,
 	)
-
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("generate from password: %w", err)
 	}
 
 	return string(enPass), nil

@@ -11,8 +11,6 @@ package service_test
 
 import (
 	model "basic_server/internal/model"
-	request "basic_server/internal/request"
-	utils "basic_server/internal/utils"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -176,67 +174,6 @@ func (c *MockencryptorEncryptCall) Do(f func(string) (string, error)) *Mockencry
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockencryptorEncryptCall) DoAndReturn(f func(string) (string, error)) *MockencryptorEncryptCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
-// MockUserServiceI is a mock of UserServiceI interface.
-type MockUserServiceI struct {
-	ctrl     *gomock.Controller
-	recorder *MockUserServiceIMockRecorder
-}
-
-// MockUserServiceIMockRecorder is the mock recorder for MockUserServiceI.
-type MockUserServiceIMockRecorder struct {
-	mock *MockUserServiceI
-}
-
-// NewMockUserServiceI creates a new mock instance.
-func NewMockUserServiceI(ctrl *gomock.Controller) *MockUserServiceI {
-	mock := &MockUserServiceI{ctrl: ctrl}
-	mock.recorder = &MockUserServiceIMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockUserServiceI) EXPECT() *MockUserServiceIMockRecorder {
-	return m.recorder
-}
-
-// CreateUser mocks base method.
-func (m *MockUserServiceI) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", req, en)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateUser indicates an expected call of CreateUser.
-func (mr *MockUserServiceIMockRecorder) CreateUser(req, en any) *MockUserServiceICreateUserCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserServiceI)(nil).CreateUser), req, en)
-	return &MockUserServiceICreateUserCall{Call: call}
-}
-
-// MockUserServiceICreateUserCall wrap *gomock.Call
-type MockUserServiceICreateUserCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockUserServiceICreateUserCall) Return(arg0 error) *MockUserServiceICreateUserCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockUserServiceICreateUserCall) Do(f func(request.RegisterRequest, utils.Encryptor) error) *MockUserServiceICreateUserCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockUserServiceICreateUserCall) DoAndReturn(f func(request.RegisterRequest, utils.Encryptor) error) *MockUserServiceICreateUserCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -5,9 +5,11 @@ import (
 	"basic_server/internal/provider"
 	"basic_server/internal/repository"
 	"basic_server/internal/service"
+	"basic_server/internal/utils"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func ConfigureRoutes(server *Server) {
@@ -18,7 +20,7 @@ func ConfigureRoutes(server *Server) {
 	postRepo := repository.NewPostRepository(server.DB)
 
 	// Services initialization
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
 	postService := service.NewPostService(postRepo)
 
 	// Handlers initialization

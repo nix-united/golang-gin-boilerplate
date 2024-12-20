@@ -26,7 +26,7 @@ func newUserService(t *testing.T) (service.UserService, userServiceMocks) {
 	ctrl := gomock.NewController(t)
 	userRepository := NewMockuserRepository(ctrl)
 	encryptor := NewMockencryptor(ctrl)
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(userRepository, encryptor)
 
 	mocks := userServiceMocks{
 		userRepository: userRepository,
@@ -65,7 +65,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			FindUserByEmail("test@test.com").
 			Return(model.User{}, errors.New("unkown db error"))
 
-		err := service.CreateUser(registerRequest, mocks.encryptor)
+		err := service.CreateUser(registerRequest)
 		assert.ErrorContains(t, err, "find user by email")
 	})
 
@@ -82,7 +82,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			Encrypt("password").
 			Return("", errors.New("encryption error"))
 
-		err := service.CreateUser(registerRequest, mocks.encryptor)
+		err := service.CreateUser(registerRequest)
 		assert.ErrorContains(t, err, "encrypt password")
 	})
 
@@ -104,7 +104,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			StoreUser(storedUser).
 			Return(errors.New("store user error"))
 
-		err := service.CreateUser(registerRequest, mocks.encryptor)
+		err := service.CreateUser(registerRequest)
 		assert.ErrorContains(t, err, "store user")
 	})
 
@@ -116,7 +116,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			FindUserByEmail("test@test.com").
 			Return(userInDB, nil)
 
-		err := service.CreateUser(registerRequest, mocks.encryptor)
+		err := service.CreateUser(registerRequest)
 
 		var errInvalidStorageOperation srverrors.ErrInvalidStorageOperation
 		require.ErrorAs(t, err, &errInvalidStorageOperation)
@@ -143,7 +143,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			StoreUser(storedUser).
 			Return(nil)
 
-		err := service.CreateUser(registerRequest, mocks.encryptor)
+		err := service.CreateUser(registerRequest)
 		assert.NoError(t, err)
 	})
 }
