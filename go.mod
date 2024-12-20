@@ -4,14 +4,10 @@ go 1.23.2
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
-	github.com/alexflint/go-filemutex v1.1.0 // indirect
 	github.com/appleboy/gin-jwt/v2 v2.9.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
-	github.com/khaiql/dbcleaner v2.3.0+incompatible // indirect
-	github.com/lib/pq v1.9.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
@@ -20,7 +16,6 @@ require (
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
-	gopkg.in/khaiql/dbcleaner.v2 v2.3.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 )
@@ -37,7 +32,6 @@ require (
 	github.com/go-openapi/spec v0.20.9 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.16.0 // indirect
