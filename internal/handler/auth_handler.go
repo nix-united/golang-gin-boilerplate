@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=auth_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
+
 type userService interface {
 	CreateUser(req request.RegisterRequest) error
 }
@@ -43,6 +45,11 @@ func (h AuthHandler) RegisterUser(c *gin.Context) {
 			http.StatusUnprocessableEntity,
 			"Required fields are empty or email is not valid",
 		)
+		return
+	}
+
+	if err := registerRequest.Validate(); err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Request")
 		return
 	}
 
