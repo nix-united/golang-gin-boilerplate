@@ -2,35 +2,41 @@ package service
 
 import (
 	"basic_server/internal/model"
-	"basic_server/internal/repository"
 	"basic_server/internal/request"
-	"basic_server/internal/utils"
+	"fmt"
 )
 
-// UserServiceI provides a use case level for the user entity
-type UserServiceI interface {
-	// CreateUser Create takes a request with new user credentials and registers it.
-	// An error will be returned if a user exists in the system, or
-	// if an error occurs during interaction with the database.
-	CreateUser(req request.RegisterRequest, en utils.Encryptor) error
+//go:generate mockgen -source=$GOFILE -destination=user_service_mock_test.go -package=${GOPACKAGE}_test -typed=true
+
+type userRepository interface {
+	FindUserByEmail(email string) (model.User, error)
+	StoreUser(user model.User) error
 }
 
+type encryptor interface {
+	Encrypt(str string) (string, error)
+}
+
+// UserService provides a use case level for the user entity
 type UserService struct {
-	UserRepo repository.UserRepositoryI
+	userRepository userRepository
+	encryptor      encryptor
 }
 
-// NewUserService returns an instance of the UserService
-func NewUserService(ur repository.UserRepositoryI) UserServiceI {
-	return &UserService{
-		UserRepo: ur,
+func NewUserService(userRepository userRepository, enencryptor encryptor) UserService {
+	return UserService{
+		userRepository: userRepository,
+		encryptor:      enencryptor,
 	}
 }
 
-func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encryptor) error {
-	user, err := srv.UserRepo.FindUserByEmail(req.Email)
-
+// CreateUser Create takes a request with new user credentials and registers it.
+// An error will be returned if a user exists in the system, or
+// if an error occurs during interaction with the database.
+func (s UserService) CreateUser(req request.RegisterRequest) error {
+	user, err := s.userRepository.FindUserByEmail(req.Email)
 	if err != nil {
-		return err
+		return fmt.Errorf("find user by email: %w", err)
 	}
 
 	if user.ID != 0 {
@@ -40,22 +46,18 @@ func (srv UserService) CreateUser(req request.RegisterRequest, en utils.Encrypto
 		)
 	}
 
-	var encryptedPassword string
-
-	encryptedPassword, err = en.Encrypt(req.Password)
-
+	encryptedPassword, err := s.encryptor.Encrypt(req.Password)
 	if err != nil {
-		return err
+		return fmt.Errorf("encrypt password: %w", err)
 	}
 
-	err = srv.UserRepo.StoreUser(model.User{
+	err = s.userRepository.StoreUser(model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,
 	})
-
 	if err != nil {
-		return err
+		return fmt.Errorf("store user: %w", err)
 	}
 
 	return nil

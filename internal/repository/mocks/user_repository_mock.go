@@ -18,6 +18,7 @@ func (u *UserRepositoryMock) FindUserByEmail(email string) (model.User, error) {
 }
 
 func (u *UserRepositoryMock) FindUserByID(id int) model.User {
+	//nolint:gosec // G115: integer overflow conversion int -> uint (gosec)
 	if u.User.ID != uint(id) {
 		return model.User{}
 	}
