@@ -1,6 +1,6 @@
 package response
 
-import "basic_server/internal/model"
+import "github.com/nix-united/golang-gin-boilerplate/internal/model"
 
 type CreatePostResponse struct {
 	ID      uint   `json:"id"`

@@ -1,15 +1,16 @@
 package handler_test
 
 import (
-	"basic_server/internal/handler"
-	"basic_server/internal/request"
-	"basic_server/internal/service"
 	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
+	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

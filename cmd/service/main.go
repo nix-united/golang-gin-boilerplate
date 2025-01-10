@@ -1,12 +1,13 @@
 package main
 
 import (
-	"basic_server/docs"
-	application "basic_server/internal"
-	"basic_server/internal/config"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/nix-united/golang-gin-boilerplate/docs"
+	application "github.com/nix-united/golang-gin-boilerplate/internal"
+	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 
 	"github.com/joho/godotenv"
 )

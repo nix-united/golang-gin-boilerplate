@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	srverrors "basic_server/internal/errors"
-	"basic_server/internal/model"
-	"basic_server/internal/request"
-	"basic_server/internal/service"
+	srverrors "github.com/nix-united/golang-gin-boilerplate/internal/errors"
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

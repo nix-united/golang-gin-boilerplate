@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "basic_server/internal/model"
+	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 
 	mock "github.com/stretchr/testify/mock"
 )

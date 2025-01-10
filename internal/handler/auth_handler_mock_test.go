@@ -10,7 +10,7 @@
 package handler_test
 
 import (
-	request "basic_server/internal/request"
+	request "github.com/nix-united/golang-gin-boilerplate/internal/request"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

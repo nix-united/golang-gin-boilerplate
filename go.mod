@@ -1,4 +1,4 @@
-module basic_server
+module github.com/nix-united/golang-gin-boilerplate
 
 go 1.23.2
 
