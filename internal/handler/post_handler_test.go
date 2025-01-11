@@ -152,14 +152,14 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 		Content: "New Content",
 	}
 
-	createPostRequest := request.CreatePostRequest{
+	updatePostRequest := request.UpdatePostRequest{
 		BasicPost: &request.BasicPost{
 			Title:   "New Title",
 			Content: "New Content",
 		},
 	}
 
-	rawCreatePostRequest, err := json.Marshal(createPostRequest)
+	rawUpdatePostRequest, err := json.Marshal(updatePostRequest)
 	require.NoError(t, err)
 
 	postService.
@@ -175,7 +175,7 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 		Save(&newPost).
 		Return(nil)
 
-	httpRequest := httptest.NewRequest(http.MethodPut, "/post/100", bytes.NewReader(rawCreatePostRequest))
+	httpRequest := httptest.NewRequest(http.MethodPut, "/post/100", bytes.NewReader(rawUpdatePostRequest))
 
 	recorder := httptest.NewRecorder()
 	engine.ServeHTTP(recorder, httpRequest)
