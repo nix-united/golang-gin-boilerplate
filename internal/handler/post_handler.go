@@ -13,13 +13,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PostHandler struct {
-	PostService service.PostServiceI
+type postService interface {
+	CreatePost(title, content string, userID uint) (*model.Post, *service.RestError)
+	GetAll(posts *[]model.Post) *service.RestError
+	GetByID(id int, post *model.Post) *service.RestError
+	Create(post *model.Post) *service.RestError
+	Save(post *model.Post) *service.RestError
+	Delete(post *model.Post) *service.RestError
 }
 
-func NewPostHandler(postService service.PostServiceI) *PostHandler {
-	return &PostHandler{
-		PostService: postService,
+type PostHandler struct {
+	postService postService
+}
+
+func NewPostHandler(postService postService) PostHandler {
+	return PostHandler{
+		postService: postService,
 	}
 }
 
@@ -38,7 +47,7 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 	id, _ := strconv.Atoi(context.Param("id"))
 
 	post := model.Post{}
-	if err := handler.PostService.GetByID(id, &post); err != nil {
+	if err := handler.postService.GetByID(id, &post); err != nil {
 		response.ErrorResponse(context, err.Status, "Server error")
 		return
 	}
@@ -69,7 +78,6 @@ func (handler PostHandler) GetPostByID(context *gin.Context) {
 // @Router /posts [post]
 func (handler PostHandler) SavePost(context *gin.Context) {
 	var createPostRequest request.CreatePostRequest
-
 	if err := context.ShouldBindJSON(&createPostRequest); err != nil {
 		response.ErrorResponse(context, http.StatusBadRequest, "Required fields are empty")
 		return
@@ -78,7 +86,7 @@ func (handler PostHandler) SavePost(context *gin.Context) {
 	claims := jwt.ExtractClaims(context)
 	id := claims["id"].(float64)
 
-	newPost, restError := handler.PostService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
+	newPost, restError := handler.postService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
 	if restError != nil {
 		response.ErrorResponse(context, restError.Status, "Post can't be created")
 		return
@@ -116,7 +124,7 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 	id, _ := strconv.Atoi(context.Param("id"))
 
 	post := model.Post{}
-	if err := handler.PostService.GetByID(id, &post); err != nil {
+	if err := handler.postService.GetByID(id, &post); err != nil {
 		response.ErrorResponse(context, err.Status, "Server error")
 		return
 	}
@@ -128,7 +136,7 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 
 	post.Title = updatePostRequest.Title
 	post.Content = updatePostRequest.Content
-	if err := handler.PostService.Save(&post); err != nil {
+	if err := handler.postService.Save(&post); err != nil {
 		response.ErrorResponse(context, err.Status, "Data was not saved")
 		return
 	}
@@ -152,7 +160,7 @@ func (handler PostHandler) UpdatePost(context *gin.Context) {
 // @Router /posts [get]
 func (handler PostHandler) GetPosts(context *gin.Context) {
 	var posts []model.Post
-	if err := handler.PostService.GetAll(&posts); err != nil {
+	if err := handler.postService.GetAll(&posts); err != nil {
 		response.ErrorResponse(context, http.StatusInternalServerError, "Server error")
 		return
 	}
@@ -172,7 +180,7 @@ func (handler PostHandler) GetPosts(context *gin.Context) {
 func (handler PostHandler) DeletePost(context *gin.Context) {
 	post := model.Post{}
 	id, _ := strconv.Atoi(context.Param("id"))
-	if err := handler.PostService.GetByID(id, &post); err != nil {
+	if err := handler.postService.GetByID(id, &post); err != nil {
 		response.ErrorResponse(context, err.Status, "Server error")
 		return
 	}
@@ -182,7 +190,7 @@ func (handler PostHandler) DeletePost(context *gin.Context) {
 		return
 	}
 
-	if err := handler.PostService.Delete(&post); err != nil {
+	if err := handler.postService.Delete(&post); err != nil {
 		response.ErrorResponse(context, err.Status, "Server error")
 		return
 	}
