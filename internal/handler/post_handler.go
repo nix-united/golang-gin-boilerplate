@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
+
 type postService interface {
 	CreatePost(title, content string, userID uint) (*model.Post, *service.RestError)
 	GetAll(posts *[]model.Post) *service.RestError
