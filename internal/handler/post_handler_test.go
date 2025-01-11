@@ -244,3 +244,43 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
 }
+
+func TestPostHandler_DeletePost(t *testing.T) {
+	engine, postService := newPostHandler(t)
+
+	post := model.Post{
+		Model: gorm.Model{
+			ID: 100,
+		},
+		Title:   "Title",
+		Content: "Content",
+	}
+
+	postService.
+		EXPECT().
+		GetByID(100, &model.Post{}).
+		DoAndReturn(func(i int, p *model.Post) *service.RestError {
+			(*p) = post
+			return nil
+		})
+
+	postService.
+		EXPECT().
+		Delete(&post).
+		Return(nil)
+
+	httpRequest := httptest.NewRequest(http.MethodDelete, "/post/100", http.NoBody)
+
+	recorder := httptest.NewRecorder()
+	engine.ServeHTTP(recorder, httpRequest)
+
+	response := recorder.Result()
+	defer response.Body.Close()
+
+	responseBody, err := io.ReadAll(response.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	assert.Equal(t, `"Post delete successfully"`, string(responseBody))
+}
