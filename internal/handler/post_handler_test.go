@@ -132,3 +132,67 @@ func TestPostHandler_SavePost(t *testing.T) {
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
 }
+
+func TestPostHandler_UpdatePost(t *testing.T) {
+	engine, postService := newPostHandler(t)
+
+	post := model.Post{
+		Model: gorm.Model{
+			ID: 100,
+		},
+		Title:   "Title",
+		Content: "Content",
+	}
+
+	newPost := model.Post{
+		Model: gorm.Model{
+			ID: 100,
+		},
+		Title:   "New Title",
+		Content: "New Content",
+	}
+
+	createPostRequest := request.CreatePostRequest{
+		BasicPost: &request.BasicPost{
+			Title:   "New Title",
+			Content: "New Content",
+		},
+	}
+
+	rawCreatePostRequest, err := json.Marshal(createPostRequest)
+	require.NoError(t, err)
+
+	postService.
+		EXPECT().
+		GetByID(100, &model.Post{}).
+		DoAndReturn(func(i int, p *model.Post) *service.RestError {
+			(*p) = post
+			return nil
+		})
+
+	postService.
+		EXPECT().
+		Save(&newPost).
+		Return(nil)
+
+	httpRequest := httptest.NewRequest(http.MethodPut, "/post/100", bytes.NewReader(rawCreatePostRequest))
+
+	recorder := httptest.NewRecorder()
+	engine.ServeHTTP(recorder, httpRequest)
+
+	response := recorder.Result()
+	defer response.Body.Close()
+
+	responseBody, err := io.ReadAll(response.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	expectedResponse := `{
+		"id": 100,
+		"title": "New Title",
+		"content": "New Content"
+	}`
+
+	assert.JSONEq(t, expectedResponse, string(responseBody))
+}
