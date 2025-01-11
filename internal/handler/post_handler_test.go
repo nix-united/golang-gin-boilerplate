@@ -196,3 +196,51 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
 }
+
+func TestPostHandler_GetPosts(t *testing.T) {
+	engine, postService := newPostHandler(t)
+
+	post := model.Post{
+		Model: gorm.Model{
+			ID: 100,
+		},
+		Title:   "Title",
+		Content: "Content",
+	}
+
+	postService.
+		EXPECT().
+		GetAll(gomock.Any()).
+		DoAndReturn(func(p *[]model.Post) *service.RestError {
+			(*p) = []model.Post{post}
+			return nil
+		})
+
+	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
+
+	recorder := httptest.NewRecorder()
+	engine.ServeHTTP(recorder, httpRequest)
+
+	response := recorder.Result()
+	defer response.Body.Close()
+
+	responseBody, err := io.ReadAll(response.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	expectedResponse := `{
+		"collection": [
+			{
+				"id": 100,
+				"title": "Title",
+				"content": "Content"
+			}
+		],
+		"meta": {
+			"amount": 1
+		}
+	}`
+
+	assert.JSONEq(t, expectedResponse, string(responseBody))
+}
