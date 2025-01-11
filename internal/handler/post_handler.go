@@ -44,7 +44,11 @@ func NewPostHandler(postService postService) PostHandler {
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
 func (h PostHandler) GetPostByID(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
@@ -84,7 +88,11 @@ func (h PostHandler) SavePost(c *gin.Context) {
 	}
 
 	claims := jwt.ExtractClaims(c)
-	id := claims["id"].(float64)
+	id, ok := claims["id"].(float64)
+	if !ok {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
 
 	newPost, restError := h.postService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
 	if restError != nil {
@@ -120,7 +128,11 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
@@ -179,7 +191,11 @@ func (h PostHandler) GetPosts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h PostHandler) DeletePost(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
