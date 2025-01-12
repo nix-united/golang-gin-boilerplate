@@ -39,3 +39,30 @@ func TestPostService_CreatePost(t *testing.T) {
 
 	assert.Equal(t, expectedCreatedPost, post)
 }
+
+func TestPostService_Create(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	postRepository := NewMockpostRepository(ctrl)
+	postService := service.NewPostService(postRepository)
+
+	postToCreate := &model.Post{
+		Title:   "Title",
+		Content: "Content",
+		UserID:  100,
+	}
+
+	expectedCreatedPost := new(model.Post)
+	*expectedCreatedPost = *postToCreate
+	expectedCreatedPost.ID = 101
+
+	postRepository.
+		EXPECT().
+		Create(postToCreate).
+		DoAndReturn(func(p *model.Post) error {
+			(*p) = *expectedCreatedPost
+			return nil
+		})
+
+	err := postService.Create(postToCreate)
+	assert.Nil(t, err)
+}
