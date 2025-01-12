@@ -9,12 +9,12 @@ import (
 )
 
 type Server struct {
-	Cfg *config.Config
+	Cfg config.Config
 	Gin *gin.Engine
 	DB  *gorm.DB
 }
 
-func NewServer(cfg *config.Config) *Server {
+func NewServer(cfg config.Config) *Server {
 	return &Server{
 		Cfg: cfg,
 		Gin: gin.Default(),

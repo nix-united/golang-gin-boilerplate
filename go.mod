@@ -57,7 +57,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-require go.uber.org/mock v0.5.0
+require (
+	github.com/caarlos0/env v3.5.0+incompatible
+	go.uber.org/mock v0.5.0
+)
 
 require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDB(cfg *config.DBConfig) *gorm.DB {
+func InitDB(cfg config.DB) *gorm.DB {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		cfg.User,
 		cfg.Password,
