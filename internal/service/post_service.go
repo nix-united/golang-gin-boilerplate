@@ -6,6 +6,8 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=post_service_mock_test.go -package=${GOPACKAGE}_test -typed=true
+
 type postRepository interface {
 	GetAll(posts *[]model.Post) error
 	GetByID(id int, post *model.Post) error
