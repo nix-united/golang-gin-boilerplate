@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
-	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 )
 
 type UserRepositoryMock struct {
@@ -30,7 +29,7 @@ func (u *UserRepositoryMock) StoreUser(model.User) error {
 	return nil
 }
 
-func NewUserRepositoryMock(user *model.User) repository.UserRepositoryI {
+func NewUserRepositoryMock(user *model.User) *UserRepositoryMock {
 	return &UserRepositoryMock{
 		User: user,
 	}

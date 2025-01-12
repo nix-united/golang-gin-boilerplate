@@ -8,37 +8,32 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepositoryI interface {
-	FindUserByEmail(email string) (model.User, error)
-	FindUserByID(id int) model.User
-	StoreUser(user model.User) error
-}
-
 type UserRepository struct {
-	storage *gorm.DB
+	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepositoryI {
-	return &UserRepository{storage: db}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return UserRepository{db: db}
 }
 
-func (repo *UserRepository) FindUserByEmail(email string) (model.User, error) {
+func (r UserRepository) FindUserByEmail(email string) (model.User, error) {
 	var user model.User
-	err := repo.storage.Where("email = ?", email).Find(&user).Error
+	err := r.db.Where("email = ?", email).Find(&user).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return model.User{}, err
 	}
+
 	return user, nil
 }
 
-func (repo *UserRepository) FindUserByID(id int) model.User {
+func (r UserRepository) FindUserByID(id int) model.User {
 	var user model.User
-	repo.storage.Where("id = ?", id).First(&user)
+	r.db.Where("id = ?", id).First(&user)
 
 	return user
 }
 
-func (repo *UserRepository) StoreUser(user model.User) error { //nolint
-	return repo.storage.Create(&user).Error
+func (r UserRepository) StoreUser(user model.User) error {
+	return r.db.Create(&user).Error
 }
