@@ -36,13 +36,13 @@ func run() error {
 		return fmt.Errorf("load env file: %w", err)
 	}
 
-	var c config.Config
-	if err := env.Parse(&c); err != nil {
+	var cfg config.Config
+	if err := env.Parse(&cfg); err != nil {
 		return fmt.Errorf("parse env: %w", err)
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", c.HTTP.Host, c.HTTP.Port)
-	application.Start(c)
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)
+	application.Start(cfg)
 
 	return nil
 }
