@@ -6,40 +6,30 @@ import (
 	"gorm.io/gorm"
 )
 
-type PostRepositoryI interface {
-	GetAll(posts *[]model.Post) error
-	GetByID(id int, post *model.Post) error
-	Create(post *model.Post) error
-	Save(post *model.Post) error
-	Delete(post *model.Post) error
-}
-
 type PostRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
-func NewPostRepository(db *gorm.DB) *PostRepository {
-	return &PostRepository{
-		DB: db,
-	}
+func NewPostRepository(db *gorm.DB) PostRepository {
+	return PostRepository{db: db}
 }
 
-func (repository *PostRepository) GetAll(posts *[]model.Post) error {
-	return repository.DB.Find(posts).Error
+func (r PostRepository) GetAll(posts *[]model.Post) error {
+	return r.db.Find(posts).Error
 }
 
-func (repository *PostRepository) GetByID(id int, post *model.Post) error {
-	return repository.DB.Where("id = ? ", id).Find(post).Error
+func (r PostRepository) GetByID(id int, post *model.Post) error {
+	return r.db.Where("id = ? ", id).Find(post).Error
 }
 
-func (repository *PostRepository) Create(post *model.Post) error {
-	return repository.DB.Create(post).Error
+func (r PostRepository) Create(post *model.Post) error {
+	return r.db.Create(post).Error
 }
 
-func (repository *PostRepository) Save(post *model.Post) error {
-	return repository.DB.Save(post).Error
+func (r PostRepository) Save(post *model.Post) error {
+	return r.db.Save(post).Error
 }
 
-func (repository *PostRepository) Delete(post *model.Post) error {
-	return repository.DB.Delete(post).Error
+func (r PostRepository) Delete(post *model.Post) error {
+	return r.db.Delete(post).Error
 }
