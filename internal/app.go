@@ -1,9 +1,10 @@
 package application
 
 import (
-	"basic_server/internal/config"
-	"basic_server/internal/server"
 	"log"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/config"
+	"github.com/nix-united/golang-gin-boilerplate/internal/server"
 )
 
 func Start(cfg *config.Config) {

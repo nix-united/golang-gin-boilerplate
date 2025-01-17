@@ -1,6 +1,6 @@
 package service
 
-import "basic_server/internal/errors"
+import "github.com/nix-united/golang-gin-boilerplate/internal/errors"
 
 type RestError struct {
 	Status int   `json:"Status"`

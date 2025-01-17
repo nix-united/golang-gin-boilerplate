@@ -1,11 +1,11 @@
 package server
 
 import (
-	"basic_server/internal/handler"
-	"basic_server/internal/provider"
-	"basic_server/internal/repository"
-	"basic_server/internal/service"
-	"basic_server/internal/utils"
+	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
+	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
+	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

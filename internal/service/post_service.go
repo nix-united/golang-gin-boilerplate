@@ -1,9 +1,10 @@
 package service
 
 import (
-	"basic_server/internal/model"
-	"basic_server/internal/repository"
 	"net/http"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 )
 
 type PostServiceI interface {

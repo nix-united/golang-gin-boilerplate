@@ -1,10 +1,11 @@
 package db
 
 import (
-	"basic_server/internal/config"
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

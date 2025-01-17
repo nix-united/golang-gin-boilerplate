@@ -1,7 +1,7 @@
 package service
 
 import (
-	"basic_server/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 
 	"gorm.io/gorm"
 )

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"basic_server/internal/model"
-	"basic_server/internal/request"
 	"fmt"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=user_service_mock_test.go -package=${GOPACKAGE}_test -typed=true

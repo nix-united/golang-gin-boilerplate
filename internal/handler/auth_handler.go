@@ -1,11 +1,12 @@
 package handler
 
 import (
-	operror "basic_server/internal/errors"
-	"basic_server/internal/request"
-	"basic_server/internal/response"
 	"errors"
 	"net/http"
+
+	operror "github.com/nix-united/golang-gin-boilerplate/internal/errors"
+	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,13 +1,14 @@
 package provider
 
 import (
-	"basic_server/internal/model"
-	"basic_server/internal/repository"
-	"basic_server/internal/request"
-	"basic_server/internal/utils"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
+	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"

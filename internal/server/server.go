@@ -1,8 +1,8 @@
 package server
 
 import (
-	"basic_server/internal/config"
-	"basic_server/internal/db"
+	"github.com/nix-united/golang-gin-boilerplate/internal/config"
+	"github.com/nix-united/golang-gin-boilerplate/internal/db"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

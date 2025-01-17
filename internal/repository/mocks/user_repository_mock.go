@@ -1,9 +1,10 @@
 package mocks
 
 import (
-	"basic_server/internal/model"
-	"basic_server/internal/repository"
 	"errors"
+
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 )
 
 type UserRepositoryMock struct {
