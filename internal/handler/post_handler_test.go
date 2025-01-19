@@ -11,7 +11,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -58,7 +57,7 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
+		DoAndReturn(func(i int, p *model.Post) error {
 			(*p) = post
 			return nil
 		})
@@ -165,7 +164,7 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
+		DoAndReturn(func(i int, p *model.Post) error {
 			(*p) = post
 			return nil
 		})
@@ -211,7 +210,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 	postService.
 		EXPECT().
 		GetAll(gomock.Any()).
-		DoAndReturn(func(p *[]model.Post) *service.RestError {
+		DoAndReturn(func(p *[]model.Post) error {
 			(*p) = []model.Post{post}
 			return nil
 		})
@@ -259,7 +258,7 @@ func TestPostHandler_DeletePost(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
+		DoAndReturn(func(i int, p *model.Post) error {
 			(*p) = post
 			return nil
 		})

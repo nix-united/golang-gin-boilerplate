@@ -13,7 +13,6 @@ import (
 	reflect "reflect"
 
 	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
-	service "github.com/nix-united/golang-gin-boilerplate/internal/service"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +40,10 @@ func (m *MockpostService) EXPECT() *MockpostServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockpostService) Create(post *model.Post) *service.RestError {
+func (m *MockpostService) Create(post *model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(*service.RestError)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -61,29 +60,29 @@ type MockpostServiceCreateCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceCreateCall) Return(arg0 *service.RestError) *MockpostServiceCreateCall {
+func (c *MockpostServiceCreateCall) Return(arg0 error) *MockpostServiceCreateCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceCreateCall) Do(f func(*model.Post) *service.RestError) *MockpostServiceCreateCall {
+func (c *MockpostServiceCreateCall) Do(f func(*model.Post) error) *MockpostServiceCreateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceCreateCall) DoAndReturn(f func(*model.Post) *service.RestError) *MockpostServiceCreateCall {
+func (c *MockpostServiceCreateCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceCreateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // CreatePost mocks base method.
-func (m *MockpostService) CreatePost(title, content string, userID uint) (*model.Post, *service.RestError) {
+func (m *MockpostService) CreatePost(title, content string, userID uint) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePost", title, content, userID)
 	ret0, _ := ret[0].(*model.Post)
-	ret1, _ := ret[1].(*service.RestError)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -100,28 +99,28 @@ type MockpostServiceCreatePostCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceCreatePostCall) Return(arg0 *model.Post, arg1 *service.RestError) *MockpostServiceCreatePostCall {
+func (c *MockpostServiceCreatePostCall) Return(arg0 *model.Post, arg1 error) *MockpostServiceCreatePostCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceCreatePostCall) Do(f func(string, string, uint) (*model.Post, *service.RestError)) *MockpostServiceCreatePostCall {
+func (c *MockpostServiceCreatePostCall) Do(f func(string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceCreatePostCall) DoAndReturn(f func(string, string, uint) (*model.Post, *service.RestError)) *MockpostServiceCreatePostCall {
+func (c *MockpostServiceCreatePostCall) DoAndReturn(f func(string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Delete mocks base method.
-func (m *MockpostService) Delete(post *model.Post) *service.RestError {
+func (m *MockpostService) Delete(post *model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", post)
-	ret0, _ := ret[0].(*service.RestError)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -138,28 +137,28 @@ type MockpostServiceDeleteCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceDeleteCall) Return(arg0 *service.RestError) *MockpostServiceDeleteCall {
+func (c *MockpostServiceDeleteCall) Return(arg0 error) *MockpostServiceDeleteCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceDeleteCall) Do(f func(*model.Post) *service.RestError) *MockpostServiceDeleteCall {
+func (c *MockpostServiceDeleteCall) Do(f func(*model.Post) error) *MockpostServiceDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceDeleteCall) DoAndReturn(f func(*model.Post) *service.RestError) *MockpostServiceDeleteCall {
+func (c *MockpostServiceDeleteCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // GetAll mocks base method.
-func (m *MockpostService) GetAll(posts *[]model.Post) *service.RestError {
+func (m *MockpostService) GetAll(posts *[]model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll", posts)
-	ret0, _ := ret[0].(*service.RestError)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -176,28 +175,28 @@ type MockpostServiceGetAllCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceGetAllCall) Return(arg0 *service.RestError) *MockpostServiceGetAllCall {
+func (c *MockpostServiceGetAllCall) Return(arg0 error) *MockpostServiceGetAllCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceGetAllCall) Do(f func(*[]model.Post) *service.RestError) *MockpostServiceGetAllCall {
+func (c *MockpostServiceGetAllCall) Do(f func(*[]model.Post) error) *MockpostServiceGetAllCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceGetAllCall) DoAndReturn(f func(*[]model.Post) *service.RestError) *MockpostServiceGetAllCall {
+func (c *MockpostServiceGetAllCall) DoAndReturn(f func(*[]model.Post) error) *MockpostServiceGetAllCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // GetByID mocks base method.
-func (m *MockpostService) GetByID(id int, post *model.Post) *service.RestError {
+func (m *MockpostService) GetByID(id int, post *model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id, post)
-	ret0, _ := ret[0].(*service.RestError)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -214,28 +213,28 @@ type MockpostServiceGetByIDCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceGetByIDCall) Return(arg0 *service.RestError) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) Return(arg0 error) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceGetByIDCall) Do(f func(int, *model.Post) *service.RestError) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) Do(f func(int, *model.Post) error) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(int, *model.Post) *service.RestError) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(int, *model.Post) error) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Save mocks base method.
-func (m *MockpostService) Save(post *model.Post) *service.RestError {
+func (m *MockpostService) Save(post *model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", post)
-	ret0, _ := ret[0].(*service.RestError)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -252,19 +251,19 @@ type MockpostServiceSaveCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceSaveCall) Return(arg0 *service.RestError) *MockpostServiceSaveCall {
+func (c *MockpostServiceSaveCall) Return(arg0 error) *MockpostServiceSaveCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceSaveCall) Do(f func(*model.Post) *service.RestError) *MockpostServiceSaveCall {
+func (c *MockpostServiceSaveCall) Do(f func(*model.Post) error) *MockpostServiceSaveCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceSaveCall) DoAndReturn(f func(*model.Post) *service.RestError) *MockpostServiceSaveCall {
+func (c *MockpostServiceSaveCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceSaveCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

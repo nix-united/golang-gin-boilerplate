@@ -7,7 +7,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -16,12 +15,12 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postService interface {
-	CreatePost(title, content string, userID uint) (*model.Post, *service.RestError)
-	GetAll(posts *[]model.Post) *service.RestError
-	GetByID(id int, post *model.Post) *service.RestError
-	Create(post *model.Post) *service.RestError
-	Save(post *model.Post) *service.RestError
-	Delete(post *model.Post) *service.RestError
+	CreatePost(title, content string, userID uint) (*model.Post, error)
+	GetAll(posts *[]model.Post) error
+	GetByID(id int, post *model.Post) error
+	Create(post *model.Post) error
+	Save(post *model.Post) error
+	Delete(post *model.Post) error
 }
 
 type PostHandler struct {
@@ -54,7 +53,7 @@ func (h PostHandler) GetPostByID(c *gin.Context) {
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
-		response.ErrorResponse(c, err.Status, "Server error")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -98,7 +97,7 @@ func (h PostHandler) SavePost(c *gin.Context) {
 
 	newPost, restError := h.postService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
 	if restError != nil {
-		response.ErrorResponse(c, restError.Status, "Post can't be created")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Post can't be created")
 		return
 	}
 
@@ -138,7 +137,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
-		response.ErrorResponse(c, err.Status, "Server error")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -151,7 +150,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 	post.Content = updatePostRequest.Content
 
 	if err := h.postService.Save(&post); err != nil {
-		response.ErrorResponse(c, err.Status, "Data was not saved")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Data was not saved")
 		return
 	}
 
@@ -201,7 +200,7 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 
 	var post model.Post
 	if err := h.postService.GetByID(id, &post); err != nil {
-		response.ErrorResponse(c, err.Status, "Server error")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -211,7 +210,7 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 	}
 
 	if err := h.postService.Delete(&post); err != nil {
-		response.ErrorResponse(c, err.Status, "Server error")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
