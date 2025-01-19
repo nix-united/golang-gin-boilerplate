@@ -57,9 +57,7 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100).
-		DoAndReturn(func(i int) (*model.Post, error) {
-			return post, nil
-		})
+		Return(post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/post/100", http.NoBody)
 
@@ -163,9 +161,7 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100).
-		DoAndReturn(func(i int) (*model.Post, error) {
-			return post, nil
-		})
+		Return(post, nil)
 
 	postService.
 		EXPECT().
@@ -253,9 +249,7 @@ func TestPostHandler_DeletePost(t *testing.T) {
 	postService.
 		EXPECT().
 		GetByID(100).
-		DoAndReturn(func(i int) (*model.Post, error) {
-			return post, nil
-		})
+		Return(post, nil)
 
 	postService.
 		EXPECT().

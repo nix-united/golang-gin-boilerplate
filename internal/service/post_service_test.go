@@ -104,9 +104,7 @@ func TestPostService_GetByID(t *testing.T) {
 	postRepository.
 		EXPECT().
 		GetByID(101).
-		DoAndReturn(func(i int) (*model.Post, error) {
-			return storedPost, nil
-		})
+		Return(storedPost, nil)
 
 	post, err := postService.GetByID(101)
 	require.Nil(t, err)
