@@ -16,7 +16,7 @@ import (
 
 type postService interface {
 	CreatePost(title, content string, userID uint) (*model.Post, error)
-	GetAll(posts *[]model.Post) error
+	GetAll() ([]model.Post, error)
 	GetByID(id int) (*model.Post, error)
 	Create(post *model.Post) error
 	Save(post *model.Post) error
@@ -172,8 +172,8 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h PostHandler) GetPosts(c *gin.Context) {
-	var posts []model.Post
-	if err := h.postService.GetAll(&posts); err != nil {
+	posts, err := h.postService.GetAll()
+	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}

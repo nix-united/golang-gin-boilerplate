@@ -207,11 +207,8 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetAll(gomock.Any()).
-		DoAndReturn(func(p *[]model.Post) error {
-			(*p) = []model.Post{post}
-			return nil
-		})
+		GetAll().
+		Return([]model.Post{post}, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
 

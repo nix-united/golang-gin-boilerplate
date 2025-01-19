@@ -81,14 +81,10 @@ func TestPostService_GetAll(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		GetAll(gomock.Any()).
-		DoAndReturn(func(p *[]model.Post) error {
-			*p = storedPosts
-			return nil
-		})
+		GetAll().
+		Return(storedPosts, nil)
 
-	var posts []model.Post
-	err := postService.GetAll(&posts)
+	posts, err := postService.GetAll()
 	require.Nil(t, err)
 
 	assert.Equal(t, storedPosts, posts)

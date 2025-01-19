@@ -116,17 +116,18 @@ func (c *MockpostRepositoryDeleteCall) DoAndReturn(f func(*model.Post) error) *M
 }
 
 // GetAll mocks base method.
-func (m *MockpostRepository) GetAll(posts *[]model.Post) error {
+func (m *MockpostRepository) GetAll() ([]model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", posts)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "GetAll")
+	ret0, _ := ret[0].([]model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockpostRepositoryMockRecorder) GetAll(posts any) *MockpostRepositoryGetAllCall {
+func (mr *MockpostRepositoryMockRecorder) GetAll() *MockpostRepositoryGetAllCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockpostRepository)(nil).GetAll), posts)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockpostRepository)(nil).GetAll))
 	return &MockpostRepositoryGetAllCall{Call: call}
 }
 
@@ -136,19 +137,19 @@ type MockpostRepositoryGetAllCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostRepositoryGetAllCall) Return(arg0 error) *MockpostRepositoryGetAllCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockpostRepositoryGetAllCall) Return(arg0 []model.Post, arg1 error) *MockpostRepositoryGetAllCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostRepositoryGetAllCall) Do(f func(*[]model.Post) error) *MockpostRepositoryGetAllCall {
+func (c *MockpostRepositoryGetAllCall) Do(f func() ([]model.Post, error)) *MockpostRepositoryGetAllCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositoryGetAllCall) DoAndReturn(f func(*[]model.Post) error) *MockpostRepositoryGetAllCall {
+func (c *MockpostRepositoryGetAllCall) DoAndReturn(f func() ([]model.Post, error)) *MockpostRepositoryGetAllCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

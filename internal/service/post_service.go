@@ -9,7 +9,7 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=post_service_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postRepository interface {
-	GetAll(posts *[]model.Post) error
+	GetAll() ([]model.Post, error)
 	GetByID(id int) (*model.Post, error)
 	Create(post *model.Post) error
 	Save(post *model.Post) error
@@ -46,12 +46,13 @@ func (s PostService) Create(post *model.Post) error {
 	return nil
 }
 
-func (s PostService) GetAll(posts *[]model.Post) error {
-	if err := s.postRepository.GetAll(posts); err != nil {
-		return fmt.Errorf("get all posts from repository: %w", err)
+func (s PostService) GetAll() ([]model.Post, error) {
+	posts, err := s.postRepository.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("get all posts from repository: %w", err)
 	}
 
-	return nil
+	return posts, nil
 }
 
 func (s PostService) GetByID(id int) (*model.Post, error) {
