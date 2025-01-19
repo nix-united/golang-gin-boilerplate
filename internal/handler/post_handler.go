@@ -17,7 +17,7 @@ import (
 type postService interface {
 	CreatePost(title, content string, userID uint) (*model.Post, error)
 	GetAll(posts *[]model.Post) error
-	GetByID(id int, post *model.Post) error
+	GetByID(id int) (*model.Post, error)
 	Create(post *model.Post) error
 	Save(post *model.Post) error
 	Delete(post *model.Post) error
@@ -51,8 +51,8 @@ func (h PostHandler) GetPostByID(c *gin.Context) {
 		return
 	}
 
-	var post model.Post
-	if err := h.postService.GetByID(id, &post); err != nil {
+	post, err := h.postService.GetByID(id)
+	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
@@ -135,8 +135,8 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	var post model.Post
-	if err := h.postService.GetByID(id, &post); err != nil {
+	post, err := h.postService.GetByID(id)
+	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
@@ -149,7 +149,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 	post.Title = updatePostRequest.Title
 	post.Content = updatePostRequest.Content
 
-	if err := h.postService.Save(&post); err != nil {
+	if err := h.postService.Save(post); err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Data was not saved")
 		return
 	}
@@ -198,8 +198,8 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	var post model.Post
-	if err := h.postService.GetByID(id, &post); err != nil {
+	post, err := h.postService.GetByID(id)
+	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
@@ -209,7 +209,7 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	if err := h.postService.Delete(&post); err != nil {
+	if err := h.postService.Delete(post); err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}

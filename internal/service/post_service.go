@@ -10,7 +10,7 @@ import (
 
 type postRepository interface {
 	GetAll(posts *[]model.Post) error
-	GetByID(id int, post *model.Post) error
+	GetByID(id int) (*model.Post, error)
 	Create(post *model.Post) error
 	Save(post *model.Post) error
 	Delete(post *model.Post) error
@@ -54,12 +54,13 @@ func (s PostService) GetAll(posts *[]model.Post) error {
 	return nil
 }
 
-func (s PostService) GetByID(id int, post *model.Post) error {
-	if err := s.postRepository.GetByID(id, post); err != nil {
-		return fmt.Errorf("get post by id from repository: %w", err)
+func (s PostService) GetByID(id int) (*model.Post, error) {
+	post, err := s.postRepository.GetByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("get post by id from repository: %w", err)
 	}
 
-	return nil
+	return post, nil
 }
 
 func (s PostService) Save(post *model.Post) error {

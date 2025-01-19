@@ -10,9 +10,9 @@
 package service_test
 
 import (
-	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 	reflect "reflect"
 
+	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
 

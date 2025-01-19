@@ -193,17 +193,18 @@ func (c *MockpostServiceGetAllCall) DoAndReturn(f func(*[]model.Post) error) *Mo
 }
 
 // GetByID mocks base method.
-func (m *MockpostService) GetByID(id int, post *model.Post) error {
+func (m *MockpostService) GetByID(id int) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", id, post)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "GetByID", id)
+	ret0, _ := ret[0].(*model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockpostServiceMockRecorder) GetByID(id, post any) *MockpostServiceGetByIDCall {
+func (mr *MockpostServiceMockRecorder) GetByID(id any) *MockpostServiceGetByIDCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockpostService)(nil).GetByID), id, post)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockpostService)(nil).GetByID), id)
 	return &MockpostServiceGetByIDCall{Call: call}
 }
 
@@ -213,19 +214,19 @@ type MockpostServiceGetByIDCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostServiceGetByIDCall) Return(arg0 error) *MockpostServiceGetByIDCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockpostServiceGetByIDCall) Return(arg0 *model.Post, arg1 error) *MockpostServiceGetByIDCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceGetByIDCall) Do(f func(int, *model.Post) error) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) Do(f func(int) (*model.Post, error)) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(int, *model.Post) error) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(int) (*model.Post, error)) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
