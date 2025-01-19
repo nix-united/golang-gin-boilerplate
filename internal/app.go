@@ -7,7 +7,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
 )
 
-func Start(cfg *config.Config) {
+func Start(cfg config.Config) {
 	app := server.NewServer(cfg)
 
 	server.ConfigureRoutes(app)

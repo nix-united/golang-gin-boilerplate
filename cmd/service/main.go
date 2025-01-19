@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
+	"log/slog"
 
 	"github.com/nix-united/golang-gin-boilerplate/docs"
 	application "github.com/nix-united/golang-gin-boilerplate/internal"
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 
+	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
 )
 
@@ -26,10 +26,23 @@ import (
 
 // @BasePath /
 func main() {
+	if err := run(); err != nil {
+		slog.Error("Service run error", "err", err.Error())
+	}
+}
+
+func run() error {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file: " + err.Error())
+		return fmt.Errorf("load env file: %w", err)
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
-	application.Start(config.NewConfig())
+	var cfg config.Config
+	if err := env.Parse(&cfg); err != nil {
+		return fmt.Errorf("parse env: %w", err)
+	}
+
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)
+	application.Start(cfg)
+
+	return nil
 }
