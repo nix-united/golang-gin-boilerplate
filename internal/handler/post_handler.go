@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
+	operrors "github.com/nix-united/golang-gin-boilerplate/internal/errors"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
@@ -52,13 +54,12 @@ func (h PostHandler) GetPostByID(c *gin.Context) {
 	}
 
 	post, err := h.postService.GetByID(id)
-	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+	if errors.Is(err, operrors.ErrPostNotFound) {
+		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
 	}
-
-	if post.ID == 0 {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+	if err != nil {
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -136,13 +137,12 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 	}
 
 	post, err := h.postService.GetByID(id)
-	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+	if errors.Is(err, operrors.ErrPostNotFound) {
+		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
 	}
-
-	if post.ID == 0 {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+	if err != nil {
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -199,13 +199,12 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 	}
 
 	post, err := h.postService.GetByID(id)
-	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+	if errors.Is(err, operrors.ErrPostNotFound) {
+		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
 	}
-
-	if post.ID == 0 {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+	if err != nil {
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
