@@ -11,7 +11,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -47,7 +46,7 @@ func newPostHandler(t *testing.T) (*gin.Engine, *MockpostService) {
 func TestPostHandler_GetPostByID(t *testing.T) {
 	engine, postService := newPostHandler(t)
 
-	post := model.Post{
+	post := &model.Post{
 		Model: gorm.Model{
 			ID: 100,
 		},
@@ -57,11 +56,8 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
-			(*p) = post
-			return nil
-		})
+		GetByID(100).
+		Return(post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/post/100", http.NoBody)
 
@@ -136,7 +132,7 @@ func TestPostHandler_SavePost(t *testing.T) {
 func TestPostHandler_UpdatePost(t *testing.T) {
 	engine, postService := newPostHandler(t)
 
-	post := model.Post{
+	post := &model.Post{
 		Model: gorm.Model{
 			ID: 100,
 		},
@@ -164,11 +160,8 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
-			(*p) = post
-			return nil
-		})
+		GetByID(100).
+		Return(post, nil)
 
 	postService.
 		EXPECT().
@@ -210,11 +203,8 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetAll(gomock.Any()).
-		DoAndReturn(func(p *[]model.Post) *service.RestError {
-			(*p) = []model.Post{post}
-			return nil
-		})
+		GetAll().
+		Return([]model.Post{post}, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
 
@@ -248,7 +238,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 func TestPostHandler_DeletePost(t *testing.T) {
 	engine, postService := newPostHandler(t)
 
-	post := model.Post{
+	post := &model.Post{
 		Model: gorm.Model{
 			ID: 100,
 		},
@@ -258,15 +248,12 @@ func TestPostHandler_DeletePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100, &model.Post{}).
-		DoAndReturn(func(i int, p *model.Post) *service.RestError {
-			(*p) = post
-			return nil
-		})
+		GetByID(100).
+		Return(post, nil)
 
 	postService.
 		EXPECT().
-		Delete(&post).
+		Delete(post).
 		Return(nil)
 
 	httpRequest := httptest.NewRequest(http.MethodDelete, "/post/100", http.NoBody)
