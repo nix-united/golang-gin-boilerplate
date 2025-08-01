@@ -1,4 +1,4 @@
-package service_test
+package user_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	srverrors "github.com/nix-united/golang-gin-boilerplate/internal/errors"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,13 +20,13 @@ type userServiceMocks struct {
 	encryptor      *Mockencryptor
 }
 
-func newUserService(t *testing.T) (service.UserService, userServiceMocks) {
+func newUserService(t *testing.T) (user.Service, userServiceMocks) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
 	userRepository := NewMockuserRepository(ctrl)
 	encryptor := NewMockencryptor(ctrl)
-	userService := service.NewUserService(userRepository, encryptor)
+	userService := user.NewService(userRepository, encryptor)
 
 	mocks := userServiceMocks{
 		userRepository: userRepository,
