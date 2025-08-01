@@ -1,6 +1,7 @@
 package post_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
@@ -29,13 +30,13 @@ func TestPostService_CreatePost(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		Create(expectedPostToCreate).
-		DoAndReturn(func(p *model.Post) error {
+		Create(gomock.Any(), expectedPostToCreate).
+		DoAndReturn(func(_ context.Context, p *model.Post) error {
 			(*p) = *expectedCreatedPost
 			return nil
 		})
 
-	post, err := postService.CreatePost("Title", "Content", 100)
+	post, err := postService.CreatePost(t.Context(), "Title", "Content", 100)
 	require.Nil(t, err)
 
 	assert.Equal(t, expectedCreatedPost, post)
@@ -58,13 +59,13 @@ func TestPostService_Create(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		Create(postToCreate).
-		DoAndReturn(func(p *model.Post) error {
+		Create(gomock.Any(), postToCreate).
+		DoAndReturn(func(_ context.Context, p *model.Post) error {
 			(*p) = *expectedCreatedPost
 			return nil
 		})
 
-	err := postService.Create(postToCreate)
+	err := postService.Create(t.Context(), postToCreate)
 	assert.Nil(t, err)
 }
 
@@ -81,10 +82,10 @@ func TestPostService_GetAll(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		GetAll().
+		GetAll(gomock.Any()).
 		Return(storedPosts, nil)
 
-	posts, err := postService.GetAll()
+	posts, err := postService.GetAll(t.Context())
 	require.Nil(t, err)
 
 	assert.Equal(t, storedPosts, posts)
@@ -103,10 +104,10 @@ func TestPostService_GetByID(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		GetByID(101).
+		GetByID(gomock.Any(), 101).
 		Return(storedPost, nil)
 
-	post, err := postService.GetByID(101)
+	post, err := postService.GetByID(t.Context(), 101)
 	require.Nil(t, err)
 
 	assert.Equal(t, storedPost, post)
@@ -128,10 +129,10 @@ func TestPostService_Save(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		Save(post).
+		Save(gomock.Any(), post).
 		Return(nil)
 
-	err := postService.Save(post)
+	err := postService.Save(t.Context(), post)
 	assert.Nil(t, err)
 }
 
@@ -151,9 +152,9 @@ func TestPostService_Delete(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		Delete(post).
+		Delete(gomock.Any(), post).
 		Return(nil)
 
-	err := postService.Delete(post)
+	err := postService.Delete(t.Context(), post)
 	assert.Nil(t, err)
 }

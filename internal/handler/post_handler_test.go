@@ -56,7 +56,7 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100).
+		GetByID(gomock.Any(), 100).
 		Return(post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/post/100", http.NoBody)
@@ -104,7 +104,7 @@ func TestPostHandler_SavePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		CreatePost("Title", "Content", uint(101)).
+		CreatePost(gomock.Any(), "Title", "Content", uint(101)).
 		Return(&post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodPost, "/posts", bytes.NewReader(rawCreatePostRequest))
@@ -160,12 +160,12 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100).
+		GetByID(gomock.Any(), 100).
 		Return(post, nil)
 
 	postService.
 		EXPECT().
-		Save(&newPost).
+		Save(gomock.Any(), &newPost).
 		Return(nil)
 
 	httpRequest := httptest.NewRequest(http.MethodPut, "/post/100", bytes.NewReader(rawUpdatePostRequest))
@@ -203,7 +203,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetAll().
+		GetAll(gomock.Any()).
 		Return([]model.Post{post}, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
@@ -248,12 +248,12 @@ func TestPostHandler_DeletePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(100).
+		GetByID(gomock.Any(), 100).
 		Return(post, nil)
 
 	postService.
 		EXPECT().
-		Delete(post).
+		Delete(gomock.Any(), post).
 		Return(nil)
 
 	httpRequest := httptest.NewRequest(http.MethodDelete, "/post/100", http.NoBody)
