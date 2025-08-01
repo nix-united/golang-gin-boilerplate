@@ -1,6 +1,6 @@
 module github.com/nix-united/golang-gin-boilerplate
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
