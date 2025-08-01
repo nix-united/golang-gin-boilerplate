@@ -51,7 +51,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		FullName: "test full name",
 	}
 
-	userInDB := model.User{
+	userInDB := &model.User{
 		Model: gorm.Model{
 			ID: 1,
 		},
@@ -62,10 +62,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, errors.New("unkown db error"))
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, errors.New("unkown db error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "find user by email")
 	})
 
@@ -74,15 +74,15 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
 			Encrypt("password").
 			Return("", errors.New("encryption error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "encrypt password")
 	})
 
@@ -91,8 +91,8 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
@@ -101,10 +101,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			StoreUser(storedUser).
+			StoreUser(gomock.Any(), storedUser).
 			Return(errors.New("store user error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "store user")
 	})
 
@@ -113,10 +113,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
+			FindUserByEmail(gomock.Any(), "test@test.com").
 			Return(userInDB, nil)
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 
 		var errInvalidStorageOperation srverrors.ErrInvalidStorageOperation
 		require.ErrorAs(t, err, &errInvalidStorageOperation)
@@ -130,8 +130,8 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
@@ -140,10 +140,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			StoreUser(storedUser).
+			StoreUser(gomock.Any(), storedUser).
 			Return(nil)
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.NoError(t, err)
 	})
 }

@@ -10,6 +10,7 @@
 package handler_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	request "github.com/nix-united/golang-gin-boilerplate/internal/request"
@@ -40,17 +41,17 @@ func (m *MockuserService) EXPECT() *MockuserServiceMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockuserService) CreateUser(req request.RegisterRequest) error {
+func (m *MockuserService) CreateUser(ctx context.Context, req request.RegisterRequest) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", req)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, req)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockuserServiceMockRecorder) CreateUser(req any) *MockuserServiceCreateUserCall {
+func (mr *MockuserServiceMockRecorder) CreateUser(ctx, req any) *MockuserServiceCreateUserCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockuserService)(nil).CreateUser), req)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockuserService)(nil).CreateUser), ctx, req)
 	return &MockuserServiceCreateUserCall{Call: call}
 }
 
@@ -66,13 +67,13 @@ func (c *MockuserServiceCreateUserCall) Return(arg0 error) *MockuserServiceCreat
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockuserServiceCreateUserCall) Do(f func(request.RegisterRequest) error) *MockuserServiceCreateUserCall {
+func (c *MockuserServiceCreateUserCall) Do(f func(context.Context, request.RegisterRequest) error) *MockuserServiceCreateUserCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockuserServiceCreateUserCall) DoAndReturn(f func(request.RegisterRequest) error) *MockuserServiceCreateUserCall {
+func (c *MockuserServiceCreateUserCall) DoAndReturn(f func(context.Context, request.RegisterRequest) error) *MockuserServiceCreateUserCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

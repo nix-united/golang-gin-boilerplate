@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"log"
 	"sync"
 	"time"
@@ -104,7 +105,10 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user, _ := userRepository.FindUserByEmail(authRequest.Email)
+	user, err := userRepository.FindUserByEmail(c.Request.Context(), authRequest.Email)
+	if err != nil {
+		return nil, jwt.ErrFailedAuthentication
+	}
 
 	if user.ID == 0 || (bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(authRequest.Password)) != nil) {
 		return user, jwt.ErrFailedAuthentication
@@ -136,7 +140,12 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	return userRepository.FindUserByID(int(userID)).ID != 0
+	_, err := userRepository.FindUserByID(context.TODO(), int(userID))
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {

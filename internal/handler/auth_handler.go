@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -14,7 +15,7 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=auth_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type userService interface {
-	CreateUser(req request.RegisterRequest) error
+	CreateUser(ctx context.Context, req request.RegisterRequest) error
 }
 
 type AuthHandler struct {
@@ -54,7 +55,7 @@ func (h AuthHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	err := h.userService.CreateUser(registerRequest)
+	err := h.userService.CreateUser(c.Request.Context(), registerRequest)
 	if err != nil {
 		var errOperation operror.ErrInvalidStorageOperation
 		if errors.As(err, &errOperation) {
