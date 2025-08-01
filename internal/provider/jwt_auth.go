@@ -141,11 +141,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
 	_, err := userRepository.FindUserByID(context.TODO(), int(userID))
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {
