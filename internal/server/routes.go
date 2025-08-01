@@ -5,6 +5,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -21,7 +22,7 @@ func ConfigureRoutes(server *Server) {
 
 	// Services initialization
 	userService := service.NewUserService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
-	postService := service.NewPostService(postRepo)
+	postService := post.NewService(postRepo)
 
 	// Handlers initialization
 	homeHandler := handler.NewHomeHandler()

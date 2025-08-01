@@ -1,10 +1,10 @@
-package service_test
+package post_test
 
 import (
 	"testing"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,7 +15,7 @@ import (
 func TestPostService_CreatePost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	expectedPostToCreate := &model.Post{
 		Title:   "Title",
@@ -44,7 +44,7 @@ func TestPostService_CreatePost(t *testing.T) {
 func TestPostService_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	postToCreate := &model.Post{
 		Title:   "Title",
@@ -71,7 +71,7 @@ func TestPostService_Create(t *testing.T) {
 func TestPostService_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	storedPosts := []model.Post{{
 		Title:   "Title",
@@ -93,7 +93,7 @@ func TestPostService_GetAll(t *testing.T) {
 func TestPostService_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	storedPost := &model.Post{
 		Title:   "Title",
@@ -115,7 +115,7 @@ func TestPostService_GetByID(t *testing.T) {
 func TestPostService_Save(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	post := &model.Post{
 		Model: gorm.Model{
@@ -138,7 +138,7 @@ func TestPostService_Save(t *testing.T) {
 func TestPostService_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
-	postService := service.NewPostService(postRepository)
+	postService := post.NewService(postRepository)
 
 	post := &model.Post{
 		Model: gorm.Model{

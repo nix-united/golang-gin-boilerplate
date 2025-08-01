@@ -1,4 +1,4 @@
-package service
+package post
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 )
 
-//go:generate mockgen -source=$GOFILE -destination=post_service_mock_test.go -package=${GOPACKAGE}_test -typed=true
+//go:generate mockgen -source=$GOFILE -destination=service_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postRepository interface {
 	GetAll() ([]model.Post, error)
@@ -16,15 +16,15 @@ type postRepository interface {
 	Delete(post *model.Post) error
 }
 
-type PostService struct {
+type Service struct {
 	postRepository postRepository
 }
 
-func NewPostService(postRepository postRepository) PostService {
-	return PostService{postRepository: postRepository}
+func NewService(postRepository postRepository) *Service {
+	return &Service{postRepository: postRepository}
 }
 
-func (s PostService) CreatePost(title, content string, userID uint) (*model.Post, error) {
+func (s *Service) CreatePost(title, content string, userID uint) (*model.Post, error) {
 	post := &model.Post{
 		Title:   title,
 		Content: content,
@@ -38,7 +38,7 @@ func (s PostService) CreatePost(title, content string, userID uint) (*model.Post
 	return post, nil
 }
 
-func (s PostService) Create(post *model.Post) error {
+func (s *Service) Create(post *model.Post) error {
 	if err := s.postRepository.Create(post); err != nil {
 		return fmt.Errorf("create post in repository: %w", err)
 	}
@@ -46,7 +46,7 @@ func (s PostService) Create(post *model.Post) error {
 	return nil
 }
 
-func (s PostService) GetAll() ([]model.Post, error) {
+func (s *Service) GetAll() ([]model.Post, error) {
 	posts, err := s.postRepository.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("get all posts from repository: %w", err)
@@ -55,7 +55,7 @@ func (s PostService) GetAll() ([]model.Post, error) {
 	return posts, nil
 }
 
-func (s PostService) GetByID(id int) (*model.Post, error) {
+func (s *Service) GetByID(id int) (*model.Post, error) {
 	post, err := s.postRepository.GetByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("get post by id from repository: %w", err)
@@ -64,7 +64,7 @@ func (s PostService) GetByID(id int) (*model.Post, error) {
 	return post, nil
 }
 
-func (s PostService) Save(post *model.Post) error {
+func (s *Service) Save(post *model.Post) error {
 	if err := s.postRepository.Save(post); err != nil {
 		return fmt.Errorf("save post in repository: %w", err)
 	}
@@ -72,7 +72,7 @@ func (s PostService) Save(post *model.Post) error {
 	return nil
 }
 
-func (s PostService) Delete(post *model.Post) error {
+func (s *Service) Delete(post *model.Post) error {
 	if err := s.postRepository.Delete(post); err != nil {
 		return fmt.Errorf("delete post from repository: %w", err)
 	}
