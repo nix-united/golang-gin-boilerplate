@@ -1,5 +1,5 @@
 # base image
-FROM golang:1.20.1-alpine3.17 as build
+FROM golang:1.24.4-alpine3.22 as build
 
 # install system utils
 RUN apk add --no-cache --update git build-base openssh-client
