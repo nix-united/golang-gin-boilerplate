@@ -45,7 +45,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		FullName: "test full name",
 	}
 
-	storedUser := model.User{
+	storedUser := &model.User{
 		Email:    "test@test.com",
 		Password: "encrypted password",
 		FullName: "test full name",
