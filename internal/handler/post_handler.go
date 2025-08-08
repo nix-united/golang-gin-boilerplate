@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,12 +18,12 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postService interface {
-	CreatePost(title, content string, userID uint) (*model.Post, error)
-	GetAll() ([]model.Post, error)
-	GetByID(id int) (*model.Post, error)
-	Create(post *model.Post) error
-	Save(post *model.Post) error
-	Delete(post *model.Post) error
+	CreatePost(ctx context.Context, title, content string, userID uint) (*model.Post, error)
+	GetAll(ctx context.Context) ([]model.Post, error)
+	GetByID(ctx context.Context, id int) (*model.Post, error)
+	Create(ctx context.Context, post *model.Post) error
+	Save(ctx context.Context, post *model.Post) error
+	Delete(ctx context.Context, post *model.Post) error
 }
 
 type PostHandler struct {
@@ -53,7 +54,7 @@ func (h PostHandler) GetPostByID(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.GetByID(id)
+	post, err := h.postService.GetByID(c.Request.Context(), id)
 	if errors.Is(err, operrors.ErrPostNotFound) {
 		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
@@ -96,7 +97,12 @@ func (h PostHandler) SavePost(c *gin.Context) {
 		return
 	}
 
-	newPost, restError := h.postService.CreatePost(createPostRequest.Title, createPostRequest.Content, uint(id))
+	newPost, restError := h.postService.CreatePost(
+		c.Request.Context(),
+		createPostRequest.Title,
+		createPostRequest.Content,
+		uint(id),
+	)
 	if restError != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Post can't be created")
 		return
@@ -136,7 +142,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.GetByID(id)
+	post, err := h.postService.GetByID(c.Request.Context(), id)
 	if errors.Is(err, operrors.ErrPostNotFound) {
 		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
@@ -149,7 +155,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 	post.Title = updatePostRequest.Title
 	post.Content = updatePostRequest.Content
 
-	if err := h.postService.Save(post); err != nil {
+	if err := h.postService.Save(c.Request.Context(), post); err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Data was not saved")
 		return
 	}
@@ -172,7 +178,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h PostHandler) GetPosts(c *gin.Context) {
-	posts, err := h.postService.GetAll()
+	posts, err := h.postService.GetAll(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
@@ -198,7 +204,7 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.GetByID(id)
+	post, err := h.postService.GetByID(c.Request.Context(), id)
 	if errors.Is(err, operrors.ErrPostNotFound) {
 		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
 		return
@@ -208,7 +214,7 @@ func (h PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	if err := h.postService.Delete(post); err != nil {
+	if err := h.postService.Delete(c.Request.Context(), post); err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}

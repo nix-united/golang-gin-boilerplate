@@ -1,4 +1,4 @@
-package service_test
+package user_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	srverrors "github.com/nix-united/golang-gin-boilerplate/internal/errors"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,13 +20,13 @@ type userServiceMocks struct {
 	encryptor      *Mockencryptor
 }
 
-func newUserService(t *testing.T) (service.UserService, userServiceMocks) {
+func newUserService(t *testing.T) (user.Service, userServiceMocks) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
 	userRepository := NewMockuserRepository(ctrl)
 	encryptor := NewMockencryptor(ctrl)
-	userService := service.NewUserService(userRepository, encryptor)
+	userService := user.NewService(userRepository, encryptor)
 
 	mocks := userServiceMocks{
 		userRepository: userRepository,
@@ -45,13 +45,13 @@ func TestUserService_CreateUser(t *testing.T) {
 		FullName: "test full name",
 	}
 
-	storedUser := model.User{
+	storedUser := &model.User{
 		Email:    "test@test.com",
 		Password: "encrypted password",
 		FullName: "test full name",
 	}
 
-	userInDB := model.User{
+	userInDB := &model.User{
 		Model: gorm.Model{
 			ID: 1,
 		},
@@ -62,10 +62,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, errors.New("unkown db error"))
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, errors.New("unkown db error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "find user by email")
 	})
 
@@ -74,15 +74,15 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
 			Encrypt("password").
 			Return("", errors.New("encryption error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "encrypt password")
 	})
 
@@ -91,8 +91,8 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
@@ -101,10 +101,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			StoreUser(storedUser).
+			StoreUser(gomock.Any(), storedUser).
 			Return(errors.New("store user error"))
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.ErrorContains(t, err, "store user")
 	})
 
@@ -113,10 +113,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
+			FindUserByEmail(gomock.Any(), "test@test.com").
 			Return(userInDB, nil)
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 
 		var errInvalidStorageOperation srverrors.ErrInvalidStorageOperation
 		require.ErrorAs(t, err, &errInvalidStorageOperation)
@@ -130,8 +130,8 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			FindUserByEmail("test@test.com").
-			Return(model.User{}, nil)
+			FindUserByEmail(gomock.Any(), "test@test.com").
+			Return(nil, nil)
 
 		mocks.encryptor.
 			EXPECT().
@@ -140,10 +140,10 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		mocks.userRepository.
 			EXPECT().
-			StoreUser(storedUser).
+			StoreUser(gomock.Any(), storedUser).
 			Return(nil)
 
-		err := service.CreateUser(registerRequest)
+		err := service.CreateUser(t.Context(), registerRequest)
 		assert.NoError(t, err)
 	})
 }

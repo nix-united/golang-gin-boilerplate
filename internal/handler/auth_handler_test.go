@@ -93,7 +93,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		mocks.userService.
 			EXPECT().
-			CreateUser(registerRequest).
+			CreateUser(gomock.Any(), registerRequest).
 			Return(service.NewErrUserAlreadyExists("msg", "op-name"))
 
 		httpRequest := httptest.NewRequest(
@@ -126,7 +126,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		mocks.userService.
 			EXPECT().
-			CreateUser(registerRequest).
+			CreateUser(gomock.Any(), registerRequest).
 			Return(nil)
 
 		httpRequest := httptest.NewRequest(

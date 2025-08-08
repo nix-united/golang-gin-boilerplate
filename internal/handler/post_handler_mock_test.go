@@ -10,6 +10,7 @@
 package handler_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
@@ -40,17 +41,17 @@ func (m *MockpostService) EXPECT() *MockpostServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockpostService) Create(post *model.Post) error {
+func (m *MockpostService) Create(ctx context.Context, post *model.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", post)
+	ret := m.ctrl.Call(m, "Create", ctx, post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockpostServiceMockRecorder) Create(post any) *MockpostServiceCreateCall {
+func (mr *MockpostServiceMockRecorder) Create(ctx, post any) *MockpostServiceCreateCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockpostService)(nil).Create), post)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockpostService)(nil).Create), ctx, post)
 	return &MockpostServiceCreateCall{Call: call}
 }
 
@@ -66,30 +67,30 @@ func (c *MockpostServiceCreateCall) Return(arg0 error) *MockpostServiceCreateCal
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceCreateCall) Do(f func(*model.Post) error) *MockpostServiceCreateCall {
+func (c *MockpostServiceCreateCall) Do(f func(context.Context, *model.Post) error) *MockpostServiceCreateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceCreateCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceCreateCall {
+func (c *MockpostServiceCreateCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostServiceCreateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // CreatePost mocks base method.
-func (m *MockpostService) CreatePost(title, content string, userID uint) (*model.Post, error) {
+func (m *MockpostService) CreatePost(ctx context.Context, title, content string, userID uint) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePost", title, content, userID)
+	ret := m.ctrl.Call(m, "CreatePost", ctx, title, content, userID)
 	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreatePost indicates an expected call of CreatePost.
-func (mr *MockpostServiceMockRecorder) CreatePost(title, content, userID any) *MockpostServiceCreatePostCall {
+func (mr *MockpostServiceMockRecorder) CreatePost(ctx, title, content, userID any) *MockpostServiceCreatePostCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePost", reflect.TypeOf((*MockpostService)(nil).CreatePost), title, content, userID)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePost", reflect.TypeOf((*MockpostService)(nil).CreatePost), ctx, title, content, userID)
 	return &MockpostServiceCreatePostCall{Call: call}
 }
 
@@ -105,29 +106,29 @@ func (c *MockpostServiceCreatePostCall) Return(arg0 *model.Post, arg1 error) *Mo
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceCreatePostCall) Do(f func(string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
+func (c *MockpostServiceCreatePostCall) Do(f func(context.Context, string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceCreatePostCall) DoAndReturn(f func(string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
+func (c *MockpostServiceCreatePostCall) DoAndReturn(f func(context.Context, string, string, uint) (*model.Post, error)) *MockpostServiceCreatePostCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Delete mocks base method.
-func (m *MockpostService) Delete(post *model.Post) error {
+func (m *MockpostService) Delete(ctx context.Context, post *model.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", post)
+	ret := m.ctrl.Call(m, "Delete", ctx, post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockpostServiceMockRecorder) Delete(post any) *MockpostServiceDeleteCall {
+func (mr *MockpostServiceMockRecorder) Delete(ctx, post any) *MockpostServiceDeleteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockpostService)(nil).Delete), post)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockpostService)(nil).Delete), ctx, post)
 	return &MockpostServiceDeleteCall{Call: call}
 }
 
@@ -143,30 +144,30 @@ func (c *MockpostServiceDeleteCall) Return(arg0 error) *MockpostServiceDeleteCal
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceDeleteCall) Do(f func(*model.Post) error) *MockpostServiceDeleteCall {
+func (c *MockpostServiceDeleteCall) Do(f func(context.Context, *model.Post) error) *MockpostServiceDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceDeleteCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceDeleteCall {
+func (c *MockpostServiceDeleteCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostServiceDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // GetAll mocks base method.
-func (m *MockpostService) GetAll() ([]model.Post, error) {
+func (m *MockpostService) GetAll(ctx context.Context) ([]model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockpostServiceMockRecorder) GetAll() *MockpostServiceGetAllCall {
+func (mr *MockpostServiceMockRecorder) GetAll(ctx any) *MockpostServiceGetAllCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockpostService)(nil).GetAll))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockpostService)(nil).GetAll), ctx)
 	return &MockpostServiceGetAllCall{Call: call}
 }
 
@@ -182,30 +183,30 @@ func (c *MockpostServiceGetAllCall) Return(arg0 []model.Post, arg1 error) *Mockp
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceGetAllCall) Do(f func() ([]model.Post, error)) *MockpostServiceGetAllCall {
+func (c *MockpostServiceGetAllCall) Do(f func(context.Context) ([]model.Post, error)) *MockpostServiceGetAllCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceGetAllCall) DoAndReturn(f func() ([]model.Post, error)) *MockpostServiceGetAllCall {
+func (c *MockpostServiceGetAllCall) DoAndReturn(f func(context.Context) ([]model.Post, error)) *MockpostServiceGetAllCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // GetByID mocks base method.
-func (m *MockpostService) GetByID(id int) (*model.Post, error) {
+func (m *MockpostService) GetByID(ctx context.Context, id int) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", id)
+	ret := m.ctrl.Call(m, "GetByID", ctx, id)
 	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockpostServiceMockRecorder) GetByID(id any) *MockpostServiceGetByIDCall {
+func (mr *MockpostServiceMockRecorder) GetByID(ctx, id any) *MockpostServiceGetByIDCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockpostService)(nil).GetByID), id)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockpostService)(nil).GetByID), ctx, id)
 	return &MockpostServiceGetByIDCall{Call: call}
 }
 
@@ -221,29 +222,29 @@ func (c *MockpostServiceGetByIDCall) Return(arg0 *model.Post, arg1 error) *Mockp
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceGetByIDCall) Do(f func(int) (*model.Post, error)) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) Do(f func(context.Context, int) (*model.Post, error)) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(int) (*model.Post, error)) *MockpostServiceGetByIDCall {
+func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(context.Context, int) (*model.Post, error)) *MockpostServiceGetByIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Save mocks base method.
-func (m *MockpostService) Save(post *model.Post) error {
+func (m *MockpostService) Save(ctx context.Context, post *model.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", post)
+	ret := m.ctrl.Call(m, "Save", ctx, post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockpostServiceMockRecorder) Save(post any) *MockpostServiceSaveCall {
+func (mr *MockpostServiceMockRecorder) Save(ctx, post any) *MockpostServiceSaveCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockpostService)(nil).Save), post)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockpostService)(nil).Save), ctx, post)
 	return &MockpostServiceSaveCall{Call: call}
 }
 
@@ -259,13 +260,13 @@ func (c *MockpostServiceSaveCall) Return(arg0 error) *MockpostServiceSaveCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceSaveCall) Do(f func(*model.Post) error) *MockpostServiceSaveCall {
+func (c *MockpostServiceSaveCall) Do(f func(context.Context, *model.Post) error) *MockpostServiceSaveCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceSaveCall) DoAndReturn(f func(*model.Post) error) *MockpostServiceSaveCall {
+func (c *MockpostServiceSaveCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostServiceSaveCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
