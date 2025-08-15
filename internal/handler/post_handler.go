@@ -30,10 +30,8 @@ type PostHandler struct {
 	postService postService
 }
 
-func NewPostHandler(postService postService) PostHandler {
-	return PostHandler{
-		postService: postService,
-	}
+func NewPostHandler(postService postService) *PostHandler {
+	return &PostHandler{postService: postService}
 }
 
 // GetPostByID godoc
@@ -47,7 +45,7 @@ func NewPostHandler(postService postService) PostHandler {
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
-func (h PostHandler) GetPostByID(c *gin.Context) {
+func (h *PostHandler) GetPostByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
@@ -83,7 +81,7 @@ func (h PostHandler) GetPostByID(c *gin.Context) {
 // @Failure 400 {string} string "Bad request"
 // @Security ApiKeyAuth
 // @Router /posts [post]
-func (h PostHandler) SavePost(c *gin.Context) {
+func (h *PostHandler) SavePost(c *gin.Context) {
 	var createPostRequest request.CreatePostRequest
 	if err := c.ShouldBindJSON(&createPostRequest); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
@@ -129,7 +127,7 @@ func (h PostHandler) SavePost(c *gin.Context) {
 // @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [put]
-func (h PostHandler) UpdatePost(c *gin.Context) {
+func (h *PostHandler) UpdatePost(c *gin.Context) {
 	var updatePostRequest request.UpdatePostRequest
 	if err := c.ShouldBindJSON(&updatePostRequest); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
@@ -177,7 +175,7 @@ func (h PostHandler) UpdatePost(c *gin.Context) {
 // @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /posts [get]
-func (h PostHandler) GetPosts(c *gin.Context) {
+func (h *PostHandler) GetPosts(c *gin.Context) {
 	posts, err := h.postService.GetAll(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
@@ -197,7 +195,7 @@ func (h PostHandler) GetPosts(c *gin.Context) {
 // @Failure 404 {object} response.Error
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
-func (h PostHandler) DeletePost(c *gin.Context) {
+func (h *PostHandler) DeletePost(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")

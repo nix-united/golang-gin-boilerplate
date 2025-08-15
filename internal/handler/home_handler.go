@@ -12,8 +12,6 @@ func NewHomeHandler() *HomeHandler {
 	return &HomeHandler{}
 }
 
-func (handler HomeHandler) Index() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		context.String(http.StatusOK, "Hello")
-	}
+func (h HomeHandler) Index(c *gin.Context) {
+	c.String(http.StatusOK, "Hello")
 }
