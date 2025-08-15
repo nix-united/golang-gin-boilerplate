@@ -57,6 +57,7 @@ require (
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/google/uuid v1.6.0
 	go.uber.org/mock v0.5.0
 )
 

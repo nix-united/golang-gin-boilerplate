@@ -7,6 +7,7 @@ type ApplicationConfig struct {
 
 	DB         DBConfig
 	HTTPServer HTTPServerConfig
+	Log        LogConfig
 }
 
 type DBConfig struct {
@@ -27,4 +28,17 @@ type HTTPServerConfig struct {
 	ReadHeaderTimeout time.Duration `env:"HTTP_SERVER_READ_HEADER_TIMEOUT" envDefault:"5m"`
 	ReadTimeout       time.Duration `env:"HTTP_SERVER_READ_TIMEOUT" envDefault:"5m"`
 	WriteTimeout      time.Duration `env:"HTTP_SERVER_WRITE_TIMEOUT" envDefault:"5m"`
+}
+
+type LogConfig struct {
+	Application string `env:"LOG_APPLICATION"`
+
+	// File represents path to file where store logs. Used [os.Stdout] if empty.
+	File string `env:"LOG_FILE"`
+
+	// One of: "DEBUG", "INFO", "WARN", "ERROR". Default: "DEBUG".
+	Level string `env:"LOG_LEVEL" envDefault:"DEBUG"`
+
+	// Add source code position to messages.
+	AddSource bool `env:"LOG_ADD_SOURCE"`
 }
