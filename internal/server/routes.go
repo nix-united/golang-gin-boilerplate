@@ -1,47 +1,63 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
-	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
-	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginswagger "github.com/swaggo/gin-swagger"
 )
 
-func ConfigureRoutes(server *Server) {
-	server.Gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+type Handlers struct {
+	HomeHandler       *handler.HomeHandler
+	AuthHandler       *handler.AuthHandler
+	PostHandler       *handler.PostHandler
+	JwtAuthMiddleware provider.JwtAuthMiddleware
+}
 
-	// Repository Initialization
-	userRepo := repository.NewUserRepository(server.DB)
-	postRepo := repository.NewPostRepository(server.DB)
+func configureRoutes(handlers Handlers) *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 
-	// Services initialization
-	bcrypeEncoder := utils.NewBcryptEncoder(bcrypt.DefaultCost)
-	userService := user.NewService(userRepo, bcrypeEncoder)
-	postService := post.NewService(postRepo)
+	// Technical API route initialization
+	// These endpoints exist solely to keep the service running and must not include any
+	// business or processing logic.
+	engine := gin.Default()
 
-	// Handlers initialization
-	homeHandler := handler.NewHomeHandler()
-	postHandler := handler.NewPostHandler(postService)
-	authHandler := handler.NewAuthHandler(userService)
+	engine.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
+	engine.GET("/health", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
 
-	// Routes initialization
-	server.Gin.POST("/users", authHandler.RegisterUser)
+	api := engine.Group("/")
 
-	jwtAuth := provider.NewJwtAuth(server.DB)
-	server.Gin.POST("/login", jwtAuth.Middleware().LoginHandler)
+	// Private API routes initialization
+	// These endpoints are used primarily for authentication/authorization and may carry sensitive data.
+	// Do NOT log request or response bodies; doing so could expose client information.
+	privateAPI := engine.Group("/")
 
-	needsAuth := server.Gin.Group("/").Use(jwtAuth.Middleware().MiddlewareFunc())
-	needsAuth.GET("/", homeHandler.Index())
-	needsAuth.GET("/refresh", jwtAuth.Middleware().RefreshHandler)
-	needsAuth.POST("/posts", postHandler.SavePost)
-	needsAuth.GET("/posts", postHandler.GetPosts)
-	needsAuth.GET("/post/:id", postHandler.GetPostByID)
-	needsAuth.PUT("/post/:id", postHandler.UpdatePost)
-	needsAuth.DELETE("/post/:id", postHandler.DeletePost)
+	privateAPI.POST("/users", handlers.AuthHandler.RegisterUser)
+	privateAPI.POST("/login", handlers.JwtAuthMiddleware.Middleware().LoginHandler)
+	privateAPI.GET(
+		"/refresh",
+		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
+		handlers.JwtAuthMiddleware.Middleware().RefreshHandler,
+	)
+
+	// Authorized API route initialization
+	//
+	// These endpoints implement the core application logic and require authentication
+	// before they can be accessed.
+	authorizedAPI := api.Group("/", handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc())
+
+	authorizedAPI.GET("/", handlers.HomeHandler.Index)
+	authorizedAPI.POST("/posts", handlers.PostHandler.SavePost)
+	authorizedAPI.GET("/posts", handlers.PostHandler.GetPosts)
+	authorizedAPI.GET("/post/:id", handlers.PostHandler.GetPostByID)
+	authorizedAPI.PUT("/post/:id", handlers.PostHandler.UpdatePost)
+	authorizedAPI.DELETE("/post/:id", handlers.PostHandler.DeletePost)
+
+	return engine
 }
