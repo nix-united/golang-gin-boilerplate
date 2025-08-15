@@ -11,7 +11,7 @@ import (
 
 const permissionsForLoggsFile = 0o644
 
-func Init(config config.LogConfig) (err error) {
+func Init(config config.LoggerConfig) (err error) {
 	writer := io.Writer(os.Stdout)
 	if config.File != "" {
 

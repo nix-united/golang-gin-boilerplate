@@ -7,7 +7,7 @@ type ApplicationConfig struct {
 
 	DB         DBConfig
 	HTTPServer HTTPServerConfig
-	Log        LogConfig
+	Logger     LoggerConfig
 }
 
 type DBConfig struct {
@@ -30,7 +30,7 @@ type HTTPServerConfig struct {
 	WriteTimeout      time.Duration `env:"HTTP_SERVER_WRITE_TIMEOUT" envDefault:"5m"`
 }
 
-type LogConfig struct {
+type LoggerConfig struct {
 	Application string `env:"LOG_APPLICATION"`
 
 	// File represents path to file where store logs. Used [os.Stdout] if empty.

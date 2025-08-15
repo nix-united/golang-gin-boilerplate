@@ -18,6 +18,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
+	"github.com/nix-united/golang-gin-boilerplate/internal/slogx"
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env"
@@ -52,6 +53,10 @@ func run() error {
 	var cfg config.ApplicationConfig
 	if err := env.Parse(&cfg); err != nil {
 		return fmt.Errorf("parse env: %w", err)
+	}
+
+	if err := slogx.Init(cfg.Logger); err != nil {
+		return fmt.Errorf("init logger: %w", err)
 	}
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
