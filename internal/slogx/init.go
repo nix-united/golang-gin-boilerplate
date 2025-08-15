@@ -14,7 +14,6 @@ const permissionsForLoggsFile = 0o644
 func Init(config config.LoggerConfig) (err error) {
 	writer := io.Writer(os.Stdout)
 	if config.File != "" {
-
 		writer, err = os.OpenFile(config.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, permissionsForLoggsFile)
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", config.File, err)
