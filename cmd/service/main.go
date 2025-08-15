@@ -16,7 +16,8 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env"
@@ -66,8 +67,8 @@ func run() error {
 	postRepo := repository.NewPostRepository(gormDB)
 
 	// Services initialization
-	userService := service.NewUserService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
-	postService := service.NewPostService(postRepo)
+	userService := user.NewService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
+	postService := post.NewService(postRepo)
 
 	// Handlers initialization
 	homeHandler := handler.NewHomeHandler()
