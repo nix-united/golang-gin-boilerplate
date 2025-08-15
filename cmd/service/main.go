@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/nix-united/golang-gin-boilerplate/docs"
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
@@ -17,8 +16,6 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
 )
-
-const shutdownTimeout = 5 * time.Minute
 
 // @title Gin Demo App
 // @version 1.0
@@ -65,7 +62,7 @@ func run() error {
 	signal.Notify(shutdownChannel, os.Interrupt, syscall.SIGHUP, syscall.SIGTERM)
 	<-shutdownChannel
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ApplicationShutdownTimeout)
 	defer cancel()
 
 	if err := app.Shutdown(shutdownCtx); err != nil {
