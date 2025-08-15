@@ -1,6 +1,6 @@
 module github.com/nix-united/golang-gin-boilerplate
 
-go 1.24.4
+go 1.24.6
 
 require (
 	github.com/appleboy/gin-jwt/v2 v2.9.1

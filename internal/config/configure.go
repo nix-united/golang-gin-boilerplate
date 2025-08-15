@@ -1,6 +1,10 @@
 package config
 
+import "time"
+
 type Config struct {
+	ApplicationShutdownTimeout time.Duration `env:"APPLICATION_SHUTDOWN_TIMEOUT" envDefault:"5m"`
+
 	DB   DB
 	HTTP HTTP
 }
