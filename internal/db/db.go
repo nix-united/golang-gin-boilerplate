@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 
@@ -11,30 +10,25 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDB(cfg config.DB) *gorm.DB {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		cfg.User,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
-		cfg.Name,
+func NewDBConnection(cfg config.DBConfig) (*gorm.DB, *sql.DB, error) {
+	dataSourceName := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name,
 	)
 
 	sqlDB, err := sql.Open(cfg.Driver, dataSourceName)
 	if err != nil {
-		panic(err.Error())
+		return nil, nil, fmt.Errorf("open db connection: %w", err)
 	}
 
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
+	gormDB, err := gorm.Open(mysql.New(mysql.Config{Conn: sqlDB}), &gorm.Config{Logger: newLoggerAdapter()})
 	if err != nil {
-		panic(err.Error())
+		return nil, nil, fmt.Errorf("open gorm session: %w", err)
 	}
 
 	sqlDB.SetMaxOpenConns(cfg.DBMaxOpenConns)
 	sqlDB.SetMaxIdleConns(cfg.DBMaxIdleConns)
-	sqlDB.SetConnMaxLifetime(time.Duration(cfg.DBConnMaxLife) * time.Second)
+	sqlDB.SetConnMaxLifetime(cfg.DBConnMaxLife)
 
-	return gormDB
+	return gormDB, sqlDB, nil
 }

@@ -1,27 +1,42 @@
 package server
 
 import (
-	"github.com/nix-united/golang-gin-boilerplate/internal/config"
-	"github.com/nix-united/golang-gin-boilerplate/internal/db"
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 )
 
 type Server struct {
-	Cfg config.Config
-	Gin *gin.Engine
-	DB  *gorm.DB
+	server *http.Server
 }
 
-func NewServer(cfg config.Config) *Server {
+func NewServer(cfg config.HTTPServerConfig, handlers Handlers) *Server {
 	return &Server{
-		Cfg: cfg,
-		Gin: gin.Default(),
-		DB:  db.InitDB(cfg.DB),
+		server: &http.Server{
+			Addr:              cfg.Host + ":" + cfg.Port,
+			Handler:           configureRoutes(handlers),
+			ReadHeaderTimeout: cfg.ReadHeaderTimeout,
+			ReadTimeout:       cfg.ReadTimeout,
+			WriteTimeout:      cfg.WriteTimeout,
+		},
 	}
 }
 
-func (server *Server) Run(addr string) error {
-	return server.Gin.Run(":" + addr)
+func (s *Server) Run() error {
+	if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return fmt.Errorf("run http server: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.server.Shutdown(ctx); err != nil {
+		return fmt.Errorf("shutdown http server: %w", err)
+	}
+
+	return nil
 }
