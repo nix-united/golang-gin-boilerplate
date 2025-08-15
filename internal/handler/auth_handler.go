@@ -22,10 +22,8 @@ type AuthHandler struct {
 	userService userService
 }
 
-func NewAuthHandler(userService userService) AuthHandler {
-	return AuthHandler{
-		userService: userService,
-	}
+func NewAuthHandler(userService userService) *AuthHandler {
+	return &AuthHandler{userService: userService}
 }
 
 // RegisterUser godoc
@@ -39,7 +37,7 @@ func NewAuthHandler(userService userService) AuthHandler {
 // @Success 200 {string} string "Successfully registered"
 // @Failure 422 {object} response.Error
 // @Router /users [post]
-func (h AuthHandler) RegisterUser(c *gin.Context) {
+func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
 		response.ErrorResponse(

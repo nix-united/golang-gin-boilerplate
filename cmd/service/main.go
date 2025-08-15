@@ -12,10 +12,17 @@ import (
 
 	"github.com/nix-united/golang-gin-boilerplate/docs"
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
+	"github.com/nix-united/golang-gin-boilerplate/internal/db"
+	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
+	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
+	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service"
+	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const shutdownTimeout = 5 * time.Minute
@@ -44,19 +51,42 @@ func run() error {
 		return fmt.Errorf("load env file: %w", err)
 	}
 
-	var cfg config.Config
+	var cfg config.ApplicationConfig
 	if err := env.Parse(&cfg); err != nil {
 		return fmt.Errorf("parse env: %w", err)
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
 
-	app := server.NewServer(cfg)
+	// DB initialization
+	gormDB, sqlDB, err := db.NewDBConnection(cfg.DB)
+	if err != nil {
+		return fmt.Errorf("new db connection: %w", err)
+	}
 
-	server.ConfigureRoutes(app)
+	// Repository initialization
+	userRepo := repository.NewUserRepository(gormDB)
+	postRepo := repository.NewPostRepository(gormDB)
 
+	// Services initialization
+	userService := service.NewUserService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
+	postService := service.NewPostService(postRepo)
+
+	// Handlers initialization
+	homeHandler := handler.NewHomeHandler()
+	postHandler := handler.NewPostHandler(postService)
+	authHandler := handler.NewAuthHandler(userService)
+	jwtAuth := provider.NewJwtAuth(gormDB)
+
+	// HTTP Server initialization
+	httpServer := server.NewServer(cfg.HTTPServer, server.Handlers{
+		HomeHandler:       homeHandler,
+		AuthHandler:       authHandler,
+		PostHandler:       postHandler,
+		JwtAuthMiddleware: jwtAuth,
+	})
 	go func() {
-		if err := app.Run(); err != nil {
+		if err := httpServer.Run(); err != nil {
 			log.Fatal("Server error: " + err.Error())
 		}
 	}()
@@ -68,16 +98,11 @@ func run() error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	if err := app.Shutdown(shutdownCtx); err != nil {
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
 		return fmt.Errorf("http server shutdown: %w", err)
 	}
 
-	dbConnection, err := app.DB.DB()
-	if err != nil {
-		return fmt.Errorf("get db connection: %w", err)
-	}
-
-	if err := dbConnection.Close(); err != nil {
+	if err := sqlDB.Close(); err != nil {
 		return fmt.Errorf("close db connection: %w", err)
 	}
 
