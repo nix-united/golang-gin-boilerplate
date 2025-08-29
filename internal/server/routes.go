@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 
-	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
+	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
