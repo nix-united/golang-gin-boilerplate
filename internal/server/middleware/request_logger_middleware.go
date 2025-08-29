@@ -4,9 +4,14 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+//go:generate go tool mockgen -source=$GOFILE -destination=request_logger_middleware_mock_test.go -package=${GOPACKAGE}_test -typed=true
+//go:generate go tool mockgen -destination=io_writer_mock_test.go -package=${GOPACKAGE}_test -typed=true io Writer
 
 type tracer interface {
 	Start(ctx context.Context) (context.Context, error)
@@ -23,6 +28,8 @@ func NewRequestLoggerMiddleware(tracer tracer) gin.HandlerFunc {
 
 // handle creates trace and logs request information.
 func (l *requestLoggerMiddleware) handle(c *gin.Context) {
+	start := time.Now()
+
 	ctx, err := l.tracer.Start(c.Request.Context())
 	if err != nil {
 		slog.ErrorContext(c.Request.Context(), "Failed to start a trace", "err", err.Error())
@@ -35,19 +42,22 @@ func (l *requestLoggerMiddleware) handle(c *gin.Context) {
 	c.Next()
 
 	level := slog.LevelInfo
-	if c.Request.Response.StatusCode >= http.StatusInternalServerError {
+	if c.Writer.Status() >= http.StatusInternalServerError {
 		level = slog.LevelError
 	}
 
 	attrs := []any{
-		"method", c.Request.Method,
-		"status", c.Request.Response.Status,
-		"path", c.Request.URL.Path,
+		slog.Group("http",
+			"method", c.Request.Method,
+			"status", c.Writer.Status(),
+			"path", c.FullPath(),
+			"duration_ms", time.Since(start).Milliseconds(),
+		),
 	}
 
 	if len(c.Errors) > 0 {
-		attrs = append(attrs, "error", c.Errors.JSON())
+		attrs = append(attrs, "error", strings.Join(c.Errors.Errors(), "\n"))
 	}
 
-	slog.Log(c.Request.Context(), level, "Request", slog.Group("http", attrs...))
+	slog.Log(ctx, level, "Processed request", attrs...)
 }
