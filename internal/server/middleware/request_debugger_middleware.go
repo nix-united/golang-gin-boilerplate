@@ -70,6 +70,10 @@ func (m *RequestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) 
 
 	c.Request.Body = io.NopCloser(bytes.NewReader(rawRequestBody))
 
+	if len(rawRequestBody) == 0 {
+		return nil, nil
+	}
+
 	if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "application/json") {
 		return json.RawMessage(rawRequestBody), nil
 	}

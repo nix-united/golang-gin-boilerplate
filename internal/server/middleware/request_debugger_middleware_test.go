@@ -51,6 +51,9 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 			assert: func(t *testing.T, gotLogMessage map[string]any) {
 				t.Helper()
 
+				assert.Equal(t, "DEBUG", gotLogMessage["level"])
+				assert.Equal(t, "Request/response data", gotLogMessage["msg"])
+
 				assert.Equal(t, jsonRequestBody, gotLogMessage["request_body"])
 				assert.Equal(t, jsonResponseBody, gotLogMessage["response_body"])
 			},
@@ -70,6 +73,8 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 			inputRequest: emptyHTTPRequest,
 			assert: func(t *testing.T, gotLogMessage map[string]any) {
 				t.Helper()
+
+				assert.Equal(t, "Request/response without any data", gotLogMessage["msg"])
 
 				assert.Empty(t, gotLogMessage["request_body"])
 				assert.Empty(t, gotLogMessage["response_body"])
