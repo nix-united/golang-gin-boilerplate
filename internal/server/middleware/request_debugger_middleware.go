@@ -86,7 +86,7 @@ func (m *requestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c
 			return nil
 		}
 
-		if strings.HasPrefix(c.Request.Response.Header.Get("Content-Type"), "application/json") {
+		if strings.HasPrefix(c.Writer.Header().Get("Content-Type"), "application/json") {
 			return json.RawMessage(storer.response)
 		}
 

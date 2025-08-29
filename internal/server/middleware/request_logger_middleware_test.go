@@ -110,17 +110,18 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 					return ctx, nil
 				})
 
-			writer.EXPECT().Write(gomock.Any()).DoAndReturn(func(gotRawLogMessage []byte) (int, error) {
-				var gotLogMessage map[string]any
-				err := json.Unmarshal(gotRawLogMessage, &gotLogMessage)
-				require.NoError(t, err)
+			writer.
+				EXPECT().
+				Write(gomock.Any()).
+				DoAndReturn(func(gotRawLogMessage []byte) (int, error) {
+					var gotLogMessage map[string]any
+					err := json.Unmarshal(gotRawLogMessage, &gotLogMessage)
+					require.NoError(t, err)
 
-				delete(gotLogMessage, "time")
+					testCase.assertLogMessage(t, gotLogMessage)
 
-				testCase.assertLogMessage(t, gotLogMessage)
-
-				return len(gotRawLogMessage), nil
-			})
+					return len(gotRawLogMessage), nil
+				})
 
 			engine.ServeHTTP(recorder, httpRequest)
 
