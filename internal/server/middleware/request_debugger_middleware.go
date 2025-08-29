@@ -11,18 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// requestDebuggerMiddleware is a logging middleware that logs request and response bodies with DEBUG level logs.
+// RequestDebuggerMiddleware is a logging middleware that logs request and response bodies with DEBUG level logs.
 // Warning: Do not use this middleware with endpoints containing sensitive information.
 //
 // Based on the Content-Type, it determines how the body will be formatted.
 // If the content type is application/json, the body will be logged as JSON; otherwise, it will be logged as a string.
-type requestDebuggerMiddleware struct{}
+type RequestDebuggerMiddleware struct{}
 
-func NewRequestDebuggerMiddleware() gin.HandlerFunc {
-	return (&requestDebuggerMiddleware{}).handle
+func NewRequestDebuggerMiddleware() *RequestDebuggerMiddleware {
+	return &RequestDebuggerMiddleware{}
 }
 
-func (m *requestDebuggerMiddleware) handle(c *gin.Context) {
+func (m *RequestDebuggerMiddleware) Handle(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	if !slog.Default().Enabled(ctx, slog.LevelDebug) {
@@ -58,7 +58,7 @@ func (m *requestDebuggerMiddleware) handle(c *gin.Context) {
 	slog.DebugContext(c.Request.Context(), message, attrs...)
 }
 
-func (m *requestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) {
+func (m *RequestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) {
 	if c.Request.Body == nil {
 		return nil, nil
 	}
@@ -77,7 +77,7 @@ func (m *requestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) 
 	return string(rawRequestBody), nil
 }
 
-func (m *requestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c *gin.Context) any {
+func (m *RequestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c *gin.Context) any {
 	storer := newCapturingResponseWriter(c.Writer)
 	c.Writer = storer
 

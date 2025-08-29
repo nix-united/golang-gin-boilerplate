@@ -95,7 +95,7 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 			})
 
 			engine := gin.New()
-			engine.POST("/some-endpoint", requestLoggerMiddleware, func(c *gin.Context) {
+			engine.POST("/some-endpoint", requestLoggerMiddleware.Handle, func(c *gin.Context) {
 				if testCase.responseBody == nil {
 					c.Status(http.StatusOK)
 				}
