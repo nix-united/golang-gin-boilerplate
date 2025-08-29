@@ -11,17 +11,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RequestDebuggerMiddleware is a logging middleware that logs request and response bodies with DEBUG level logs.
-// Warning: Do not use this middleware with endpoints containing sensitive information.
+// RequestDebuggerMiddleware is a logging middleware that logs request and
+// response bodies with DEBUG level logs.
+//
+// Warning: Do not use this middleware with endpoints containing sensitive
+// information.
 //
 // Based on the Content-Type, it determines how the body will be formatted.
-// If the content type is application/json, the body will be logged as JSON; otherwise, it will be logged as a string.
+// If the content type is application/json, the body will be logged as JSON;
+// otherwise, it will be logged as a string.
 type RequestDebuggerMiddleware struct{}
 
 func NewRequestDebuggerMiddleware() *RequestDebuggerMiddleware {
 	return &RequestDebuggerMiddleware{}
 }
 
+// Handle captures, when DEBUG logging is enabled, the incoming request body
+// and the outgoing response body and emits them in a structured debug log
+// after the handler chain finishes.
 func (m *RequestDebuggerMiddleware) Handle(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -31,7 +38,7 @@ func (m *RequestDebuggerMiddleware) Handle(c *gin.Context) {
 
 	requestBody, err := m.getRequestBody(c)
 	if err != nil {
-		slog.ErrorContext(ctx, "Failed to read request body for request debugging", "err", err.Error())
+		slog.ErrorContext(ctx, "Failed to read request body for request debugging", "err", err)
 
 		return
 	}
@@ -58,6 +65,8 @@ func (m *RequestDebuggerMiddleware) Handle(c *gin.Context) {
 	slog.DebugContext(c.Request.Context(), message, attrs...)
 }
 
+// getRequestBody reads the request body and returns a value for logging.
+// It restores c.Request.Body so downstream handlers can read it again.
 func (m *RequestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) {
 	if c.Request.Body == nil {
 		return nil, nil
@@ -81,6 +90,11 @@ func (m *RequestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) 
 	return string(rawRequestBody), nil
 }
 
+// getResponseBodyGetter wraps the current gin.ResponseWriter with a capturing
+// writer that buffers the response payload as it is written.
+//
+// It returns a closure that, when called after handler execution,
+// yields a value suitable for logging.
 func (m *RequestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c *gin.Context) any {
 	storer := newCapturingResponseWriter(c.Writer)
 	c.Writer = storer
@@ -98,8 +112,9 @@ func (m *RequestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c
 	}
 }
 
-// capturingResponseWriter stores the written response by the handler into its field.
-// This is used to automate response logging.
+// capturingResponseWriter decorates a gin.ResponseWriter to capture the
+// response body bytes written by handlers. It forwards all writes to the
+// underlying writer while storing a copy in memory for later logging.
 type capturingResponseWriter struct {
 	gin.ResponseWriter
 

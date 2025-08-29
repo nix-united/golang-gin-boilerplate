@@ -28,7 +28,7 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 			assertLogMessage: func(t *testing.T, gotLogMessage map[string]any) {
 				t.Helper()
 
-				assert.Equal(t, "INFO", gotLogMessage["level"])
+				assert.Equal(t, slog.LevelInfo.String(), gotLogMessage["level"])
 				assert.Equal(t, "Processed request", gotLogMessage["msg"])
 
 				httpAttributes, ok := gotLogMessage["http"].(map[string]any)
@@ -44,7 +44,7 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 			assertLogMessage: func(t *testing.T, gotLogMessage map[string]any) {
 				t.Helper()
 
-				assert.Equal(t, "ERROR", gotLogMessage["level"])
+				assert.Equal(t, slog.LevelError.String(), gotLogMessage["level"])
 				assert.Equal(t, "Processed request", gotLogMessage["msg"])
 
 				httpAttributes, ok := gotLogMessage["http"].(map[string]any)
@@ -55,13 +55,13 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 				assert.Equal(t, "/some-endpoint", httpAttributes["path"])
 			},
 		},
-		"It should log error message when it occured during processing": {
+		"It should log error message when it occurred during processing": {
 			responseStatusCode:  http.StatusConflict,
 			errDuringProcessing: errors.New("some error during processing"),
 			assertLogMessage: func(t *testing.T, gotLogMessage map[string]any) {
 				t.Helper()
 
-				assert.Equal(t, "INFO", gotLogMessage["level"])
+				assert.Equal(t, slog.LevelWarn.String(), gotLogMessage["level"])
 				assert.Equal(t, "Processed request", gotLogMessage["msg"])
 				assert.Equal(t, "some error during processing", gotLogMessage["error"])
 

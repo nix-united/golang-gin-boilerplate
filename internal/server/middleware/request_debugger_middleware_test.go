@@ -3,6 +3,7 @@ package middleware_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -37,6 +38,9 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 	textHTTPRequest.Header.Set("Content-Type", "text/plain")
 
 	emptyHTTPRequest := httptest.NewRequest(http.MethodPost, "/some-endpoint", http.NoBody)
+
+	emptyJSONHttpRequest := httptest.NewRequest(http.MethodPost, "/some-endpoint", http.NoBody)
+	emptyJSONHttpRequest.Header.Set("Content-Type", "application/json")
 
 	testCases := map[string]struct {
 		inputRequest        *http.Request
@@ -80,6 +84,17 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 				assert.Empty(t, gotLogMessage["response_body"])
 			},
 		},
+		"It should skip request & response body logging if they're missing even if application/json Content-Type specified": {
+			inputRequest: emptyJSONHttpRequest,
+			assert: func(t *testing.T, gotLogMessage map[string]any) {
+				t.Helper()
+
+				assert.Equal(t, "Request/response without any data", gotLogMessage["msg"])
+
+				assert.Empty(t, gotLogMessage["request_body"])
+				assert.Empty(t, gotLogMessage["response_body"])
+			},
+		},
 	}
 
 	for testName, testCase := range testCases {
@@ -101,8 +116,13 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 
 			engine := gin.New()
 			engine.POST("/some-endpoint", requestLoggerMiddleware.Handle, func(c *gin.Context) {
+				_, err := io.ReadAll(c.Request.Body)
+				require.NoError(t, err)
+
 				if testCase.responseBody == nil {
 					c.Status(http.StatusOK)
+
+					return
 				}
 
 				c.Data(http.StatusOK, testCase.responseContentType, testCase.responseBody)
