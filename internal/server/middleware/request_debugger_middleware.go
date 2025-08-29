@@ -56,8 +56,6 @@ func (m *requestDebuggerMiddleware) handle(c *gin.Context) {
 	}
 
 	slog.DebugContext(c.Request.Context(), message, attrs...)
-
-	return
 }
 
 func (m *requestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) {
