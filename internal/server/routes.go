@@ -12,10 +12,12 @@ import (
 )
 
 type Handlers struct {
-	HomeHandler       *handler.HomeHandler
-	AuthHandler       *handler.AuthHandler
-	PostHandler       *handler.PostHandler
+	HomeHandler *handler.HomeHandler
+	AuthHandler *handler.AuthHandler
+	PostHandler *handler.PostHandler
+
 	JwtAuthMiddleware provider.JwtAuthMiddleware
+	LoggingMiddleware gin.HandlerFunc
 }
 
 func configureRoutes(handlers Handlers) *gin.Engine {
@@ -31,7 +33,7 @@ func configureRoutes(handlers Handlers) *gin.Engine {
 		c.Status(http.StatusNoContent)
 	})
 
-	api := engine.Group("/")
+	api := engine.Group("/", handlers.LoggingMiddleware)
 
 	// Private API routes initialization
 	// These endpoints are used primarily for authentication/authorization and may carry sensitive data.

@@ -12,6 +12,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/docs"
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 	"github.com/nix-united/golang-gin-boilerplate/internal/db"
+	"github.com/nix-united/golang-gin-boilerplate/internal/middleware"
 	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
@@ -22,6 +23,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -59,6 +61,8 @@ func run() error {
 		return fmt.Errorf("init logger: %w", err)
 	}
 
+	traceStarter := slogx.NewTraceStarter(uuid.NewV7)
+
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
 
 	// DB initialization
@@ -87,6 +91,7 @@ func run() error {
 		AuthHandler:       authHandler,
 		PostHandler:       postHandler,
 		JwtAuthMiddleware: jwtAuth,
+		LoggingMiddleware: middleware.NewRequestLogger(traceStarter),
 	})
 	go func() {
 		if err := httpServer.Run(); err != nil {

@@ -25,7 +25,7 @@ func NewRequestLogger(tracer tracer) gin.HandlerFunc {
 func (l *requestLogger) handle(c *gin.Context) {
 	ctx, err := l.tracer.Start(c.Request.Context())
 	if err != nil {
-		slog.ErrorContext(c.Request.Context(), "Failed to sart a trace", "err", err.Error())
+		slog.ErrorContext(c.Request.Context(), "Failed to start a trace", "err", err.Error())
 
 		return
 	}
