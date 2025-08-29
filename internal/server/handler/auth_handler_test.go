@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/nix-united/golang-gin-boilerplate/internal/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	"github.com/gin-gonic/gin"
