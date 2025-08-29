@@ -86,7 +86,7 @@ func run() error {
 	jwtAuth := provider.NewJwtAuth(gormDB)
 
 	// HTTP Server initialization
-	httpServer := server.NewServer(cfg.HTTPServer, server.Handlers{
+	routes := server.ConfigureRoutes(server.Handlers{
 		HomeHandler:                homeHandler,
 		AuthHandler:                authHandler,
 		PostHandler:                postHandler,
@@ -94,6 +94,8 @@ func run() error {
 		RequestLoggingMiddleware:   middleware.NewRequestLoggerMiddleware(traceStarter),
 		RequestDebuggingMiddleware: middleware.NewRequestDebuggerMiddleware(),
 	})
+
+	httpServer := server.NewServer(cfg.HTTPServer, routes)
 	go func() {
 		if err := httpServer.Run(); err != nil {
 			log.Fatal("Server error: " + err.Error())

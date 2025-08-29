@@ -21,7 +21,7 @@ type Handlers struct {
 	RequestDebuggingMiddleware gin.HandlerFunc
 }
 
-func configureRoutes(handlers Handlers) *gin.Engine {
+func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	// Technical API route initialization
