@@ -146,5 +146,4 @@ func TestRequestDebuggerMiddleware(t *testing.T) {
 			engine.ServeHTTP(recorder, testCase.inputRequest)
 		})
 	}
-
 }
