@@ -16,8 +16,9 @@ type Handlers struct {
 	AuthHandler *handler.AuthHandler
 	PostHandler *handler.PostHandler
 
-	JwtAuthMiddleware provider.JwtAuthMiddleware
-	LoggingMiddleware gin.HandlerFunc
+	JwtAuthMiddleware          provider.JwtAuthMiddleware
+	RequestLoggingMiddleware   gin.HandlerFunc
+	RequestDebuggingMiddleware gin.HandlerFunc
 }
 
 func configureRoutes(handlers Handlers) *gin.Engine {
@@ -33,7 +34,7 @@ func configureRoutes(handlers Handlers) *gin.Engine {
 		c.Status(http.StatusNoContent)
 	})
 
-	api := engine.Group("/", handlers.LoggingMiddleware)
+	api := engine.Group("/", handlers.RequestLoggingMiddleware)
 
 	// Private API routes initialization
 	// These endpoints are used primarily for authentication/authorization and may carry sensitive data.
@@ -52,7 +53,11 @@ func configureRoutes(handlers Handlers) *gin.Engine {
 	//
 	// These endpoints implement the core application logic and require authentication
 	// before they can be accessed.
-	authorizedAPI := api.Group("/", handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc())
+	authorizedAPI := api.Group(
+		"/",
+		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
+		handlers.RequestDebuggingMiddleware,
+	)
 
 	authorizedAPI.GET("/", handlers.HomeHandler.Index)
 	authorizedAPI.POST("/posts", handlers.PostHandler.SavePost)

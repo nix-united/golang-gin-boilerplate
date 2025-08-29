@@ -11,32 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// requestDebugger is a logging middleware that logs request and response bodies with DEBUG level logs.
+// requestDebuggerMiddleware is a logging middleware that logs request and response bodies with DEBUG level logs.
 // Warning: Do not use this middleware with endpoints containing sensitive information.
 //
 // Based on the Content-Type, it determines how the body will be formatted.
 // If the content type is application/json, the body will be logged as JSON; otherwise, it will be logged as a string.
-type requestDebugger struct{}
+type requestDebuggerMiddleware struct{}
 
-func NewRequestDebugger() gin.HandlerFunc {
-	return (&requestDebugger{}).handle
+func NewRequestDebuggerMiddleware() gin.HandlerFunc {
+	return (&requestDebuggerMiddleware{}).handle
 }
 
-func (d *requestDebugger) handle(c *gin.Context) {
+func (m *requestDebuggerMiddleware) handle(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	if !slog.Default().Enabled(ctx, slog.LevelDebug) {
 		return
 	}
 
-	requestBody, err := d.getRequestBody(c)
+	requestBody, err := m.getRequestBody(c)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to read request body for request debugging", "err", err.Error())
 
 		return
 	}
 
-	responseBodyGetter := d.getResponseBodyGetter(c)
+	responseBodyGetter := m.getResponseBodyGetter(c)
 
 	c.Next()
 
@@ -60,7 +60,7 @@ func (d *requestDebugger) handle(c *gin.Context) {
 	return
 }
 
-func (d *requestDebugger) getRequestBody(c *gin.Context) (any, error) {
+func (m *requestDebuggerMiddleware) getRequestBody(c *gin.Context) (any, error) {
 	if c.Request.Body == nil {
 		return nil, nil
 	}
@@ -79,40 +79,41 @@ func (d *requestDebugger) getRequestBody(c *gin.Context) (any, error) {
 	return string(rawRequestBody), nil
 }
 
-func (d *requestDebugger) getResponseBodyGetter(c *gin.Context) func(c *gin.Context) any {
-	storer := newResponseStorer(c.Writer)
+func (m *requestDebuggerMiddleware) getResponseBodyGetter(c *gin.Context) func(c *gin.Context) any {
+	storer := newCapturingResponseWriter(c.Writer)
 	c.Writer = storer
 
 	return func(c *gin.Context) any {
-		if storer.storedResponse == nil {
+		if storer.response == nil {
 			return nil
 		}
 
 		if strings.HasPrefix(c.Request.Response.Header.Get("Content-Type"), "application/json") {
-			return json.RawMessage(storer.storedResponse)
+			return json.RawMessage(storer.response)
 		}
 
-		return string(storer.storedResponse)
+		return string(storer.response)
 	}
 }
 
-// responseStorer stores the written response by the handler into its field.
+// capturingResponseWriter stores the written response by the handler into its field.
 // This is used to automate response logging.
-type responseStorer struct {
+type capturingResponseWriter struct {
 	gin.ResponseWriter
-	storedResponse []byte
+
+	response []byte
 }
 
-func newResponseStorer(writer gin.ResponseWriter) *responseStorer {
-	return &responseStorer{ResponseWriter: writer}
+func newCapturingResponseWriter(writer gin.ResponseWriter) *capturingResponseWriter {
+	return &capturingResponseWriter{ResponseWriter: writer}
 }
 
-func (s *responseStorer) Write(response []byte) (int, error) {
-	s.storedResponse = response
+func (w *capturingResponseWriter) Write(response []byte) (int, error) {
+	w.response = response
 
-	n, err := s.ResponseWriter.Write(response)
+	n, err := w.ResponseWriter.Write(response)
 	if err != nil {
-		return n, fmt.Errorf("write response with storer: %w", err)
+		return n, fmt.Errorf("write response after capture: %w", err)
 	}
 
 	return n, nil

@@ -12,17 +12,17 @@ type tracer interface {
 	Start(ctx context.Context) (context.Context, error)
 }
 
-// requestLogger is a logging middleware that generated trace ID for each request.
-type requestLogger struct {
+// requestLoggerMiddleware is a logging middleware that generated trace ID for each request.
+type requestLoggerMiddleware struct {
 	tracer tracer
 }
 
-func NewRequestLogger(tracer tracer) gin.HandlerFunc {
-	return (&requestLogger{tracer: tracer}).handle
+func NewRequestLoggerMiddleware(tracer tracer) gin.HandlerFunc {
+	return (&requestLoggerMiddleware{tracer: tracer}).handle
 }
 
 // handle creates trace and logs request information.
-func (l *requestLogger) handle(c *gin.Context) {
+func (l *requestLoggerMiddleware) handle(c *gin.Context) {
 	ctx, err := l.tracer.Start(c.Request.Context())
 	if err != nil {
 		slog.ErrorContext(c.Request.Context(), "Failed to start a trace", "err", err.Error())

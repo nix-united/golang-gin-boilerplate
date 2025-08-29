@@ -87,11 +87,12 @@ func run() error {
 
 	// HTTP Server initialization
 	httpServer := server.NewServer(cfg.HTTPServer, server.Handlers{
-		HomeHandler:       homeHandler,
-		AuthHandler:       authHandler,
-		PostHandler:       postHandler,
-		JwtAuthMiddleware: jwtAuth,
-		LoggingMiddleware: middleware.NewRequestLogger(traceStarter),
+		HomeHandler:                homeHandler,
+		AuthHandler:                authHandler,
+		PostHandler:                postHandler,
+		JwtAuthMiddleware:          jwtAuth,
+		RequestLoggingMiddleware:   middleware.NewRequestLoggerMiddleware(traceStarter),
+		RequestDebuggingMiddleware: middleware.NewRequestDebuggerMiddleware(),
 	})
 	go func() {
 		if err := httpServer.Run(); err != nil {
