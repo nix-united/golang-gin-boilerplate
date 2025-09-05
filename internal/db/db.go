@@ -16,7 +16,7 @@ func NewDBConnection(cfg config.DBConfig) (gormDB *gorm.DB, sqlDB *sql.DB, err e
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name,
 	)
 
-	sqlDB, err = sql.Open(cfg.Driver, dataSourceName)
+	sqlDB, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("open db connection: %w", err)
 	}
