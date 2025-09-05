@@ -56,7 +56,7 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(gomock.Any(), 100).
+		GetByID(gomock.Any(), post.ID).
 		Return(post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/post/100", http.NoBody)
@@ -104,7 +104,7 @@ func TestPostHandler_SavePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		CreatePost(gomock.Any(), "Title", "Content", uint(101)).
+		Create(gomock.Any(), uint(101), "Title", "Content").
 		Return(&post, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodPost, "/posts", bytes.NewReader(rawCreatePostRequest))
@@ -138,9 +138,10 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 		},
 		Title:   "Title",
 		Content: "Content",
+		UserID:  101,
 	}
 
-	newPost := model.Post{
+	newPost := &model.Post{
 		Model: gorm.Model{
 			ID: 100,
 		},
@@ -160,13 +161,8 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetByID(gomock.Any(), 100).
-		Return(post, nil)
-
-	postService.
-		EXPECT().
-		Save(gomock.Any(), &newPost).
-		Return(nil)
+		UpdateByUser(gomock.Any(), post.UserID, post.ID, "New Title", "New Content").
+		Return(newPost, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodPut, "/post/100", bytes.NewReader(rawUpdatePostRequest))
 
@@ -203,7 +199,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
-		GetAll(gomock.Any()).
+		List(gomock.Any()).
 		Return([]model.Post{post}, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
@@ -238,22 +234,9 @@ func TestPostHandler_GetPosts(t *testing.T) {
 func TestPostHandler_DeletePost(t *testing.T) {
 	engine, postService := newPostHandler(t)
 
-	post := &model.Post{
-		Model: gorm.Model{
-			ID: 100,
-		},
-		Title:   "Title",
-		Content: "Content",
-	}
-
 	postService.
 		EXPECT().
-		GetByID(gomock.Any(), 100).
-		Return(post, nil)
-
-	postService.
-		EXPECT().
-		Delete(gomock.Any(), post).
+		DeleteByUser(gomock.Any(), uint(101), uint(100)).
 		Return(nil)
 
 	httpRequest := httptest.NewRequest(http.MethodDelete, "/post/100", http.NoBody)

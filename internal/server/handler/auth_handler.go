@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	operror "github.com/nix-united/golang-gin-boilerplate/internal/errors"
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
@@ -53,23 +53,13 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	err := h.userService.CreateUser(c.Request.Context(), registerRequest)
-	if err != nil {
-		var errOperation operror.ErrInvalidStorageOperation
-		if errors.As(err, &errOperation) {
-			response.ErrorResponse(
-				c,
-				http.StatusUnprocessableEntity,
-				errOperation.Error(),
-			)
+	if err := h.userService.CreateUser(c.Request.Context(), registerRequest); err != nil {
+		if errors.Is(err, domain.ErrAlreadyExists) {
+			response.ErrorResponse(c, http.StatusUnprocessableEntity, "Such user already exists")
 			return
 		}
 
-		response.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Oops, something went wrong...",
-		)
+		response.ErrorResponse(c, http.StatusInternalServerError, "Oops, something went wrong...")
 		return
 	}
 
