@@ -27,19 +27,19 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	// Technical API route initialization
 	// These endpoints exist solely to keep the service running and must not include any
 	// business or processing logic.
-	engine := gin.Default()
+	engine := gin.New()
 
 	engine.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
 	engine.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusNoContent)
+		c.Status(http.StatusOK)
 	})
 
-	api := engine.Group("/", handlers.RequestLoggingMiddleware)
+	api := engine.Group("/", handlers.RequestLoggingMiddleware, gin.Recovery())
 
 	// Private API routes initialization
 	// These endpoints are used primarily for authentication/authorization and may carry sensitive data.
 	// Do NOT log request or response bodies; doing so could expose client information.
-	privateAPI := engine.Group("/")
+	privateAPI := api.Group("/")
 
 	privateAPI.POST("/users", handlers.AuthHandler.RegisterUser)
 	privateAPI.POST("/login", handlers.JwtAuthMiddleware.Middleware().LoginHandler)

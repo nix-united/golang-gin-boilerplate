@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
@@ -40,6 +41,8 @@ func NewAuthHandler(userService userService) *AuthHandler {
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
+		c.Error(fmt.Errorf("bind: %w", err))
+
 		response.ErrorResponse(
 			c,
 			http.StatusUnprocessableEntity,
@@ -49,11 +52,15 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	}
 
 	if err := registerRequest.Validate(); err != nil {
+		c.Error(fmt.Errorf("validate: %w", err))
+
 		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Request")
 		return
 	}
 
 	if err := h.userService.CreateUser(c.Request.Context(), registerRequest); err != nil {
+		c.Error(fmt.Errorf("create user: %w", err))
+
 		if errors.Is(err, domain.ErrAlreadyExists) {
 			response.ErrorResponse(c, http.StatusUnprocessableEntity, "Such user already exists")
 			return
