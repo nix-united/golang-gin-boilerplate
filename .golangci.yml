@@ -21,6 +21,9 @@ linters-settings:
     min-complexity: 15
   revive:
     confidence: 0
+    rules:
+      - name: exported
+        disabled: true
   mnd:
     checks:
       # don't include the "operation" and "assign"
