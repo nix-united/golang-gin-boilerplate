@@ -24,6 +24,14 @@ linters-settings:
     rules:
       - name: exported
         disabled: true
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        # These functions propagate the provided error between Gin middlewares.
+        # There is no need to check the returned value, since it is a copy of the input error.
+        - (*github.com/gin-gonic/gin.Context).Error
+        - (*github.com/gin-gonic/gin.Context).AbortWithError
   mnd:
     checks:
       # don't include the "operation" and "assign"

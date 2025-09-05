@@ -72,9 +72,9 @@ func SetupApplication(
 			return fmt.Errorf("read container logs: %w", err)
 		}
 
-		fmt.Println("\n\n\n### Start of application logs\n")
+		fmt.Print("\n\n\n### Start of application logs\n\n")
 		fmt.Println(string(rawContainerLogs))
-		fmt.Println("### End of application logs\n\n\n")
+		fmt.Print("### End of application logs\n\n\n\n")
 
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate app container: %w", err)
