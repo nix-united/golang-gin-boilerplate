@@ -73,7 +73,7 @@ func (s *Service) UpdateByUser(ctx context.Context, userID, postID uint, title, 
 	post.Content = cmp.Or(content, post.Content)
 
 	if err := s.postRepository.Update(ctx, post); err != nil {
-		return nil, fmt.Errorf("Update post in repository: %w", err)
+		return nil, fmt.Errorf("update post in repository: %w", err)
 	}
 
 	return post, nil
