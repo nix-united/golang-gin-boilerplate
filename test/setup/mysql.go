@@ -65,9 +65,9 @@ func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(c
 			return fmt.Errorf("read container logs: %w", err)
 		}
 
-		fmt.Println("\n\n\n### Start of database logs\n")
+		fmt.Print("\n\n\n### Start of database logs\n\n")
 		fmt.Println(string(rawContainerLogs))
-		fmt.Println("### End of database logs\n\n\n")
+		fmt.Print("### End of database logs\n\n\n\n")
 
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate mysql container: %w", err)
