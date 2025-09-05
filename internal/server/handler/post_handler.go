@@ -12,6 +12,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	safecast "github.com/ccoveille/go-safecast"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,7 +47,7 @@ func NewPostHandler(postService postService) *PostHandler {
 // @Security ApiKeyAuth
 // @Router /posts [post]
 func (h *PostHandler) SavePost(c *gin.Context) {
-	userID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
 	if !ok {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
@@ -58,9 +59,15 @@ func (h *PostHandler) SavePost(c *gin.Context) {
 		return
 	}
 
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
+		return
+	}
+
 	post, err := h.postService.Create(
 		c.Request.Context(),
-		uint(userID),
+		userID,
 		createPostRequest.Title,
 		createPostRequest.Content,
 	)
@@ -88,13 +95,19 @@ func (h *PostHandler) SavePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
 func (h *PostHandler) GetPostByID(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	post, err := h.postService.GetByID(c.Request.Context(), uint(id))
+	postID, err := safecast.ToUint(parsedPostID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
+		return
+	}
+
+	post, err := h.postService.GetByID(c.Request.Context(), postID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			response.ErrorResponse(c, http.StatusNotFound, "Post not found")
@@ -147,9 +160,15 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
-	userID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
 	if !ok {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
 		return
 	}
 
@@ -159,16 +178,22 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
+	postID, err := safecast.ToUint(parsedPostID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
+		return
+	}
+
 	post, err := h.postService.UpdateByUser(
 		c.Request.Context(),
-		uint(userID),
-		uint(postID),
+		userID,
+		postID,
 		updatePostRequest.Title,
 		updatePostRequest.Content,
 	)
@@ -202,19 +227,31 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
-	userID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
 	if !ok {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
+		return
+	}
+
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	if err := h.postService.DeleteByUser(c.Request.Context(), uint(userID), uint(postID)); err != nil {
+	postID, err := safecast.ToUint(parsedPostID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
+		return
+	}
+
+	if err := h.postService.DeleteByUser(c.Request.Context(), userID, postID); err != nil {
 		switch {
 		case errors.Is(err, domain.ErrNotFound):
 			response.ErrorResponse(c, http.StatusNotFound, "Post not found")
