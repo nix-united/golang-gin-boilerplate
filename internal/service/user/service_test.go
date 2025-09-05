@@ -74,7 +74,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		mocks.userRepository.
 			EXPECT().
 			GetByEmail(gomock.Any(), "test@test.com").
-			Return(nil, nil)
+			Return(nil, domain.ErrNotFound)
 
 		mocks.encryptor.
 			EXPECT().
@@ -91,7 +91,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		mocks.userRepository.
 			EXPECT().
 			GetByEmail(gomock.Any(), "test@test.com").
-			Return(nil, nil)
+			Return(nil, domain.ErrNotFound)
 
 		mocks.encryptor.
 			EXPECT().
@@ -125,7 +125,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		mocks.userRepository.
 			EXPECT().
 			GetByEmail(gomock.Any(), "test@test.com").
-			Return(nil, nil)
+			Return(nil, domain.ErrNotFound)
 
 		mocks.encryptor.
 			EXPECT().
