@@ -208,7 +208,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	postID, err := strconv.Atoi(c.Param("id"))
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
