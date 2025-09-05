@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/pressly/goose/v3"
 )
 
