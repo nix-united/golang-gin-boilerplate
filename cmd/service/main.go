@@ -16,11 +16,14 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
+	"github.com/nix-united/golang-gin-boilerplate/internal/server/middleware"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
+	"github.com/nix-united/golang-gin-boilerplate/internal/slogx"
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -54,6 +57,12 @@ func run() error {
 		return fmt.Errorf("parse env: %w", err)
 	}
 
+	if err := slogx.Init(cfg.Logger); err != nil {
+		return fmt.Errorf("init logger: %w", err)
+	}
+
+	traceStarter := slogx.NewTraceStarter(uuid.NewV7)
+
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
 
 	// DB initialization
@@ -76,13 +85,21 @@ func run() error {
 	authHandler := handler.NewAuthHandler(userService)
 	jwtAuth := provider.NewJwtAuth(gormDB)
 
+	// Middlewares initialization
+	requestLoggerMiddleware := middleware.NewRequestLoggerMiddleware(traceStarter)
+	requestDebuggerMiddleware := middleware.NewRequestDebuggerMiddleware()
+
 	// HTTP Server initialization
-	httpServer := server.NewServer(cfg.HTTPServer, server.Handlers{
-		HomeHandler:       homeHandler,
-		AuthHandler:       authHandler,
-		PostHandler:       postHandler,
-		JwtAuthMiddleware: jwtAuth,
+	routes := server.ConfigureRoutes(server.Handlers{
+		HomeHandler:                homeHandler,
+		AuthHandler:                authHandler,
+		PostHandler:                postHandler,
+		JwtAuthMiddleware:          jwtAuth,
+		RequestLoggingMiddleware:   requestLoggerMiddleware.Handle,
+		RequestDebuggingMiddleware: requestDebuggerMiddleware.Handle,
 	})
+
+	httpServer := server.NewServer(cfg.HTTPServer, routes)
 	go func() {
 		if err := httpServer.Run(); err != nil {
 			log.Fatal("Server error: " + err.Error())
