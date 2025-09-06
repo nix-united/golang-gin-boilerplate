@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=service_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type userRepository interface {
-	FindUserByEmail(ctx context.Context, email string) (*model.User, error)
-	StoreUser(ctx context.Context, user *model.User) error
+	Create(ctx context.Context, user *model.User) error
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
 }
 
 type encryptor interface {
@@ -26,8 +26,8 @@ type Service struct {
 	encryptor      encryptor
 }
 
-func NewService(userRepository userRepository, enencryptor encryptor) Service {
-	return Service{
+func NewService(userRepository userRepository, enencryptor encryptor) *Service {
+	return &Service{
 		userRepository: userRepository,
 		encryptor:      enencryptor,
 	}
@@ -36,17 +36,14 @@ func NewService(userRepository userRepository, enencryptor encryptor) Service {
 // CreateUser Create takes a request with new user credentials and registers it.
 // An error will be returned if a user exists in the system, or
 // if an error occurs during interaction with the database.
-func (s Service) CreateUser(ctx context.Context, req request.RegisterRequest) error {
-	user, err := s.userRepository.FindUserByEmail(ctx, req.Email)
+func (s *Service) CreateUser(ctx context.Context, req request.RegisterRequest) error {
+	user, err := s.userRepository.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return fmt.Errorf("find user by email: %w", err)
+		return fmt.Errorf("get user by email: %w", err)
 	}
 
 	if user != nil && user.ID != 0 {
-		return service.NewErrUserAlreadyExists(
-			"user already exist",
-			"store a user",
-		)
+		return domain.ErrAlreadyExists
 	}
 
 	encryptedPassword, err := s.encryptor.Encrypt(req.Password)
@@ -54,7 +51,7 @@ func (s Service) CreateUser(ctx context.Context, req request.RegisterRequest) er
 		return fmt.Errorf("encrypt password: %w", err)
 	}
 
-	err = s.userRepository.StoreUser(ctx, &model.User{
+	err = s.userRepository.Create(ctx, &model.User{
 		Email:    req.Email,
 		Password: encryptedPassword,
 		FullName: req.FullName,
