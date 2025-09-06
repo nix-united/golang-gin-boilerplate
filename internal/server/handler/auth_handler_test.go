@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
-	"github.com/nix-united/golang-gin-boilerplate/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -94,7 +94,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		mocks.userService.
 			EXPECT().
 			CreateUser(gomock.Any(), registerRequest).
-			Return(service.NewErrUserAlreadyExists("msg", "op-name"))
+			Return(domain.ErrAlreadyExists)
 
 		httpRequest := httptest.NewRequest(
 			http.MethodPost,
@@ -115,7 +115,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		expectedResponse := `{
 			"code": 422,
-			"message": "msg"
+			"message": "Such user already exists"
 		}`
 
 		assert.JSONEq(t, expectedResponse, string(responseBody))
