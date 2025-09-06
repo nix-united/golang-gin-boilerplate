@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
-	operror "github.com/nix-united/golang-gin-boilerplate/internal/errors"
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
@@ -40,6 +41,8 @@ func NewAuthHandler(userService userService) *AuthHandler {
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
+		c.Error(fmt.Errorf("bind: %w", err))
+
 		response.ErrorResponse(
 			c,
 			http.StatusUnprocessableEntity,
@@ -49,27 +52,21 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	}
 
 	if err := registerRequest.Validate(); err != nil {
+		c.Error(fmt.Errorf("validate: %w", err))
+
 		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Request")
 		return
 	}
 
-	err := h.userService.CreateUser(c.Request.Context(), registerRequest)
-	if err != nil {
-		var errOperation operror.ErrInvalidStorageOperation
-		if errors.As(err, &errOperation) {
-			response.ErrorResponse(
-				c,
-				http.StatusUnprocessableEntity,
-				errOperation.Error(),
-			)
+	if err := h.userService.CreateUser(c.Request.Context(), registerRequest); err != nil {
+		c.Error(fmt.Errorf("create user: %w", err))
+
+		if errors.Is(err, domain.ErrAlreadyExists) {
+			response.ErrorResponse(c, http.StatusUnprocessableEntity, "Such user already exists")
 			return
 		}
 
-		response.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Oops, something went wrong...",
-		)
+		response.ErrorResponse(c, http.StatusInternalServerError, "Oops, something went wrong...")
 		return
 	}
 
