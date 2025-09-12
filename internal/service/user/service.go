@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
@@ -37,12 +38,10 @@ func NewService(userRepository userRepository, enencryptor encryptor) *Service {
 // An error will be returned if a user exists in the system, or
 // if an error occurs during interaction with the database.
 func (s *Service) CreateUser(ctx context.Context, req request.RegisterRequest) error {
-	user, err := s.userRepository.GetByEmail(ctx, req.Email)
-	if err != nil {
+	_, err := s.userRepository.GetByEmail(ctx, req.Email)
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
 		return fmt.Errorf("get user by email: %w", err)
-	}
-
-	if user != nil && user.ID != 0 {
+	} else if err == nil {
 		return domain.ErrAlreadyExists
 	}
 

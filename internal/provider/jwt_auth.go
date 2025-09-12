@@ -1,8 +1,8 @@
 package provider
 
 import (
-	"context"
 	"log"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -131,27 +131,35 @@ func (mw jwtAuthMiddleware) Refresh(c *gin.Context) {
 	mw.Middleware().RefreshHandler(c)
 }
 
-func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
+func (mw jwtAuthMiddleware) isUserValid(data interface{}, c *gin.Context) bool {
 	userID, ok := data.(float64)
-
 	if !ok {
 		return false
 	}
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	_, err := userRepository.GetByID(context.TODO(), uint(userID))
-	return err == nil
+	_, err := userRepository.GetByID(c.Request.Context(), uint(userID))
+	if err != nil {
+		slog.WarnContext(c.Request.Context(), "Failed to get user by ID to authorize", "err", err)
+
+		return false
+	}
+
+	return true
 }
 
 func extractIdentityKeyFromClaims(c *gin.Context) interface{} {
-	claims := jwt.ExtractClaims(c)
+	identity, ok := jwt.ExtractClaims(c)[identityKey].(float64)
+	if !ok {
+		return 0
+	}
 
-	return claims[identityKey].(float64)
+	return identity
 }
 
 func addUserIDToClaims(data interface{}) jwt.MapClaims {
-	if user, ok := data.(model.User); ok {
+	if user, ok := data.(*model.User); ok {
 		return jwt.MapClaims{
 			identityKey: user.ID,
 		}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"log/slog"
@@ -22,7 +23,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/slogx"
 	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
-	"github.com/caarlos0/env"
+	"github.com/caarlos0/env/v11"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -48,7 +49,7 @@ func main() {
 }
 
 func run() error {
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("load env file: %w", err)
 	}
 
