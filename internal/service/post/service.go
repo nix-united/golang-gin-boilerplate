@@ -1,19 +1,21 @@
 package post
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=service_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postRepository interface {
-	GetAll(ctx context.Context) ([]model.Post, error)
-	GetByID(ctx context.Context, id int) (*model.Post, error)
 	Create(ctx context.Context, post *model.Post) error
-	Save(ctx context.Context, post *model.Post) error
+	GetByID(ctx context.Context, id uint) (*model.Post, error)
+	List(ctx context.Context) ([]model.Post, error)
+	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, post *model.Post) error
 }
 
@@ -25,7 +27,7 @@ func NewService(postRepository postRepository) *Service {
 	return &Service{postRepository: postRepository}
 }
 
-func (s *Service) CreatePost(ctx context.Context, title, content string, userID uint) (*model.Post, error) {
+func (s *Service) Create(ctx context.Context, userID uint, title, content string) (*model.Post, error) {
 	post := &model.Post{
 		Title:   title,
 		Content: content,
@@ -39,24 +41,7 @@ func (s *Service) CreatePost(ctx context.Context, title, content string, userID 
 	return post, nil
 }
 
-func (s *Service) Create(ctx context.Context, post *model.Post) error {
-	if err := s.postRepository.Create(ctx, post); err != nil {
-		return fmt.Errorf("create post in repository: %w", err)
-	}
-
-	return nil
-}
-
-func (s *Service) GetAll(ctx context.Context) ([]model.Post, error) {
-	posts, err := s.postRepository.GetAll(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("get all posts from repository: %w", err)
-	}
-
-	return posts, nil
-}
-
-func (s *Service) GetByID(ctx context.Context, id int) (*model.Post, error) {
+func (s *Service) GetByID(ctx context.Context, id uint) (*model.Post, error) {
 	post, err := s.postRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get post by id from repository: %w", err)
@@ -65,15 +50,45 @@ func (s *Service) GetByID(ctx context.Context, id int) (*model.Post, error) {
 	return post, nil
 }
 
-func (s *Service) Save(ctx context.Context, post *model.Post) error {
-	if err := s.postRepository.Save(ctx, post); err != nil {
-		return fmt.Errorf("save post in repository: %w", err)
+func (s *Service) List(ctx context.Context) ([]model.Post, error) {
+	posts, err := s.postRepository.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get all posts from repository: %w", err)
 	}
 
-	return nil
+	return posts, nil
 }
 
-func (s *Service) Delete(ctx context.Context, post *model.Post) error {
+func (s *Service) UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error) {
+	post, err := s.postRepository.GetByID(ctx, postID)
+	if err != nil {
+		return nil, fmt.Errorf("get post by id: %w", err)
+	}
+
+	if post.UserID != userID {
+		return nil, fmt.Errorf("post belongs to a different user: %w", domain.ErrForbidden)
+	}
+
+	post.Title = cmp.Or(title, post.Title)
+	post.Content = cmp.Or(content, post.Content)
+
+	if err := s.postRepository.Update(ctx, post); err != nil {
+		return nil, fmt.Errorf("update post in repository: %w", err)
+	}
+
+	return post, nil
+}
+
+func (s *Service) DeleteByUser(ctx context.Context, userID, postID uint) error {
+	post, err := s.postRepository.GetByID(ctx, postID)
+	if err != nil {
+		return fmt.Errorf("get post by id: %w", err)
+	}
+
+	if post.UserID != userID {
+		return fmt.Errorf("post belongs to a different user: %w", domain.ErrForbidden)
+	}
+
 	if err := s.postRepository.Delete(ctx, post); err != nil {
 		return fmt.Errorf("delete post from repository: %w", err)
 	}

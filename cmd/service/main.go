@@ -72,12 +72,13 @@ func run() error {
 	}
 
 	// Repository initialization
-	userRepo := repository.NewUserRepository(gormDB)
-	postRepo := repository.NewPostRepository(gormDB)
+	userRepository := repository.NewUserRepository(gormDB)
+	postRepository := repository.NewPostRepository(gormDB)
 
 	// Services initialization
-	userService := user.NewService(userRepo, utils.NewBcryptEncoder(bcrypt.DefaultCost))
-	postService := post.NewService(postRepo)
+	bcryptEncoder := utils.NewBcryptEncoder(bcrypt.DefaultCost)
+	userService := user.NewService(userRepository, bcryptEncoder)
+	postService := post.NewService(postRepository)
 
 	// Handlers initialization
 	homeHandler := handler.NewHomeHandler()

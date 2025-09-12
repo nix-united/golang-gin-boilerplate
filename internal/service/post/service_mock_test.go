@@ -116,47 +116,8 @@ func (c *MockpostRepositoryDeleteCall) DoAndReturn(f func(context.Context, *mode
 	return c
 }
 
-// GetAll mocks base method.
-func (m *MockpostRepository) GetAll(ctx context.Context) ([]model.Post, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
-	ret0, _ := ret[0].([]model.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAll indicates an expected call of GetAll.
-func (mr *MockpostRepositoryMockRecorder) GetAll(ctx any) *MockpostRepositoryGetAllCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockpostRepository)(nil).GetAll), ctx)
-	return &MockpostRepositoryGetAllCall{Call: call}
-}
-
-// MockpostRepositoryGetAllCall wrap *gomock.Call
-type MockpostRepositoryGetAllCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockpostRepositoryGetAllCall) Return(arg0 []model.Post, arg1 error) *MockpostRepositoryGetAllCall {
-	c.Call = c.Call.Return(arg0, arg1)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockpostRepositoryGetAllCall) Do(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryGetAllCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositoryGetAllCall) DoAndReturn(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryGetAllCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // GetByID mocks base method.
-func (m *MockpostRepository) GetByID(ctx context.Context, id int) (*model.Post, error) {
+func (m *MockpostRepository) GetByID(ctx context.Context, id uint) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", ctx, id)
 	ret0, _ := ret[0].(*model.Post)
@@ -183,51 +144,90 @@ func (c *MockpostRepositoryGetByIDCall) Return(arg0 *model.Post, arg1 error) *Mo
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostRepositoryGetByIDCall) Do(f func(context.Context, int) (*model.Post, error)) *MockpostRepositoryGetByIDCall {
+func (c *MockpostRepositoryGetByIDCall) Do(f func(context.Context, uint) (*model.Post, error)) *MockpostRepositoryGetByIDCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositoryGetByIDCall) DoAndReturn(f func(context.Context, int) (*model.Post, error)) *MockpostRepositoryGetByIDCall {
+func (c *MockpostRepositoryGetByIDCall) DoAndReturn(f func(context.Context, uint) (*model.Post, error)) *MockpostRepositoryGetByIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
-// Save mocks base method.
-func (m *MockpostRepository) Save(ctx context.Context, post *model.Post) error {
+// List mocks base method.
+func (m *MockpostRepository) List(ctx context.Context) ([]model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", ctx, post)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "List", ctx)
+	ret0, _ := ret[0].([]model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Save indicates an expected call of Save.
-func (mr *MockpostRepositoryMockRecorder) Save(ctx, post any) *MockpostRepositorySaveCall {
+// List indicates an expected call of List.
+func (mr *MockpostRepositoryMockRecorder) List(ctx any) *MockpostRepositoryListCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockpostRepository)(nil).Save), ctx, post)
-	return &MockpostRepositorySaveCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockpostRepository)(nil).List), ctx)
+	return &MockpostRepositoryListCall{Call: call}
 }
 
-// MockpostRepositorySaveCall wrap *gomock.Call
-type MockpostRepositorySaveCall struct {
+// MockpostRepositoryListCall wrap *gomock.Call
+type MockpostRepositoryListCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostRepositorySaveCall) Return(arg0 error) *MockpostRepositorySaveCall {
+func (c *MockpostRepositoryListCall) Return(arg0 []model.Post, arg1 error) *MockpostRepositoryListCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockpostRepositoryListCall) Do(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryListCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockpostRepositoryListCall) DoAndReturn(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryListCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Update mocks base method.
+func (m *MockpostRepository) Update(ctx context.Context, post *model.Post) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", ctx, post)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockpostRepositoryMockRecorder) Update(ctx, post any) *MockpostRepositoryUpdateCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockpostRepository)(nil).Update), ctx, post)
+	return &MockpostRepositoryUpdateCall{Call: call}
+}
+
+// MockpostRepositoryUpdateCall wrap *gomock.Call
+type MockpostRepositoryUpdateCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockpostRepositoryUpdateCall) Return(arg0 error) *MockpostRepositoryUpdateCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostRepositorySaveCall) Do(f func(context.Context, *model.Post) error) *MockpostRepositorySaveCall {
+func (c *MockpostRepositoryUpdateCall) Do(f func(context.Context, *model.Post) error) *MockpostRepositoryUpdateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositorySaveCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostRepositorySaveCall {
+func (c *MockpostRepositoryUpdateCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostRepositoryUpdateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

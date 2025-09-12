@@ -105,7 +105,7 @@ func (mw jwtAuthMiddleware) authenticate(c *gin.Context) (interface{}, error) {
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	user, err := userRepository.FindUserByEmail(c.Request.Context(), authRequest.Email)
+	user, err := userRepository.GetByEmail(c.Request.Context(), authRequest.Email)
 	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
@@ -140,7 +140,7 @@ func (mw jwtAuthMiddleware) isUserValid(data interface{}, _ *gin.Context) bool {
 
 	userRepository := repository.NewUserRepository(mw.databaseDriver)
 
-	_, err := userRepository.FindUserByID(context.TODO(), int(userID))
+	_, err := userRepository.GetByID(context.TODO(), uint(userID))
 	return err == nil
 }
 

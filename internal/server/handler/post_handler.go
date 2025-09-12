@@ -6,24 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
-	operrors "github.com/nix-united/golang-gin-boilerplate/internal/errors"
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	safecast "github.com/ccoveille/go-safecast"
 	"github.com/gin-gonic/gin"
 )
 
-//go:generate mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
+//go:generate go tool mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postService interface {
-	CreatePost(ctx context.Context, title, content string, userID uint) (*model.Post, error)
-	GetAll(ctx context.Context) ([]model.Post, error)
-	GetByID(ctx context.Context, id int) (*model.Post, error)
-	Create(ctx context.Context, post *model.Post) error
-	Save(ctx context.Context, post *model.Post) error
-	Delete(ctx context.Context, post *model.Post) error
+	Create(ctx context.Context, userID uint, title, content string) (*model.Post, error)
+	GetByID(ctx context.Context, id uint) (*model.Post, error)
+	List(ctx context.Context) ([]model.Post, error)
+	UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error)
+	DeleteByUser(ctx context.Context, userID, postID uint) error
 }
 
 type PostHandler struct {
@@ -32,41 +32,6 @@ type PostHandler struct {
 
 func NewPostHandler(postService postService) *PostHandler {
 	return &PostHandler{postService: postService}
-}
-
-// GetPostByID godoc
-// @Summary Get post by id
-// @Description Get post by id
-// @ID get-post
-// @Tags Posts Actions
-// @Produce json
-// @Param id path int true "Post ID"
-// @Success 200 {object} response.GetPostResponse
-// @Failure 401 {object} response.Error
-// @Security ApiKeyAuth
-// @Router /post/{id} [get]
-func (h *PostHandler) GetPostByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
-		return
-	}
-
-	post, err := h.postService.GetByID(c.Request.Context(), id)
-	if errors.Is(err, operrors.ErrPostNotFound) {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
-		return
-	}
-	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
-		return
-	}
-
-	response.SuccessResponse(c, response.GetPostResponse{
-		ID:      post.ID,
-		Title:   post.Title,
-		Content: post.Content,
-	})
 }
 
 // SavePost godoc
@@ -82,79 +47,74 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [post]
 func (h *PostHandler) SavePost(c *gin.Context) {
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	if !ok {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
 	var createPostRequest request.CreatePostRequest
 	if err := c.ShouldBindJSON(&createPostRequest); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
 		return
 	}
 
-	claims := jwt.ExtractClaims(c)
-	id, ok := claims["id"].(float64)
-	if !ok {
-		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
 		return
 	}
 
-	newPost, restError := h.postService.CreatePost(
+	post, err := h.postService.Create(
 		c.Request.Context(),
+		userID,
 		createPostRequest.Title,
 		createPostRequest.Content,
-		uint(id),
 	)
-	if restError != nil {
+	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Post can't be created")
 		return
 	}
 
 	response.SuccessResponse(c, response.CreatePostResponse{
-		ID:      newPost.ID,
-		Title:   newPost.Title,
-		Content: newPost.Content,
+		ID:      post.ID,
+		Title:   post.Title,
+		Content: post.Content,
 	})
 }
 
-// UpdatePost godoc
-// @Summary Update post
-// @Description Update post
-// @ID posts-update
+// GetPostByID godoc
+// @Summary Get post by id
+// @Description Get post by id
+// @ID get-post
 // @Tags Posts Actions
-// @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
-// @Param params body request.UpdatePostRequest true "Post title and content"
-// @Success 200 {string} response.GetPostResponse
-// @Failure 400 {string} string "Bad request"
-// @Failure 404 {object} response.Error
+// @Success 200 {object} response.GetPostResponse
+// @Failure 401 {object} response.Error
 // @Security ApiKeyAuth
-// @Router /post/{id} [put]
-func (h *PostHandler) UpdatePost(c *gin.Context) {
-	var updatePostRequest request.UpdatePostRequest
-	if err := c.ShouldBindJSON(&updatePostRequest); err != nil {
-		response.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
-		return
-	}
-
-	id, err := strconv.Atoi(c.Param("id"))
+// @Router /post/{id} [get]
+func (h *PostHandler) GetPostByID(c *gin.Context) {
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	post, err := h.postService.GetByID(c.Request.Context(), id)
-	if errors.Is(err, operrors.ErrPostNotFound) {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
-		return
-	}
+	postID, err := safecast.ToUint(parsedPostID)
 	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
 		return
 	}
 
-	post.Title = updatePostRequest.Title
-	post.Content = updatePostRequest.Content
+	post, err := h.postService.GetByID(c.Request.Context(), postID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+			return
+		}
 
-	if err := h.postService.Save(c.Request.Context(), post); err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Data was not saved")
+		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
@@ -176,13 +136,84 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
-	posts, err := h.postService.GetAll(c.Request.Context())
+	posts, err := h.postService.List(c.Request.Context())
 	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
 		return
 	}
 
 	response.SuccessResponse(c, response.CreatePostsCollectionResponse(posts))
+}
+
+// UpdatePost godoc
+// @Summary Update post
+// @Description Update post
+// @ID posts-update
+// @Tags Posts Actions
+// @Accept json
+// @Produce json
+// @Param id path int true "Post ID"
+// @Param params body request.UpdatePostRequest true "Post title and content"
+// @Success 200 {string} response.GetPostResponse
+// @Failure 400 {string} string "Bad request"
+// @Failure 404 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /post/{id} [put]
+func (h *PostHandler) UpdatePost(c *gin.Context) {
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	if !ok {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
+		return
+	}
+
+	var updatePostRequest request.UpdatePostRequest
+	if err := c.ShouldBindJSON(&updatePostRequest); err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
+		return
+	}
+
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	postID, err := safecast.ToUint(parsedPostID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
+		return
+	}
+
+	post, err := h.postService.UpdateByUser(
+		c.Request.Context(),
+		userID,
+		postID,
+		updatePostRequest.Title,
+		updatePostRequest.Content,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
+			response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+		case errors.Is(err, domain.ErrForbidden):
+			response.ErrorResponse(c, http.StatusForbidden, "Forbidden")
+		default:
+			response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+		}
+		return
+	}
+
+	response.SuccessResponse(c, response.GetPostResponse{
+		ID:      post.ID,
+		Title:   post.Title,
+		Content: post.Content,
+	})
 }
 
 // DeletePost godoc
@@ -196,24 +227,39 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	parsedUserID, ok := jwt.ExtractClaims(c)["id"].(float64)
+	if !ok {
+		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
+		return
+	}
+
+	userID, err := safecast.ToUint(parsedUserID)
+	if err != nil {
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid User ID")
+		return
+	}
+
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	post, err := h.postService.GetByID(c.Request.Context(), id)
-	if errors.Is(err, operrors.ErrPostNotFound) {
-		response.ErrorResponse(c, http.StatusNotFound, "Post not found")
-		return
-	}
+	postID, err := safecast.ToUint(parsedPostID)
 	if err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Post ID")
 		return
 	}
 
-	if err := h.postService.Delete(c.Request.Context(), post); err != nil {
-		response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+	if err := h.postService.DeleteByUser(c.Request.Context(), userID, postID); err != nil {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
+			response.ErrorResponse(c, http.StatusNotFound, "Post not found")
+		case errors.Is(err, domain.ErrForbidden):
+			response.ErrorResponse(c, http.StatusForbidden, "Forbidden")
+		default:
+			response.ErrorResponse(c, http.StatusInternalServerError, "Server error")
+		}
 		return
 	}
 
