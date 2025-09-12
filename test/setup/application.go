@@ -58,7 +58,6 @@ func SetupApplication(
 	)
 	if err != nil {
 		return AppConfig{}, nil, fmt.Errorf("generic container from app: %w", err)
-
 	}
 
 	shutdown := func(ctx context.Context) error {
