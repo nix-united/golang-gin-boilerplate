@@ -41,17 +41,17 @@ func (m *MockuserService) EXPECT() *MockuserServiceMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockuserService) CreateUser(ctx context.Context, req request.RegisterRequest) error {
+func (m *MockuserService) CreateUser(ctx context.Context, registerRequest request.RegisterRequest) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", ctx, req)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, registerRequest)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockuserServiceMockRecorder) CreateUser(ctx, req any) *MockuserServiceCreateUserCall {
+func (mr *MockuserServiceMockRecorder) CreateUser(ctx, registerRequest any) *MockuserServiceCreateUserCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockuserService)(nil).CreateUser), ctx, req)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockuserService)(nil).CreateUser), ctx, registerRequest)
 	return &MockuserServiceCreateUserCall{Call: call}
 }
 

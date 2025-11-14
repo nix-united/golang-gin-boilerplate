@@ -206,6 +206,11 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
+		Count(gomock.Any()).
+		Return(100, nil)
+
+	postService.
+		EXPECT().
 		List(gomock.Any()).
 		Return([]model.Post{post}, nil)
 
@@ -234,7 +239,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		],
 		"meta": {
 			"count": 1,
-			"total": 0,
+			"total": 100,
 			"offset": 0,
 			"limit": 0
 		}

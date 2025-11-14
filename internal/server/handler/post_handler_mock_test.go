@@ -41,6 +41,45 @@ func (m *MockpostService) EXPECT() *MockpostServiceMockRecorder {
 	return m.recorder
 }
 
+// Count mocks base method.
+func (m *MockpostService) Count(ctx context.Context) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count", ctx)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count.
+func (mr *MockpostServiceMockRecorder) Count(ctx any) *MockpostServiceCountCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockpostService)(nil).Count), ctx)
+	return &MockpostServiceCountCall{Call: call}
+}
+
+// MockpostServiceCountCall wrap *gomock.Call
+type MockpostServiceCountCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockpostServiceCountCall) Return(arg0 int64, arg1 error) *MockpostServiceCountCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockpostServiceCountCall) Do(f func(context.Context) (int64, error)) *MockpostServiceCountCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockpostServiceCountCall) DoAndReturn(f func(context.Context) (int64, error)) *MockpostServiceCountCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Create mocks base method.
 func (m *MockpostService) Create(ctx context.Context, userID uint, title, content string) (*model.Post, error) {
 	m.ctrl.T.Helper()

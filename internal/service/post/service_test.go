@@ -42,6 +42,24 @@ func TestPostService_Create(t *testing.T) {
 	assert.Equal(t, expectedCreatedPost, post)
 }
 
+func TestPostService_Count(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	postRepository := NewMockpostRepository(ctrl)
+	postService := post.NewService(postRepository)
+
+	const wantCount = int64(100)
+
+	postRepository.
+		EXPECT().
+		Count(gomock.Any()).
+		Return(wantCount, nil)
+
+	gotCount, err := postService.Count(t.Context())
+	require.NoError(t, err)
+
+	assert.Equal(t, wantCount, gotCount)
+}
+
 func TestPostService_List(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)

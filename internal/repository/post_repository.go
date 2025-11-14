@@ -27,6 +27,24 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) error {
 	return nil
 }
 
+func (r *PostRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).Model(&model.Post{}).Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("execute count number of posts query: %w", err)
+	}
+
+	return count, nil
+}
+
+func (r *PostRepository) List(ctx context.Context) ([]model.Post, error) {
+	var posts []model.Post
+	if err := r.db.WithContext(ctx).Find(&posts).Error; err != nil {
+		return nil, fmt.Errorf("execute select posts query: %w", err)
+	}
+
+	return posts, nil
+}
+
 func (r *PostRepository) GetByID(ctx context.Context, id uint) (*model.Post, error) {
 	var post *model.Post
 	if err := r.db.WithContext(ctx).Where("id = ?", id).Take(&post).Error; err != nil {
@@ -38,15 +56,6 @@ func (r *PostRepository) GetByID(ctx context.Context, id uint) (*model.Post, err
 	}
 
 	return post, nil
-}
-
-func (r *PostRepository) List(ctx context.Context) ([]model.Post, error) {
-	var posts []model.Post
-	if err := r.db.WithContext(ctx).Find(&posts).Error; err != nil {
-		return nil, fmt.Errorf("execute select posts query: %w", err)
-	}
-
-	return posts, nil
 }
 
 func (r *PostRepository) Update(ctx context.Context, post *model.Post) error {

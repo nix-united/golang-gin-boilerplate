@@ -21,8 +21,9 @@ import (
 
 type postService interface {
 	Create(ctx context.Context, userID uint, title, content string) (*model.Post, error)
-	GetByID(ctx context.Context, id uint) (*model.Post, error)
+	Count(ctx context.Context) (int64, error)
 	List(ctx context.Context) ([]model.Post, error)
+	GetByID(ctx context.Context, id uint) (*model.Post, error)
 	UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error)
 	DeleteByUser(ctx context.Context, userID, postID uint) error
 }
@@ -160,6 +161,16 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
+	total, err := h.postService.Count(c.Request.Context())
+	if err != nil {
+		c.Error(fmt.Errorf("count posts: %w", err))
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeInternalServerError,
+			"Oops, something went wrong...",
+		))
+		return
+	}
+
 	posts, err := h.postService.List(c.Request.Context())
 	if err != nil {
 		c.Error(fmt.Errorf("list posts: %w", err))
@@ -169,7 +180,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		))
 		return
 	}
-	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts, 0, 0, 0))
+	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts, total, 0, 0))
 }
 
 // UpdatePost godoc

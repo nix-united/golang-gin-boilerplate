@@ -13,8 +13,9 @@ import (
 
 type postRepository interface {
 	Create(ctx context.Context, post *model.Post) error
-	GetByID(ctx context.Context, id uint) (*model.Post, error)
+	Count(ctx context.Context) (int64, error)
 	List(ctx context.Context) ([]model.Post, error)
+	GetByID(ctx context.Context, id uint) (*model.Post, error)
 	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, post *model.Post) error
 }
@@ -41,13 +42,13 @@ func (s *Service) Create(ctx context.Context, userID uint, title, content string
 	return post, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id uint) (*model.Post, error) {
-	post, err := s.postRepository.GetByID(ctx, id)
+func (s *Service) Count(ctx context.Context) (int64, error) {
+	count, err := s.postRepository.Count(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("get post by id from repository: %w", err)
+		return 0, fmt.Errorf("get posts count from repository: %w", err)
 	}
 
-	return post, nil
+	return count, nil
 }
 
 func (s *Service) List(ctx context.Context) ([]model.Post, error) {
@@ -57,6 +58,15 @@ func (s *Service) List(ctx context.Context) ([]model.Post, error) {
 	}
 
 	return posts, nil
+}
+
+func (s *Service) GetByID(ctx context.Context, id uint) (*model.Post, error) {
+	post, err := s.postRepository.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get post by id from repository: %w", err)
+	}
+
+	return post, nil
 }
 
 func (s *Service) UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error) {

@@ -40,6 +40,45 @@ func (m *MockpostRepository) EXPECT() *MockpostRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Count mocks base method.
+func (m *MockpostRepository) Count(ctx context.Context) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Count", ctx)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Count indicates an expected call of Count.
+func (mr *MockpostRepositoryMockRecorder) Count(ctx any) *MockpostRepositoryCountCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockpostRepository)(nil).Count), ctx)
+	return &MockpostRepositoryCountCall{Call: call}
+}
+
+// MockpostRepositoryCountCall wrap *gomock.Call
+type MockpostRepositoryCountCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockpostRepositoryCountCall) Return(arg0 int64, arg1 error) *MockpostRepositoryCountCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockpostRepositoryCountCall) Do(f func(context.Context) (int64, error)) *MockpostRepositoryCountCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockpostRepositoryCountCall) DoAndReturn(f func(context.Context) (int64, error)) *MockpostRepositoryCountCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Create mocks base method.
 func (m *MockpostRepository) Create(ctx context.Context, post *model.Post) error {
 	m.ctrl.T.Helper()

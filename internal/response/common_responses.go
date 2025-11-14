@@ -13,11 +13,11 @@ type CollectionResponse[T any] struct {
 	Meta Meta `json:"meta"`
 }
 
-func NewCollectionResponse[T any](items []T, total, offset, limit int) CollectionResponse[T] {
+func NewCollectionResponse[T any](items []T, total, offset, limit int64) CollectionResponse[T] {
 	return CollectionResponse[T]{
 		Data: items,
 		Meta: Meta{
-			Count:  len(items),
+			Count:  int64(len(items)),
 			Total:  total,
 			Offset: offset,
 			Limit:  limit,
@@ -26,10 +26,10 @@ func NewCollectionResponse[T any](items []T, total, offset, limit int) Collectio
 }
 
 type Meta struct {
-	Count  int `json:"count"`
-	Total  int `json:"total"`
-	Offset int `json:"offset"`
-	Limit  int `json:"limit"`
+	Count  int64 `json:"count"`
+	Total  int64 `json:"total"`
+	Offset int64 `json:"offset"`
+	Limit  int64 `json:"limit"`
 }
 
 type ErrorResponseCode string
