@@ -14,7 +14,7 @@ import (
 type postRepository interface {
 	Create(ctx context.Context, post *model.Post) error
 	Count(ctx context.Context) (int64, error)
-	List(ctx context.Context) ([]model.Post, error)
+	List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error)
 	GetByID(ctx context.Context, id uint) (*model.Post, error)
 	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, post *model.Post) error
@@ -51,8 +51,8 @@ func (s *Service) Count(ctx context.Context) (int64, error) {
 	return count, nil
 }
 
-func (s *Service) List(ctx context.Context) ([]model.Post, error) {
-	posts, err := s.postRepository.List(ctx)
+func (s *Service) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
+	posts, err := s.postRepository.List(ctx, filters)
 	if err != nil {
 		return nil, fmt.Errorf("get all posts from repository: %w", err)
 	}

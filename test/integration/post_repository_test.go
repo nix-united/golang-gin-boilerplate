@@ -50,7 +50,7 @@ func TestPostRepository(t *testing.T) {
 	})
 
 	t.Run("It should fetch all posts", func(t *testing.T) {
-		gotPosts, err := postRepository.List(t.Context())
+		gotPosts, err := postRepository.List(t.Context(), domain.PostFilters{Offset: 0, Limit: 100})
 		require.NoError(t, err)
 
 		require.GreaterOrEqual(t, len(gotPosts), 1)

@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	domain "github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -195,18 +196,18 @@ func (c *MockpostRepositoryGetByIDCall) DoAndReturn(f func(context.Context, uint
 }
 
 // List mocks base method.
-func (m *MockpostRepository) List(ctx context.Context) ([]model.Post, error) {
+func (m *MockpostRepository) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx)
+	ret := m.ctrl.Call(m, "List", ctx, filters)
 	ret0, _ := ret[0].([]model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockpostRepositoryMockRecorder) List(ctx any) *MockpostRepositoryListCall {
+func (mr *MockpostRepositoryMockRecorder) List(ctx, filters any) *MockpostRepositoryListCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockpostRepository)(nil).List), ctx)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockpostRepository)(nil).List), ctx, filters)
 	return &MockpostRepositoryListCall{Call: call}
 }
 
@@ -222,13 +223,13 @@ func (c *MockpostRepositoryListCall) Return(arg0 []model.Post, arg1 error) *Mock
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostRepositoryListCall) Do(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryListCall {
+func (c *MockpostRepositoryListCall) Do(f func(context.Context, domain.PostFilters) ([]model.Post, error)) *MockpostRepositoryListCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositoryListCall) DoAndReturn(f func(context.Context) ([]model.Post, error)) *MockpostRepositoryListCall {
+func (c *MockpostRepositoryListCall) DoAndReturn(f func(context.Context, domain.PostFilters) ([]model.Post, error)) *MockpostRepositoryListCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

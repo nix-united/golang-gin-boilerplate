@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 
@@ -71,12 +72,17 @@ func TestPostService_List(t *testing.T) {
 		UserID:  100,
 	}}
 
+	filters := domain.PostFilters{
+		Offset: 1,
+		Limit:  10,
+	}
+
 	postRepository.
 		EXPECT().
-		List(gomock.Any()).
+		List(gomock.Any(), filters).
 		Return(storedPosts, nil)
 
-	posts, err := postService.List(t.Context())
+	posts, err := postService.List(t.Context(), filters)
 	require.NoError(t, err)
 
 	assert.Equal(t, storedPosts, posts)

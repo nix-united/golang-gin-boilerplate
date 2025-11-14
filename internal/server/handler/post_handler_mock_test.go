@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	domain "github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -197,18 +198,18 @@ func (c *MockpostServiceGetByIDCall) DoAndReturn(f func(context.Context, uint) (
 }
 
 // List mocks base method.
-func (m *MockpostService) List(ctx context.Context) ([]model.Post, error) {
+func (m *MockpostService) List(ctx context.Context, filers domain.PostFilters) ([]model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx)
+	ret := m.ctrl.Call(m, "List", ctx, filers)
 	ret0, _ := ret[0].([]model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockpostServiceMockRecorder) List(ctx any) *MockpostServiceListCall {
+func (mr *MockpostServiceMockRecorder) List(ctx, filers any) *MockpostServiceListCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockpostService)(nil).List), ctx)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockpostService)(nil).List), ctx, filers)
 	return &MockpostServiceListCall{Call: call}
 }
 
@@ -224,13 +225,13 @@ func (c *MockpostServiceListCall) Return(arg0 []model.Post, arg1 error) *Mockpos
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostServiceListCall) Do(f func(context.Context) ([]model.Post, error)) *MockpostServiceListCall {
+func (c *MockpostServiceListCall) Do(f func(context.Context, domain.PostFilters) ([]model.Post, error)) *MockpostServiceListCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostServiceListCall) DoAndReturn(f func(context.Context) ([]model.Post, error)) *MockpostServiceListCall {
+func (c *MockpostServiceListCall) DoAndReturn(f func(context.Context, domain.PostFilters) ([]model.Post, error)) *MockpostServiceListCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -17,12 +18,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	defaultPostLimit = 10
+	maxPostLimit     = 100
+)
+
 //go:generate go tool mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postService interface {
 	Create(ctx context.Context, userID uint, title, content string) (*model.Post, error)
 	Count(ctx context.Context) (int64, error)
-	List(ctx context.Context) ([]model.Post, error)
+	List(ctx context.Context, filers domain.PostFilters) ([]model.Post, error)
 	GetByID(ctx context.Context, id uint) (*model.Post, error)
 	UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error)
 	DeleteByUser(ctx context.Context, userID, postID uint) error
@@ -161,6 +167,50 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
+	var (
+		limit int64
+		err   error
+	)
+
+	if param := c.Param("limit"); param != "" {
+		limit, err = strconv.ParseInt(param, 10, 64)
+		if err != nil {
+			c.Error(fmt.Errorf("parse limit: %w", err))
+			c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+				response.CodeBadRequest,
+				"Invalid request",
+			))
+			return
+		}
+	}
+
+	if limit > maxPostLimit {
+		c.Error(fmt.Errorf("extra large posts limit: %d", limit))
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
+		return
+	}
+
+	var offset int64
+	if param := c.Param("offset"); param != "" {
+		offset, err = strconv.ParseInt(param, 10, 64)
+		if err != nil {
+			c.Error(fmt.Errorf("parse offset: %w", err))
+			c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+				response.CodeBadRequest,
+				"Invalid request",
+			))
+			return
+		}
+	}
+
+	filters := domain.PostFilters{
+		Offset: offset,
+		Limit:  cmp.Or(limit, defaultPostLimit),
+	}
+
 	total, err := h.postService.Count(c.Request.Context())
 	if err != nil {
 		c.Error(fmt.Errorf("count posts: %w", err))
@@ -170,8 +220,12 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		))
 		return
 	}
+	if total == 0 {
+		c.JSON(http.StatusOK, response.NewPostCollectionResponse(nil, 0, filters.Offset, filters.Limit))
+		return
+	}
 
-	posts, err := h.postService.List(c.Request.Context())
+	posts, err := h.postService.List(c.Request.Context(), filters)
 	if err != nil {
 		c.Error(fmt.Errorf("list posts: %w", err))
 		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
@@ -180,7 +234,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		))
 		return
 	}
-	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts, total, 0, 0))
+	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts, total, filters.Offset, filters.Limit))
 }
 
 // UpdatePost godoc

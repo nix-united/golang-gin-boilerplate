@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
@@ -211,7 +212,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 
 	postService.
 		EXPECT().
-		List(gomock.Any()).
+		List(gomock.Any(), domain.PostFilters{Limit: 10}).
 		Return([]model.Post{post}, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)
@@ -241,7 +242,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			"count": 1,
 			"total": 100,
 			"offset": 0,
-			"limit": 0
+			"limit": 10
 		}
 	}`
 

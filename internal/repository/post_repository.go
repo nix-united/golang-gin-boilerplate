@@ -36,9 +36,14 @@ func (r *PostRepository) Count(ctx context.Context) (int64, error) {
 	return count, nil
 }
 
-func (r *PostRepository) List(ctx context.Context) ([]model.Post, error) {
+func (r *PostRepository) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
 	var posts []model.Post
-	if err := r.db.WithContext(ctx).Find(&posts).Error; err != nil {
+	err := r.db.WithContext(ctx).
+		Offset(int(filters.Offset)).
+		Limit(int(filters.Limit)).
+		Find(&posts).
+		Error
+	if err != nil {
 		return nil, fmt.Errorf("execute select posts query: %w", err)
 	}
 
