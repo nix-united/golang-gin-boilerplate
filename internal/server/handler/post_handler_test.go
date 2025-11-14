@@ -10,6 +10,7 @@ import (
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -118,7 +119,7 @@ func TestPostHandler_SavePost(t *testing.T) {
 	responseBody, err := io.ReadAll(response.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, response.StatusCode)
+	assert.Equal(t, http.StatusCreated, response.StatusCode)
 
 	expectedResponse := `{
 		"id": 100,
@@ -216,7 +217,7 @@ func TestPostHandler_GetPosts(t *testing.T) {
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
 	expectedResponse := `{
-		"collection": [
+		"data": [
 			{
 				"id": 100,
 				"title": "Title",
@@ -244,13 +245,21 @@ func TestPostHandler_DeletePost(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	engine.ServeHTTP(recorder, httpRequest)
 
-	response := recorder.Result()
-	defer response.Body.Close()
+	httpResponse := recorder.Result()
+	defer httpResponse.Body.Close()
 
-	responseBody, err := io.ReadAll(response.Body)
+	assert.Equal(t, http.StatusOK, httpResponse.StatusCode)
+
+	responseBody, err := io.ReadAll(httpResponse.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, response.StatusCode)
+	var gotMessageResponse response.MessageResponse
+	err = json.Unmarshal(responseBody, &gotMessageResponse)
+	require.NoError(t, err)
 
-	assert.Equal(t, `"Post delete successfully"`, string(responseBody))
+	wantMessageRespone := response.MessageResponse{
+		Message: "Post delete successfully",
+	}
+
+	assert.Equal(t, wantMessageRespone, gotMessageResponse)
 }

@@ -41,7 +41,7 @@ func TestAcceptance(t *testing.T) {
 	require.NoError(t, err)
 
 	var (
-		createdPost response.CreatePostResponse
+		createdPost response.PostResponse
 		accessToken string
 	)
 
@@ -107,7 +107,7 @@ func TestAcceptance(t *testing.T) {
 		rawResponse, err := io.ReadAll(httpResponse.Body)
 		require.NoError(t, err)
 
-		var createPostResponse response.CreatePostResponse
+		var createPostResponse response.PostResponse
 		err = json.Unmarshal(rawResponse, &createPostResponse)
 		require.NoError(t, err)
 
@@ -140,7 +140,7 @@ func TestAcceptance(t *testing.T) {
 		rawResponse, err := io.ReadAll(httpResponse.Body)
 		require.NoError(t, err)
 
-		var getPostResponse response.GetPostResponse
+		var getPostResponse response.PostResponse
 		err = json.Unmarshal(rawResponse, &getPostResponse)
 		require.NoError(t, err)
 

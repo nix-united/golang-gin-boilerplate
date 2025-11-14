@@ -76,11 +76,7 @@ func (h *PostHandler) SavePost(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, response.CreatePostResponse{
-		ID:      post.ID,
-		Title:   post.Title,
-		Content: post.Content,
-	})
+	c.JSON(http.StatusCreated, response.NewPostResponse(post))
 }
 
 // GetPostByID godoc
@@ -118,11 +114,7 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, response.GetPostResponse{
-		ID:      post.ID,
-		Title:   post.Title,
-		Content: post.Content,
-	})
+	c.JSON(http.StatusOK, response.NewPostResponse(post))
 }
 
 // GetPosts godoc
@@ -142,7 +134,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, response.CreatePostsCollectionResponse(posts))
+	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts))
 }
 
 // UpdatePost godoc
@@ -209,11 +201,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, response.GetPostResponse{
-		ID:      post.ID,
-		Title:   post.Title,
-		Content: post.Content,
-	})
+	c.JSON(http.StatusOK, response.NewPostResponse(post))
 }
 
 // DeletePost godoc
@@ -263,5 +251,5 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, "Post delete successfully")
+	c.JSON(http.StatusOK, response.NewMessageResponse("Post delete successfully"))
 }
