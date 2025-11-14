@@ -16,7 +16,7 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=auth_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type userService interface {
-	CreateUser(ctx context.Context, req request.RegisterRequest) error
+	CreateUser(ctx context.Context, registerRequest request.RegisterRequest) error
 }
 
 type AuthHandler struct {
@@ -42,33 +42,37 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
 		c.Error(fmt.Errorf("bind: %w", err))
-
-		response.ErrorResponse(
-			c,
-			http.StatusUnprocessableEntity,
-			"Required fields are empty or email is not valid",
-		)
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
 		return
 	}
 
 	if err := registerRequest.Validate(); err != nil {
 		c.Error(fmt.Errorf("validate: %w", err))
-
-		response.ErrorResponse(c, http.StatusBadRequest, "Invalid Request")
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
 		return
 	}
 
 	if err := h.userService.CreateUser(c.Request.Context(), registerRequest); err != nil {
 		c.Error(fmt.Errorf("create user: %w", err))
-
 		if errors.Is(err, domain.ErrAlreadyExists) {
-			response.ErrorResponse(c, http.StatusUnprocessableEntity, "Such user already exists")
+			c.JSON(http.StatusConflict, response.NewErrorResponse(
+				response.CodeAlreadyExists,
+				"Such user already exists",
+			))
 			return
 		}
-
-		response.ErrorResponse(c, http.StatusInternalServerError, "Oops, something went wrong...")
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Oops, something went wrong...",
+		))
 		return
 	}
 
-	response.SuccessResponse(c, "Successfully registered")
+	c.JSON(http.StatusOK, response.NewMessageResponse("Successfully registered"))
 }

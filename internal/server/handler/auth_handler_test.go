@@ -10,6 +10,7 @@ import (
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
+	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
 	"github.com/gin-gonic/gin"
@@ -81,14 +82,14 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, response.StatusCode)
 
 		expectedResponse := `{
-			"code": 400,
-			"message": "Invalid Request"
+			"code": "bad_request",
+			"message": "Invalid request"
 		}`
 
 		assert.JSONEq(t, expectedResponse, string(responseBody))
 	})
 
-	t.Run("It should respond with 422 status if received invalid storage operation error", func(t *testing.T) {
+	t.Run("It should respond with 409 status if received invalid storage operation error", func(t *testing.T) {
 		engine, mocks := newAuthHandler(t)
 
 		mocks.userService.
@@ -111,10 +112,10 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		responseBody, err := io.ReadAll(response.Body)
 		require.NoError(t, err)
 
-		assert.Equal(t, http.StatusUnprocessableEntity, response.StatusCode)
+		assert.Equal(t, http.StatusConflict, response.StatusCode)
 
 		expectedResponse := `{
-			"code": 422,
+			"code": "already_exists",
 			"message": "Such user already exists"
 		}`
 
@@ -138,13 +139,22 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		engine.ServeHTTP(recorder, httpRequest)
 
-		response := recorder.Result()
-		defer response.Body.Close()
+		httpResponse := recorder.Result()
+		defer httpResponse.Body.Close()
 
-		responseBody, err := io.ReadAll(response.Body)
+		responseBody, err := io.ReadAll(httpResponse.Body)
 		require.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, response.StatusCode)
-		assert.Equal(t, `"Successfully registered"`, string(responseBody))
+		assert.Equal(t, http.StatusOK, httpResponse.StatusCode)
+
+		wantResponse := response.MessageResponse{
+			Message: "Successfully registered",
+		}
+
+		var gotResponse response.MessageResponse
+		err = json.Unmarshal(responseBody, &gotResponse)
+		require.NoError(t, err)
+
+		assert.Equal(t, wantResponse, gotResponse)
 	})
 }

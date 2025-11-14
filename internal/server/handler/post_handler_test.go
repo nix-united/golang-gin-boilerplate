@@ -76,7 +76,9 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 	expectedResponse := `{
 		"id": 100,
 		"title": "Title",
-		"content": "Content"
+		"content": "Content",
+		"created_at": "0001-01-01T00:00:00Z",
+		"updated_at": "0001-01-01T00:00:00Z"
 	}`
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
@@ -124,7 +126,9 @@ func TestPostHandler_SavePost(t *testing.T) {
 	expectedResponse := `{
 		"id": 100,
 		"title": "Title",
-		"content": "Content"
+		"content": "Content",
+		"created_at": "0001-01-01T00:00:00Z",
+		"updated_at": "0001-01-01T00:00:00Z"
 	}`
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
@@ -181,7 +185,9 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 	expectedResponse := `{
 		"id": 100,
 		"title": "New Title",
-		"content": "New Content"
+		"content": "New Content",
+		"created_at": "0001-01-01T00:00:00Z",
+		"updated_at": "0001-01-01T00:00:00Z"
 	}`
 
 	assert.JSONEq(t, expectedResponse, string(responseBody))
@@ -221,11 +227,16 @@ func TestPostHandler_GetPosts(t *testing.T) {
 			{
 				"id": 100,
 				"title": "Title",
-				"content": "Content"
+				"content": "Content",
+				"created_at": "0001-01-01T00:00:00Z",
+				"updated_at": "0001-01-01T00:00:00Z"
 			}
 		],
 		"meta": {
-			"amount": 1
+			"count": 1,
+			"total": 0,
+			"offset": 0,
+			"limit": 0
 		}
 	}`
 
@@ -258,7 +269,7 @@ func TestPostHandler_DeletePost(t *testing.T) {
 	require.NoError(t, err)
 
 	wantMessageRespone := response.MessageResponse{
-		Message: "Post delete successfully",
+		Message: "Post was deleted successfully",
 	}
 
 	assert.Equal(t, wantMessageRespone, gotMessageResponse)
