@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"net/url"
 	"time"
 
@@ -25,6 +24,13 @@ func SetupApplication(
 	networks []string,
 	mySQLConfig MySQLConfig,
 ) (_ AppConfig, _ func(ctx context.Context) error, err error) {
+	containerLogsConsumer := newContainerLogsConsumer()
+	defer func() {
+		fmt.Print("\n\n\n### Start of application logs\n\n")
+		fmt.Println(string(containerLogsConsumer.Collect()))
+		fmt.Print("### End of application logs\n\n\n\n")
+	}()
+
 	container, err := testcontainers.GenericContainer(
 		ctx,
 		testcontainers.GenericContainerRequest{
@@ -52,6 +58,9 @@ func SetupApplication(
 					WithDeadline(time.Minute),
 				Networks:     networks,
 				ExposedPorts: []string{appHTTPPort},
+				LogConsumerCfg: &testcontainers.LogConsumerConfig{
+					Consumers: []testcontainers.LogConsumer{containerLogsConsumer},
+				},
 			},
 			Started: true,
 		},
@@ -61,20 +70,6 @@ func SetupApplication(
 	}
 
 	shutdown := func(ctx context.Context) error {
-		containerLogs, err := container.Logs(ctx)
-		if err != nil {
-			return fmt.Errorf("get application container logs: %w", err)
-		}
-
-		rawContainerLogs, err := io.ReadAll(containerLogs)
-		if err != nil {
-			return fmt.Errorf("read container logs: %w", err)
-		}
-
-		fmt.Print("\n\n\n### Start of application logs\n\n")
-		fmt.Println(string(rawContainerLogs))
-		fmt.Print("### End of application logs\n\n\n\n")
-
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate app container: %w", err)
 		}
