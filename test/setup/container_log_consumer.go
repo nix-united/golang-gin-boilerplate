@@ -1,6 +1,8 @@
 package setup
 
 import (
+	"fmt"
+
 	"github.com/testcontainers/testcontainers-go"
 )
 
@@ -8,11 +10,12 @@ var _ testcontainers.LogConsumer = (*containerLogsConsumer)(nil)
 
 // containerLogsConsumer collects logs from a container.
 type containerLogsConsumer struct {
-	logs []byte
+	containerName string
+	logs          []byte
 }
 
-func newContainerLogsConsumer() *containerLogsConsumer {
-	return &containerLogsConsumer{}
+func newContainerLogsConsumer(containerName string) *containerLogsConsumer {
+	return &containerLogsConsumer{containerName: containerName}
 }
 
 // Accept records a log message from the container.
@@ -21,7 +24,10 @@ func (c *containerLogsConsumer) Accept(log testcontainers.Log) {
 	c.logs = append(c.logs, log.Content...)
 }
 
-// Collect returns collected all logs.
-func (c *containerLogsConsumer) Collect() []byte {
-	return c.logs
+// Print returns prints all logs.
+func (c *containerLogsConsumer) Print() {
+	fmt.Printf(`### Start of %[1]s container logs
+%[2]s
+### End of %[1]s container logs
+`, c.containerName, c.logs)
 }

@@ -11,7 +11,10 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-const appHTTPPort = "80"
+const (
+	appHTTPPort      = "80"
+	appContainerName = "golang_gin_boilerplate"
+)
 
 type AppConfig struct {
 	Port string
@@ -24,12 +27,7 @@ func SetupApplication(
 	networks []string,
 	mySQLConfig MySQLConfig,
 ) (_ AppConfig, _ func(ctx context.Context) error, err error) {
-	containerLogsConsumer := newContainerLogsConsumer()
-	defer func() {
-		fmt.Print("\n\n\n### Start of application logs\n\n")
-		fmt.Println(string(containerLogsConsumer.Collect()))
-		fmt.Print("### End of application logs\n\n\n\n")
-	}()
+	containerLogsConsumer := newContainerLogsConsumer(appContainerName)
 
 	container, err := testcontainers.GenericContainer(
 		ctx,
@@ -40,9 +38,8 @@ func SetupApplication(
 					Dockerfile: "Dockerfile",
 				},
 				Env: map[string]string{
-					"LOG_APPLICATION":     "golang-gin-boilerplate-integration-tests",
+					"LOG_APPLICATION":     appContainerName,
 					"PORT":                appHTTPPort,
-					"DB_DRIVER":           "mysql",
 					"DB_USER":             mySQLConfig.User,
 					"DB_PASSWORD":         mySQLConfig.Password,
 					"DB_HOST":             mySQLConfig.ContainerName,
@@ -56,6 +53,7 @@ func SetupApplication(
 				WaitingFor: wait.
 					ForAll(wait.ForHTTP("/health")).
 					WithDeadline(time.Minute),
+				Name:         appContainerName,
 				Networks:     networks,
 				ExposedPorts: []string{appHTTPPort},
 				LogConsumerCfg: &testcontainers.LogConsumerConfig{
@@ -66,6 +64,8 @@ func SetupApplication(
 		},
 	)
 	if err != nil {
+		// Print logs for container bootstrap failures, such as condition wait timeouts.
+		containerLogsConsumer.Print()
 		return AppConfig{}, nil, fmt.Errorf("generic container from app: %w", err)
 	}
 
@@ -73,6 +73,9 @@ func SetupApplication(
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate app container: %w", err)
 		}
+
+		// Print container logs after tests complete during shutdown.
+		containerLogsConsumer.Print()
 
 		return nil
 	}

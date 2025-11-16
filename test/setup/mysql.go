@@ -31,13 +31,8 @@ type MySQLConfig struct {
 	ContainerName string
 }
 
-func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(ctx context.Context) error, err error) {
-	containerLogsConsumer := newContainerLogsConsumer()
-	defer func() {
-		fmt.Print("\n\n\n### Start of database logs\n\n")
-		fmt.Println(string(containerLogsConsumer.Collect()))
-		fmt.Print("### End of database logs\n\n\n\n")
-	}()
+func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx context.Context) error, error) {
+	containerLogsConsumer := newContainerLogsConsumer(mysqlContainerName)
 
 	container, err := mysql.Run(
 		ctx,
@@ -60,6 +55,8 @@ func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(c
 		}),
 	)
 	if err != nil {
+		// Print logs for container bootstrap failures, such as condition wait timeouts.
+		containerLogsConsumer.Print()
 		return MySQLConfig{}, nil, fmt.Errorf("run mysql container: %w", err)
 	}
 
@@ -67,6 +64,9 @@ func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(c
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate mysql container: %w", err)
 		}
+
+		// Print container logs after tests complete during shutdown.
+		containerLogsConsumer.Print()
 
 		return nil
 	}
