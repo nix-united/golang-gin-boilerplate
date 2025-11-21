@@ -100,6 +100,7 @@ func setupMain(ctx context.Context) (_ func(context.Context) error, err error) {
 	gdb, sqlDB, err := db.NewDBConnection(config.DBConfig{
 		User:     mysqlConfig.User,
 		Password: mysqlConfig.Password,
+		Driver:   "mysql",
 		Name:     mysqlConfig.Name,
 		Host:     mysqlConfig.Host,
 		Port:     mysqlConfig.ExposedPort,

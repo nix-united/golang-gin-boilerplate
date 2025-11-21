@@ -127,8 +127,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param params body request.BasicAuthRequest true "User's credentials"
-// @Success 200 {object} Success
-// @Failure 401 {object} response.Error
+// @Failure 401 {object} response.ErrorResponse
 // @Router /login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	h.ginJWT.LoginHandler(c)
@@ -140,8 +139,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @ID refresh-token
 // @Tags User Actions
 // @Produce json
-// @Success 200 {object} Success
-// @Failure 401 {object} response.Error
+// @Failure 401 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /refresh [post]
 func (h *AuthHandler) Refresh(c *gin.Context) {
