@@ -5,26 +5,68 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
+	ginjwt "github.com/appleboy/gin-jwt/v3"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=auth_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
+const identityKey = "id"
+
 type userService interface {
 	CreateUser(ctx context.Context, registerRequest request.RegisterRequest) error
+	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+}
+
+type passwordService interface {
+	VerifyPassword(actual, received string) error
+}
+
+type AuthHandlerConfig struct {
+	ApplicationName         string
+	JWTSecret               string
+	JWTTokenDuration        time.Duration
+	JWTTokenRefreshDuration time.Duration
+	UserService             userService
+	PasswordService         passwordService
 }
 
 type AuthHandler struct {
-	userService userService
+	ginJWT          ginjwt.GinJWTMiddleware
+	userService     userService
+	passwordService passwordService
 }
 
-func NewAuthHandler(userService userService) *AuthHandler {
-	return &AuthHandler{userService: userService}
+func NewAuthHandler(config AuthHandlerConfig) (*AuthHandler, error) {
+	authHandler := &AuthHandler{
+		userService:     config.UserService,
+		passwordService: config.PasswordService,
+	}
+
+	authHandler.ginJWT = ginjwt.GinJWTMiddleware{
+		Realm:                 config.ApplicationName,
+		Key:                   []byte(config.JWTSecret),
+		Timeout:               config.JWTTokenDuration,
+		MaxRefresh:            config.JWTTokenRefreshDuration,
+		Authenticator:         authHandler.authenticate,
+		PayloadFunc:           authHandler.payload,
+		HTTPStatusMessageFunc: authHandler.httpStatusMessage,
+		Unauthorized:          authHandler.unauthorized,
+	}
+
+	if err := authHandler.ginJWT.MiddlewareInit(); err != nil {
+		return nil, fmt.Errorf("init gin jwt middleware: %w", err)
+	}
+
+	return authHandler, nil
 }
 
 // RegisterUser godoc
@@ -36,7 +78,7 @@ func NewAuthHandler(userService userService) *AuthHandler {
 // @Produce json
 // @Param params body request.RegisterRequest true "User's email, password, full name"
 // @Success 200 {string} string "Successfully registered"
-// @Failure 422 {object} response.Error
+// @Failure 409 {object} response.ErrorResponse
 // @Router /users [post]
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
@@ -75,4 +117,91 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.NewMessageResponse("Successfully registered"))
+}
+
+// authenticate godoc
+// @Summary Authenticate a user
+// @Description Perform user login
+// @ID user-login
+// @Tags User Actions
+// @Accept json
+// @Produce json
+// @Param params body request.BasicAuthRequest true "User's credentials"
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Router /login [post]
+func (h *AuthHandler) Login(c *gin.Context) {
+	h.ginJWT.LoginHandler(c)
+}
+
+// refresh godoc
+// @Summary Refresh token
+// @Description Refresh user's token
+// @ID refresh-token
+// @Tags User Actions
+// @Produce json
+// @Success 200 {object} Success
+// @Failure 401 {object} response.Error
+// @Security ApiKeyAuth
+// @Router /refresh [post]
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	h.ginJWT.RefreshHandler(c)
+}
+
+func (h *AuthHandler) Middleware(c *gin.Context) {
+	h.ginJWT.MiddlewareFunc()(c)
+}
+
+// Returned data will be propagated to [AuthHandler.payload] func by lib.
+func (h *AuthHandler) authenticate(c *gin.Context) (any, error) {
+	var authRequest request.BasicAuthRequest
+	if err := c.ShouldBindJSON(&authRequest); err != nil {
+		err = errors.Join(fmt.Errorf("bind: %w", err), ginjwt.ErrMissingLoginValues)
+		c.Error(err)
+		return nil, err
+	}
+
+	storedUser, err := h.userService.GetUserByEmail(c.Request.Context(), authRequest.Email)
+	if err != nil {
+		err = fmt.Errorf("get user by email: %w", err)
+		if errors.Is(err, domain.ErrNotFound) {
+			err = errors.Join(err, ginjwt.ErrFailedAuthentication)
+		}
+		c.Error(err)
+		return nil, err
+	}
+
+	if err := h.passwordService.VerifyPassword(storedUser.Password, authRequest.Password); err != nil {
+		err = errors.Join(fmt.Errorf("verify password: %w", err), ginjwt.ErrFailedAuthentication)
+		c.Error(err)
+		return nil, err
+	}
+
+	return storedUser, nil
+}
+
+// payload receives data from [AuthHandler.authenticate].
+func (h *AuthHandler) payload(data any) jwt.MapClaims {
+	user, ok := data.(*model.User)
+	if !ok {
+		return jwt.MapClaims{}
+	}
+	return jwt.MapClaims{identityKey: user.ID}
+}
+
+// httpStatusMessage propagates message to [AuthHandler.unauthorized] by lib.
+func (h *AuthHandler) httpStatusMessage(_ *gin.Context, err error) string {
+	switch {
+	case errors.Is(err, ginjwt.ErrMissingLoginValues):
+		return "Email and password are required"
+	case errors.Is(err, ginjwt.ErrFailedAuthentication):
+		return "Invalid email or password"
+	default:
+		return "Internal server error"
+	}
+}
+
+// unauthorized receives message from [AuthHandler.httpStatusMessage].
+func (h *AuthHandler) unauthorized(c *gin.Context, code int, message string) {
+	c.JSON(code, response.NewErrorResponse(response.CodeAccessDenied, message))
 }

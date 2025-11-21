@@ -17,20 +17,20 @@ type userRepository interface {
 	GetByEmail(ctx context.Context, email string) (*model.User, error)
 }
 
-type encryptor interface {
-	Encrypt(str string) (string, error)
+type passwordService interface {
+	EncryptPassword(password string) (string, error)
 }
 
 // Service provides a use case level for the user entity
 type Service struct {
-	userRepository userRepository
-	encryptor      encryptor
+	userRepository  userRepository
+	passwordService passwordService
 }
 
-func NewService(userRepository userRepository, enencryptor encryptor) *Service {
+func NewService(userRepository userRepository, passwordService passwordService) *Service {
 	return &Service{
-		userRepository: userRepository,
-		encryptor:      enencryptor,
+		userRepository:  userRepository,
+		passwordService: passwordService,
 	}
 }
 
@@ -45,7 +45,7 @@ func (s *Service) CreateUser(ctx context.Context, req request.RegisterRequest) e
 		return domain.ErrAlreadyExists
 	}
 
-	encryptedPassword, err := s.encryptor.Encrypt(req.Password)
+	encryptedPassword, err := s.passwordService.EncryptPassword(req.Password)
 	if err != nil {
 		return fmt.Errorf("encrypt password: %w", err)
 	}
@@ -60,4 +60,12 @@ func (s *Service) CreateUser(ctx context.Context, req request.RegisterRequest) e
 	}
 
 	return nil
+}
+
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	user, err := s.userRepository.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("get user by email from repository: %w", err)
+	}
+	return user, nil
 }

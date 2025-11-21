@@ -13,15 +13,14 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/docs"
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 	"github.com/nix-united/golang-gin-boilerplate/internal/db"
-	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/repository"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/middleware"
+	"github.com/nix-united/golang-gin-boilerplate/internal/service/password"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/post"
 	"github.com/nix-united/golang-gin-boilerplate/internal/service/user"
 	"github.com/nix-united/golang-gin-boilerplate/internal/slogx"
-	"github.com/nix-united/golang-gin-boilerplate/internal/utils"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/google/uuid"
@@ -77,15 +76,24 @@ func run() error {
 	postRepository := repository.NewPostRepository(gormDB)
 
 	// Services initialization
-	bcryptEncoder := utils.NewBcryptEncoder(bcrypt.DefaultCost)
-	userService := user.NewService(userRepository, bcryptEncoder)
+	passwordService := password.NewService(bcrypt.DefaultCost)
+	userService := user.NewService(userRepository, passwordService)
 	postService := post.NewService(postRepository)
 
 	// Handlers initialization
 	homeHandler := handler.NewHomeHandler()
 	postHandler := handler.NewPostHandler(postService)
-	authHandler := handler.NewAuthHandler(userService)
-	jwtAuth := provider.NewJwtAuth(gormDB)
+	authHandler, err := handler.NewAuthHandler(handler.AuthHandlerConfig{
+		ApplicationName:         cfg.ApplicationName,
+		JWTSecret:               cfg.AuthConfig.Secret,
+		JWTTokenDuration:        cfg.AuthConfig.TokenDuration,
+		JWTTokenRefreshDuration: cfg.AuthConfig.RefreshTokenDuration,
+		UserService:             userService,
+		PasswordService:         passwordService,
+	})
+	if err != nil {
+		return fmt.Errorf("new auth handler: %w", err)
+	}
 
 	// Middlewares initialization
 	requestLoggerMiddleware := middleware.NewRequestLoggerMiddleware(traceStarter)
@@ -96,7 +104,6 @@ func run() error {
 		HomeHandler:                homeHandler,
 		AuthHandler:                authHandler,
 		PostHandler:                postHandler,
-		JwtAuthMiddleware:          jwtAuth,
 		RequestLoggingMiddleware:   requestLoggerMiddleware.Handle,
 		RequestDebuggingMiddleware: requestDebuggerMiddleware.Handle,
 	})

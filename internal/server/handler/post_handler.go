@@ -13,7 +13,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/appleboy/gin-jwt/v3"
 	safecast "github.com/ccoveille/go-safecast"
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +50,7 @@ func NewPostHandler(postService postService) *PostHandler {
 // @Accept json
 // @Produce json
 // @Param params body request.CreatePostRequest true "Post title and content"
-// @Success 200 {string} response.CreatePostResponse
+// @Success 200 {string} response.PostResponse
 // @Failure 400 {string} string "Bad request"
 // @Security ApiKeyAuth
 // @Router /posts [post]
@@ -111,8 +111,8 @@ func (h *PostHandler) SavePost(c *gin.Context) {
 // @Tags Posts Actions
 // @Produce json
 // @Param id path int true "Post ID"
-// @Success 200 {object} response.GetPostResponse
-// @Failure 401 {object} response.Error
+// @Success 200 {object} response.PostResponse
+// @Failure 401 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
 func (h *PostHandler) GetPostByID(c *gin.Context) {
@@ -162,8 +162,8 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @ID get-posts
 // @Tags Posts Actions
 // @Produce json
-// @Success 200 {object} response.CollectionResponse
-// @Failure 401 {object} response.Error
+// @Success 200 {object} response.PostResponse
+// @Failure 401 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
@@ -246,9 +246,9 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param params body request.UpdatePostRequest true "Post title and content"
-// @Success 200 {string} response.GetPostResponse
+// @Success 200 {string} response.PostResponse
 // @Failure 400 {string} string "Bad request"
-// @Failure 404 {object} response.Error
+// @Failure 404 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
@@ -342,7 +342,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Tags Posts Actions
 // @Param id path int true "Post ID"
 // @Success 200 {string} string "Post deleted successfully"
-// @Failure 404 {object} response.Error
+// @Failure 404 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {

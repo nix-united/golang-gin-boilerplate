@@ -40,6 +40,7 @@ func SetupApplication(
 				Env: map[string]string{
 					"LOG_APPLICATION":     appContainerName,
 					"PORT":                appHTTPPort,
+					"DB_DRIVER":           "mysql",
 					"DB_USER":             mySQLConfig.User,
 					"DB_PASSWORD":         mySQLConfig.Password,
 					"DB_HOST":             mySQLConfig.ContainerName,

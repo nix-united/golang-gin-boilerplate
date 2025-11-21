@@ -3,7 +3,6 @@ package server
 import (
 	"net/http"
 
-	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,6 @@ type Handlers struct {
 	AuthHandler *handler.AuthHandler
 	PostHandler *handler.PostHandler
 
-	JwtAuthMiddleware          provider.JwtAuthMiddleware
 	RequestLoggingMiddleware   gin.HandlerFunc
 	RequestDebuggingMiddleware gin.HandlerFunc
 }
@@ -42,11 +40,11 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	privateAPI := api.Group("/")
 
 	privateAPI.POST("/users", handlers.AuthHandler.RegisterUser)
-	privateAPI.POST("/login", handlers.JwtAuthMiddleware.Middleware().LoginHandler)
-	privateAPI.GET(
+	privateAPI.POST("/login", handlers.AuthHandler.Login)
+	privateAPI.POST(
 		"/refresh",
-		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
-		handlers.JwtAuthMiddleware.Middleware().RefreshHandler,
+		handlers.AuthHandler.Middleware,
+		handlers.AuthHandler.Refresh,
 	)
 
 	// Authorized API route initialization
@@ -55,7 +53,7 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	// before they can be accessed.
 	authorizedAPI := api.Group(
 		"/",
-		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
+		handlers.AuthHandler.Middleware,
 		handlers.RequestDebuggingMiddleware,
 	)
 

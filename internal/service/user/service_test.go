@@ -15,8 +15,8 @@ import (
 )
 
 type userServiceMocks struct {
-	userRepository *MockuserRepository
-	encryptor      *Mockencryptor
+	userRepository  *MockuserRepository
+	passwordService *MockpasswordService
 }
 
 func newUserService(t *testing.T) (*user.Service, userServiceMocks) {
@@ -24,12 +24,12 @@ func newUserService(t *testing.T) (*user.Service, userServiceMocks) {
 
 	ctrl := gomock.NewController(t)
 	userRepository := NewMockuserRepository(ctrl)
-	encryptor := NewMockencryptor(ctrl)
-	userService := user.NewService(userRepository, encryptor)
+	passwordService := NewMockpasswordService(ctrl)
+	userService := user.NewService(userRepository, passwordService)
 
 	mocks := userServiceMocks{
-		userRepository: userRepository,
-		encryptor:      encryptor,
+		userRepository:  userRepository,
+		passwordService: passwordService,
 	}
 
 	return userService, mocks
@@ -76,9 +76,9 @@ func TestUserService_CreateUser(t *testing.T) {
 			GetByEmail(gomock.Any(), "test@test.com").
 			Return(nil, domain.ErrNotFound)
 
-		mocks.encryptor.
+		mocks.passwordService.
 			EXPECT().
-			Encrypt("password").
+			EncryptPassword("password").
 			Return("", errors.New("encryption error"))
 
 		err := service.CreateUser(t.Context(), registerRequest)
@@ -93,9 +93,9 @@ func TestUserService_CreateUser(t *testing.T) {
 			GetByEmail(gomock.Any(), "test@test.com").
 			Return(nil, domain.ErrNotFound)
 
-		mocks.encryptor.
+		mocks.passwordService.
 			EXPECT().
-			Encrypt("password").
+			EncryptPassword("password").
 			Return("encrypted password", nil)
 
 		mocks.userRepository.
@@ -127,9 +127,9 @@ func TestUserService_CreateUser(t *testing.T) {
 			GetByEmail(gomock.Any(), "test@test.com").
 			Return(nil, domain.ErrNotFound)
 
-		mocks.encryptor.
+		mocks.passwordService.
 			EXPECT().
-			Encrypt("password").
+			EncryptPassword("password").
 			Return("encrypted password", nil)
 
 		mocks.userRepository.

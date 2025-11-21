@@ -117,64 +117,64 @@ func (c *MockuserRepositoryGetByEmailCall) DoAndReturn(f func(context.Context, s
 	return c
 }
 
-// Mockencryptor is a mock of encryptor interface.
-type Mockencryptor struct {
+// MockpasswordService is a mock of passwordService interface.
+type MockpasswordService struct {
 	ctrl     *gomock.Controller
-	recorder *MockencryptorMockRecorder
+	recorder *MockpasswordServiceMockRecorder
 }
 
-// MockencryptorMockRecorder is the mock recorder for Mockencryptor.
-type MockencryptorMockRecorder struct {
-	mock *Mockencryptor
+// MockpasswordServiceMockRecorder is the mock recorder for MockpasswordService.
+type MockpasswordServiceMockRecorder struct {
+	mock *MockpasswordService
 }
 
-// NewMockencryptor creates a new mock instance.
-func NewMockencryptor(ctrl *gomock.Controller) *Mockencryptor {
-	mock := &Mockencryptor{ctrl: ctrl}
-	mock.recorder = &MockencryptorMockRecorder{mock}
+// NewMockpasswordService creates a new mock instance.
+func NewMockpasswordService(ctrl *gomock.Controller) *MockpasswordService {
+	mock := &MockpasswordService{ctrl: ctrl}
+	mock.recorder = &MockpasswordServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *Mockencryptor) EXPECT() *MockencryptorMockRecorder {
+func (m *MockpasswordService) EXPECT() *MockpasswordServiceMockRecorder {
 	return m.recorder
 }
 
-// Encrypt mocks base method.
-func (m *Mockencryptor) Encrypt(str string) (string, error) {
+// EncryptPassword mocks base method.
+func (m *MockpasswordService) EncryptPassword(password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Encrypt", str)
+	ret := m.ctrl.Call(m, "EncryptPassword", password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Encrypt indicates an expected call of Encrypt.
-func (mr *MockencryptorMockRecorder) Encrypt(str any) *MockencryptorEncryptCall {
+// EncryptPassword indicates an expected call of EncryptPassword.
+func (mr *MockpasswordServiceMockRecorder) EncryptPassword(password any) *MockpasswordServiceEncryptPasswordCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encrypt", reflect.TypeOf((*Mockencryptor)(nil).Encrypt), str)
-	return &MockencryptorEncryptCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptPassword", reflect.TypeOf((*MockpasswordService)(nil).EncryptPassword), password)
+	return &MockpasswordServiceEncryptPasswordCall{Call: call}
 }
 
-// MockencryptorEncryptCall wrap *gomock.Call
-type MockencryptorEncryptCall struct {
+// MockpasswordServiceEncryptPasswordCall wrap *gomock.Call
+type MockpasswordServiceEncryptPasswordCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockencryptorEncryptCall) Return(arg0 string, arg1 error) *MockencryptorEncryptCall {
+func (c *MockpasswordServiceEncryptPasswordCall) Return(arg0 string, arg1 error) *MockpasswordServiceEncryptPasswordCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockencryptorEncryptCall) Do(f func(string) (string, error)) *MockencryptorEncryptCall {
+func (c *MockpasswordServiceEncryptPasswordCall) Do(f func(string) (string, error)) *MockpasswordServiceEncryptPasswordCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockencryptorEncryptCall) DoAndReturn(f func(string) (string, error)) *MockencryptorEncryptCall {
+func (c *MockpasswordServiceEncryptPasswordCall) DoAndReturn(f func(string) (string, error)) *MockpasswordServiceEncryptPasswordCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

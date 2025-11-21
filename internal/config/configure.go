@@ -3,11 +3,19 @@ package config
 import "time"
 
 type ApplicationConfig struct {
+	ApplicationName            string        `env:"APPLICATION_NAME" envDefault:"golang_gin_boilerplate"`
 	ApplicationShutdownTimeout time.Duration `env:"APPLICATION_SHUTDOWN_TIMEOUT" envDefault:"5m"`
 
+	AuthConfig AuthConfig
 	DB         DBConfig
 	HTTPServer HTTPServerConfig
 	Logger     LoggerConfig
+}
+
+type AuthConfig struct {
+	Secret               string        `env:"AUTH_JWT_SECRET"`
+	TokenDuration        time.Duration `env:"AUTH_JWT_TOKEN_DURATION" envDefault:"1h"`
+	RefreshTokenDuration time.Duration `env:"AUTH_JWT_REFRESH_TOKEN_DURATION" envDefault:"1h"`
 }
 
 type DBConfig struct {

@@ -14,8 +14,8 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"

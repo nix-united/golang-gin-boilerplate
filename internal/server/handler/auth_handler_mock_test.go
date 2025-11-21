@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	model "github.com/nix-united/golang-gin-boilerplate/internal/model"
 	request "github.com/nix-united/golang-gin-boilerplate/internal/request"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -74,6 +75,106 @@ func (c *MockuserServiceCreateUserCall) Do(f func(context.Context, request.Regis
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockuserServiceCreateUserCall) DoAndReturn(f func(context.Context, request.RegisterRequest) error) *MockuserServiceCreateUserCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// GetUserByEmail mocks base method.
+func (m *MockuserService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByEmail", ctx, email)
+	ret0, _ := ret[0].(*model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByEmail indicates an expected call of GetUserByEmail.
+func (mr *MockuserServiceMockRecorder) GetUserByEmail(ctx, email any) *MockuserServiceGetUserByEmailCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockuserService)(nil).GetUserByEmail), ctx, email)
+	return &MockuserServiceGetUserByEmailCall{Call: call}
+}
+
+// MockuserServiceGetUserByEmailCall wrap *gomock.Call
+type MockuserServiceGetUserByEmailCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockuserServiceGetUserByEmailCall) Return(arg0 *model.User, arg1 error) *MockuserServiceGetUserByEmailCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockuserServiceGetUserByEmailCall) Do(f func(context.Context, string) (*model.User, error)) *MockuserServiceGetUserByEmailCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockuserServiceGetUserByEmailCall) DoAndReturn(f func(context.Context, string) (*model.User, error)) *MockuserServiceGetUserByEmailCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// MockpasswordService is a mock of passwordService interface.
+type MockpasswordService struct {
+	ctrl     *gomock.Controller
+	recorder *MockpasswordServiceMockRecorder
+}
+
+// MockpasswordServiceMockRecorder is the mock recorder for MockpasswordService.
+type MockpasswordServiceMockRecorder struct {
+	mock *MockpasswordService
+}
+
+// NewMockpasswordService creates a new mock instance.
+func NewMockpasswordService(ctrl *gomock.Controller) *MockpasswordService {
+	mock := &MockpasswordService{ctrl: ctrl}
+	mock.recorder = &MockpasswordServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockpasswordService) EXPECT() *MockpasswordServiceMockRecorder {
+	return m.recorder
+}
+
+// VerifyPassword mocks base method.
+func (m *MockpasswordService) VerifyPassword(actual, received string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyPassword", actual, received)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyPassword indicates an expected call of VerifyPassword.
+func (mr *MockpasswordServiceMockRecorder) VerifyPassword(actual, received any) *MockpasswordServiceVerifyPasswordCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyPassword", reflect.TypeOf((*MockpasswordService)(nil).VerifyPassword), actual, received)
+	return &MockpasswordServiceVerifyPasswordCall{Call: call}
+}
+
+// MockpasswordServiceVerifyPasswordCall wrap *gomock.Call
+type MockpasswordServiceVerifyPasswordCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockpasswordServiceVerifyPasswordCall) Return(arg0 error) *MockpasswordServiceVerifyPasswordCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockpasswordServiceVerifyPasswordCall) Do(f func(string, string) error) *MockpasswordServiceVerifyPasswordCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockpasswordServiceVerifyPasswordCall) DoAndReturn(f func(string, string) error) *MockpasswordServiceVerifyPasswordCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
