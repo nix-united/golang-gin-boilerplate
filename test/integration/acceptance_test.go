@@ -11,7 +11,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
-	"github.com/appleboy/gin-jwt/v3/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -79,12 +78,14 @@ func TestAcceptance(t *testing.T) {
 		fmt.Println(string(rawResponse))
 		fmt.Println()
 
-		var loginResponse core.Token
+		var loginResponse response.AuthTokenResponse
 		err = json.Unmarshal(rawResponse, &loginResponse)
 		require.NoError(t, err)
 
-		// require.NotEmpty(t, loginResponse.Token)
-		// require.NotEmpty(t, loginResponse.Expire)
+		require.NotEmpty(t, loginResponse.AccessToken)
+		require.NotEmpty(t, loginResponse.ExpiresIn)
+		require.NotEmpty(t, loginResponse.RefreshToken)
+		require.Equal(t, "Bearer", loginResponse.TokenType)
 
 		accessToken = loginResponse.AccessToken
 	})

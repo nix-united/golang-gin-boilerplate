@@ -13,6 +13,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
 	ginjwt "github.com/appleboy/gin-jwt/v3"
+	"github.com/appleboy/gin-jwt/v3/core"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -58,8 +59,10 @@ func NewAuthHandler(config AuthHandlerConfig) (*AuthHandler, error) {
 		MaxRefresh:            config.JWTTokenRefreshDuration,
 		Authenticator:         authHandler.authenticate,
 		PayloadFunc:           authHandler.payload,
-		HTTPStatusMessageFunc: authHandler.httpStatusMessage,
-		Unauthorized:          authHandler.unauthorized,
+		HTTPStatusMessageFunc: authHandler.mapHTTPStatusMessage,
+		Unauthorized:          authHandler.respondWithUnauthorized,
+		LoginResponse:         authHandler.respondWithAuthToken,
+		RefreshResponse:       authHandler.respondWithAuthToken,
 	}
 
 	if err := authHandler.ginJWT.MiddlewareInit(); err != nil {
@@ -187,8 +190,8 @@ func (h *AuthHandler) payload(data any) jwt.MapClaims {
 	return jwt.MapClaims{identityKey: user.ID}
 }
 
-// httpStatusMessage propagates message to [AuthHandler.unauthorized] by lib.
-func (h *AuthHandler) httpStatusMessage(_ *gin.Context, err error) string {
+// mapHTTPStatusMessage propagates message to [AuthHandler.unauthorized] by lib.
+func (h *AuthHandler) mapHTTPStatusMessage(_ *gin.Context, err error) string {
 	switch {
 	case errors.Is(err, ginjwt.ErrMissingLoginValues):
 		return "Email and password are required"
@@ -199,7 +202,17 @@ func (h *AuthHandler) httpStatusMessage(_ *gin.Context, err error) string {
 	}
 }
 
-// unauthorized receives message from [AuthHandler.httpStatusMessage].
-func (h *AuthHandler) unauthorized(c *gin.Context, code int, message string) {
+// respondWithUnauthorized receives message from [AuthHandler.httpStatusMessage].
+func (h *AuthHandler) respondWithUnauthorized(c *gin.Context, code int, message string) {
 	c.JSON(code, response.NewErrorResponse(response.CodeAccessDenied, message))
+}
+
+// respondWithAuthToken maps generated token to ersponse.
+func (h *AuthHandler) respondWithAuthToken(c *gin.Context, token *core.Token) {
+	c.JSON(http.StatusOK, response.AuthTokenResponse{
+		AccessToken:  token.AccessToken,
+		TokenType:    token.TokenType,
+		ExpiresIn:    token.ExpiresIn(),
+		RefreshToken: token.RefreshToken,
+	})
 }

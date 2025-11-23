@@ -16,7 +16,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
-	"github.com/appleboy/gin-jwt/v3/core"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -275,12 +274,13 @@ func TestAuthHandler_Login(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, httpResponse.StatusCode)
 
-		var gotResponse core.Token
+		var gotResponse response.AuthTokenResponse
 		err = json.Unmarshal(responseBody, &gotResponse)
 		require.NoError(t, err)
 
 		assert.NotEmpty(t, gotResponse.AccessToken)
 		assert.NotEmpty(t, gotResponse.RefreshToken)
+		assert.NotEmpty(t, gotResponse.ExpiresIn)
 		assert.Equal(t, "Bearer", gotResponse.TokenType)
 	})
 }
