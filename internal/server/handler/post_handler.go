@@ -13,7 +13,6 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
 
-	jwt "github.com/appleboy/gin-jwt/v3"
 	safecast "github.com/ccoveille/go-safecast"
 	"github.com/gin-gonic/gin"
 )
@@ -56,23 +55,12 @@ func NewPostHandler(postService postService) *PostHandler {
 // @Security ApiKeyAuth
 // @Router /posts [post]
 func (h *PostHandler) CreatePost(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	parsedUserID, ok := claims["id"].(float64)
-	if !ok {
-		c.Error(fmt.Errorf("missing user id in claims: %v", claims))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
-	}
-
-	userID, err := safecast.ToUint(parsedUserID)
+	userID, err := getUserIDFromContext(c)
 	if err != nil {
-		c.Error(fmt.Errorf("convert user id to uint: %w", err))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
+		c.Error(fmt.Errorf("get user id from context: %w", err))
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeInternalServerError,
+			"Oops, something went wrong...",
 		))
 		return
 	}
@@ -110,8 +98,8 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @ID getPosts
 // @Tags Posts Actions
 // @Produce json
-// @Param limit query int false "Limit"
-// @Param offset query int false "Offset"
+// @Param limit query int false "Limit" minimum(1) maximum(100)
+// @Param offset query int false "Offset" minimum(0)
 // @Success 200 {object} response.PostResponse
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
@@ -161,6 +149,15 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 	filters := domain.PostFilters{
 		Offset: offset,
 		Limit:  cmp.Or(limit, defaultPostLimit),
+	}
+
+	if err := filters.Validate(); err != nil {
+		c.Error(fmt.Errorf("validate post filters: %w", err))
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
+		return
 	}
 
 	total, err := h.postService.Count(c.Request.Context())
@@ -260,23 +257,12 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	parsedUserID, ok := claims["id"].(float64)
-	if !ok {
-		c.Error(fmt.Errorf("missing user id in claims: %v", claims))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
-	}
-
-	userID, err := safecast.ToUint(parsedUserID)
+	userID, err := getUserIDFromContext(c)
 	if err != nil {
-		c.Error(fmt.Errorf("convert user id to uint: %w", err))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
+		c.Error(fmt.Errorf("get user id from context: %w", err))
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeInternalServerError,
+			"Oops, something went wrong...",
 		))
 		return
 	}
@@ -357,23 +343,12 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	parsedUserID, ok := claims["id"].(float64)
-	if !ok {
-		c.Error(fmt.Errorf("missing user id in claims: %v", claims))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
-	}
-
-	userID, err := safecast.ToUint(parsedUserID)
+	userID, err := getUserIDFromContext(c)
 	if err != nil {
-		c.Error(fmt.Errorf("convert user id to uint: %w", err))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
+		c.Error(fmt.Errorf("get user id from context: %w", err))
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeInternalServerError,
+			"Oops, something went wrong...",
 		))
 		return
 	}
