@@ -74,10 +74,6 @@ func TestAcceptance(t *testing.T) {
 		rawResponse, err := io.ReadAll(httpResponse.Body)
 		require.NoError(t, err)
 
-		fmt.Println()
-		fmt.Println(string(rawResponse))
-		fmt.Println()
-
 		var loginResponse response.AuthTokenResponse
 		err = json.Unmarshal(rawResponse, &loginResponse)
 		require.NoError(t, err)
