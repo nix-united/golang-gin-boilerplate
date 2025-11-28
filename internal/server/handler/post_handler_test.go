@@ -36,7 +36,7 @@ func newPostHandler(t *testing.T) (*gin.Engine, *MockpostService) {
 		c.Set("JWT_PAYLOAD", jwt.MapClaims{"id": float64(101)})
 	})
 
-	engine.POST("/posts", postHandler.SavePost)
+	engine.POST("/posts", postHandler.CreatePost)
 	engine.GET("/posts", postHandler.GetPosts)
 	engine.GET("/post/:id", postHandler.GetPostByID)
 	engine.PUT("/post/:id", postHandler.UpdatePost)

@@ -81,7 +81,6 @@ func run() error {
 	postService := post.NewService(postRepository)
 
 	// Handlers initialization
-	homeHandler := handler.NewHomeHandler()
 	postHandler := handler.NewPostHandler(postService)
 	authHandler, err := handler.NewAuthHandler(handler.AuthHandlerConfig{
 		ApplicationName:         cfg.ApplicationName,
@@ -101,7 +100,6 @@ func run() error {
 
 	// HTTP Server initialization
 	routes := server.ConfigureRoutes(server.Handlers{
-		HomeHandler:                homeHandler,
 		AuthHandler:                authHandler,
 		PostHandler:                postHandler,
 		RequestLoggingMiddleware:   requestLoggerMiddleware.Handle,

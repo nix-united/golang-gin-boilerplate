@@ -11,7 +11,6 @@ import (
 )
 
 type Handlers struct {
-	HomeHandler *handler.HomeHandler
 	AuthHandler *handler.AuthHandler
 	PostHandler *handler.PostHandler
 
@@ -39,12 +38,12 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	// Do NOT log request or response bodies; doing so could expose client information.
 	privateAPI := api.Group("/")
 
-	privateAPI.POST("/users", handlers.AuthHandler.RegisterUser)
-	privateAPI.POST("/login", handlers.AuthHandler.Login)
+	privateAPI.POST("/register", handlers.AuthHandler.RegisterUser)
+	privateAPI.POST("/login", handlers.AuthHandler.LoginUser)
 	privateAPI.POST(
 		"/refresh",
 		handlers.AuthHandler.Middleware,
-		handlers.AuthHandler.Refresh,
+		handlers.AuthHandler.RefreshUserToken,
 	)
 
 	// Authorized API route initialization
@@ -57,8 +56,7 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 		handlers.RequestDebuggingMiddleware,
 	)
 
-	authorizedAPI.GET("/", handlers.HomeHandler.Index)
-	authorizedAPI.POST("/posts", handlers.PostHandler.SavePost)
+	authorizedAPI.POST("/posts", handlers.PostHandler.CreatePost)
 	authorizedAPI.GET("/posts", handlers.PostHandler.GetPosts)
 	authorizedAPI.GET("/post/:id", handlers.PostHandler.GetPostByID)
 	authorizedAPI.PUT("/post/:id", handlers.PostHandler.UpdatePost)

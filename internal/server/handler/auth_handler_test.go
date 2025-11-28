@@ -45,9 +45,9 @@ func newAuthHandler(t *testing.T) (*gin.Engine, authHandlerMocks) {
 	require.NoError(t, err)
 
 	engine := gin.New()
-	engine.POST("/users", authHandler.RegisterUser)
-	engine.POST("/login", authHandler.Login)
-	engine.POST("/refresh", authHandler.Middleware, authHandler.Refresh)
+	engine.POST("/register", authHandler.RegisterUser)
+	engine.POST("/login", authHandler.LoginUser)
+	engine.POST("/refresh", authHandler.Middleware, authHandler.RefreshUserToken)
 
 	mocks := authHandlerMocks{
 		userService:     userService,
@@ -83,7 +83,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		httpRequest := httptest.NewRequest(
 			http.MethodPost,
-			"https://example.com/users",
+			"https://example.com/register",
 			bytes.NewReader(rawBadRegisterRequest),
 		)
 
@@ -116,7 +116,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		httpRequest := httptest.NewRequest(
 			http.MethodPost,
-			"https://example.com/users",
+			"https://example.com/register",
 			bytes.NewReader(rawRegisterRequest),
 		)
 
@@ -149,7 +149,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 
 		httpRequest := httptest.NewRequest(
 			http.MethodPost,
-			"https://example.com/users",
+			"https://example.com/register",
 			bytes.NewReader(rawRegisterRequest),
 		)
 

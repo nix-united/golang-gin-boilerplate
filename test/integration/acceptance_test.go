@@ -46,7 +46,7 @@ func TestAcceptance(t *testing.T) {
 
 	t.Run("It should register an user", func(t *testing.T) {
 		httpResponse, err := http.Post(
-			applicationURL.JoinPath("/users").String(),
+			applicationURL.JoinPath("/register").String(),
 			"application/json",
 			bytes.NewReader(rawRegisterRequest),
 		)

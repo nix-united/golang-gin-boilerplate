@@ -73,16 +73,17 @@ func NewAuthHandler(config AuthHandlerConfig) (*AuthHandler, error) {
 }
 
 // RegisterUser godoc
-// @Summary Register
-// @Description New user registration
-// @ID user-register
+// @Summary Register user
+// @ID register
 // @Tags User Actions
 // @Accept json
 // @Produce json
-// @Param params body request.RegisterRequest true "User's email, password, full name"
-// @Success 200 {string} string "Successfully registered"
+// @Param params body request.RegisterRequest true "User's email, password and full name"
+// @Success 200 {object} response.MessageResponse
+// @Failure 400 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /users [post]
+// @Failure 500 {object} response.ErrorResponse
+// @Router /register [post]
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	var registerRequest request.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
@@ -122,30 +123,32 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewMessageResponse("Successfully registered"))
 }
 
-// authenticate godoc
-// @Summary Authenticate a user
-// @Description Perform user login
-// @ID user-login
+// LoginUser godoc
+// @Summary Login user
+// @ID login
 // @Tags User Actions
 // @Accept json
 // @Produce json
 // @Param params body request.BasicAuthRequest true "User's credentials"
+// @Failure 200 {object} response.AuthTokenResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /login [post]
-func (h *AuthHandler) Login(c *gin.Context) {
+func (h *AuthHandler) LoginUser(c *gin.Context) {
 	h.ginJWT.LoginHandler(c)
 }
 
-// refresh godoc
-// @Summary Refresh token
-// @Description Refresh user's token
-// @ID refresh-token
+// RefreshUserToken godoc
+// @Summary Refresh user token
+// @ID refreshUserToken
 // @Tags User Actions
 // @Produce json
+// @Failure 200 {object} response.AuthTokenResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /refresh [post]
-func (h *AuthHandler) Refresh(c *gin.Context) {
+func (h *AuthHandler) RefreshUserToken(c *gin.Context) {
 	h.ginJWT.RefreshHandler(c)
 }
 

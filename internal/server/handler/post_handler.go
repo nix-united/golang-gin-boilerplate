@@ -42,19 +42,20 @@ func NewPostHandler(postService postService) *PostHandler {
 	return &PostHandler{postService: postService}
 }
 
-// SavePost godoc
+// CreatePost godoc
 // @Summary Create post
-// @Description Create post
-// @ID posts-create
+// @ID createPost
 // @Tags Posts Actions
 // @Accept json
 // @Produce json
 // @Param params body request.CreatePostRequest true "Post title and content"
-// @Success 200 {string} response.PostResponse
-// @Failure 400 {string} string "Bad request"
+// @Success 201 {object} response.PostResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /posts [post]
-func (h *PostHandler) SavePost(c *gin.Context) {
+func (h *PostHandler) CreatePost(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	parsedUserID, ok := claims["id"].(float64)
 	if !ok {
@@ -105,14 +106,16 @@ func (h *PostHandler) SavePost(c *gin.Context) {
 }
 
 // GetPostByID godoc
-// @Summary Get post by id
-// @Description Get post by id
-// @ID get-post
+// @Summary Get post by ID
+// @ID getPostById
 // @Tags Posts Actions
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} response.PostResponse
+// @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [get]
 func (h *PostHandler) GetPostByID(c *gin.Context) {
@@ -158,12 +161,15 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 
 // GetPosts godoc
 // @Summary Get all posts
-// @Description Get all posts of all users
-// @ID get-posts
+// @ID getPosts
 // @Tags Posts Actions
 // @Produce json
+// @Param limit query int false "Limit"
+// @Param offset query int false "Offset"
 // @Success 200 {object} response.PostResponse
+// @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
@@ -239,16 +245,18 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 
 // UpdatePost godoc
 // @Summary Update post
-// @Description Update post
-// @ID posts-update
+// @ID updatePost
 // @Tags Posts Actions
 // @Accept json
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param params body request.UpdatePostRequest true "Post title and content"
 // @Success 200 {string} response.PostResponse
-// @Failure 400 {string} string "Bad request"
+// @Failure 400 {string} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
@@ -337,12 +345,15 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 
 // DeletePost godoc
 // @Summary Delete post
-// @Description Delete post
-// @ID posts-delete
+// @ID detelePost
 // @Tags Posts Actions
 // @Param id path int true "Post ID"
-// @Success 200 {string} string "Post deleted successfully"
+// @Success 200 {string} response.MessageResponse
+// @Failure 400 {string} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /post/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
