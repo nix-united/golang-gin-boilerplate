@@ -105,60 +105,6 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewPostResponse(post))
 }
 
-// GetPostByID godoc
-// @Summary Get post by ID
-// @ID getPostById
-// @Tags Posts Actions
-// @Produce json
-// @Param id path int true "Post ID"
-// @Success 200 {object} response.PostResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 401 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Security ApiKeyAuth
-// @Router /post/{id} [get]
-func (h *PostHandler) GetPostByID(c *gin.Context) {
-	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		c.Error(fmt.Errorf("parse post id: %w", err))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
-	}
-
-	postID, err := safecast.ToUint(parsedPostID)
-	if err != nil {
-		c.Error(fmt.Errorf("convert post id to uint: %w", err))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
-	}
-
-	post, err := h.postService.GetByID(c.Request.Context(), postID)
-	if err != nil {
-		c.Error(fmt.Errorf("get post by id: %w", err))
-		if errors.Is(err, domain.ErrNotFound) {
-			c.JSON(http.StatusNotFound, response.NewErrorResponse(
-				response.CodeBadRequest,
-				"Post not found",
-			))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
-			response.CodeInternalServerError,
-			"Oops, something went wrong...",
-		))
-		return
-	}
-
-	c.JSON(http.StatusOK, response.NewPostResponse(post))
-}
-
 // GetPosts godoc
 // @Summary Get all posts
 // @ID getPosts
@@ -241,6 +187,60 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, response.NewPostCollectionResponse(posts, total, filters.Offset, filters.Limit))
+}
+
+// GetPostByID godoc
+// @Summary Get post by ID
+// @ID getPostById
+// @Tags Posts Actions
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} response.PostResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Security ApiKeyAuth
+// @Router /post/{id} [get]
+func (h *PostHandler) GetPostByID(c *gin.Context) {
+	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.Error(fmt.Errorf("parse post id: %w", err))
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
+		return
+	}
+
+	postID, err := safecast.ToUint(parsedPostID)
+	if err != nil {
+		c.Error(fmt.Errorf("convert post id to uint: %w", err))
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
+		return
+	}
+
+	post, err := h.postService.GetByID(c.Request.Context(), postID)
+	if err != nil {
+		c.Error(fmt.Errorf("get post by id: %w", err))
+		if errors.Is(err, domain.ErrNotFound) {
+			c.JSON(http.StatusNotFound, response.NewErrorResponse(
+				response.CodeBadRequest,
+				"Post not found",
+			))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
+			response.CodeInternalServerError,
+			"Oops, something went wrong...",
+		))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewPostResponse(post))
 }
 
 // UpdatePost godoc
