@@ -8,6 +8,7 @@ import (
 
 type PostResponse struct {
 	ID        uint   `json:"id"`
+	UserID    uint   `json:"user_id"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	CreatedAt string `json:"created_at"`
@@ -17,6 +18,7 @@ type PostResponse struct {
 func NewPostResponse(post *model.Post) PostResponse {
 	return PostResponse{
 		ID:        post.ID,
+		UserID:    post.UserID,
 		Title:     post.Title,
 		Content:   post.Content,
 		CreatedAt: post.CreatedAt.Format(time.RFC3339),
@@ -29,5 +31,6 @@ func NewPostCollectionResponse(posts []model.Post, total, offset, limit int64) C
 	for i, post := range posts {
 		responses[i] = NewPostResponse(&post)
 	}
+
 	return NewCollectionResponse(responses, total, offset, limit)
 }

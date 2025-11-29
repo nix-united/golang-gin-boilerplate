@@ -7,6 +7,19 @@ import (
 
 const maxLimit = 100
 
+type CreatePostRequest struct {
+	UserID  uint
+	Title   string
+	Content string
+}
+
+type UpdatePostRequest struct {
+	PostID  uint
+	UserID  uint
+	Title   string
+	Content string
+}
+
 type PostFilters struct {
 	Offset int64
 	Limit  int64
@@ -14,8 +27,8 @@ type PostFilters struct {
 
 func (f PostFilters) Validate() error {
 	var err error
-	if f.Limit < 0 {
-		err = errors.Join(err, errors.New("limit should be positive number"))
+	if f.Limit < 1 {
+		err = errors.Join(err, errors.New("limit should be at least 1"))
 	}
 
 	if f.Limit > maxLimit {

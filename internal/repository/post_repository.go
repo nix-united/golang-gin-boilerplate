@@ -19,12 +19,12 @@ func NewPostRepository(db *gorm.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (r *PostRepository) Create(ctx context.Context, post *model.Post) error {
+func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
 	if err := r.db.WithContext(ctx).Create(post).Error; err != nil {
-		return fmt.Errorf("execute insert post query: %w", err)
+		return nil, fmt.Errorf("execute insert post query: %w", err)
 	}
 
-	return nil
+	return post, nil
 }
 
 func (r *PostRepository) Count(ctx context.Context) (int64, error) {

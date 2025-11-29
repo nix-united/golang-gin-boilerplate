@@ -17,7 +17,7 @@ import (
 
 func TestAcceptance(t *testing.T) {
 	registerRequest := request.RegisterRequest{
-		BasicAuthRequest: &request.BasicAuthRequest{
+		BasicAuthRequest: request.BasicAuthRequest{
 			Email:    "example@email.com",
 			Password: "some-password",
 		},
@@ -31,7 +31,7 @@ func TestAcceptance(t *testing.T) {
 	require.NoError(t, err)
 
 	createPostRequest := request.CreatePostRequest{
-		BasicPost: &request.BasicPost{
+		BasicPost: request.BasicPost{
 			Title:   "Title",
 			Content: "Content",
 		},

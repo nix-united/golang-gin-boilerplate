@@ -1,7 +1,6 @@
 package post_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/domain"
@@ -14,36 +13,42 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestPostService_Create(t *testing.T) {
+func TestService_Create(t *testing.T) {
+	createPostRequest := domain.CreatePostRequest{
+		UserID:  100,
+		Title:   "Title",
+		Content: "Content",
+	}
+
+	postToCreate := &model.Post{
+		UserID:  createPostRequest.UserID,
+		Title:   createPostRequest.Title,
+		Content: createPostRequest.Content,
+	}
+
+	createdPost := &model.Post{
+		Model:   gorm.Model{ID: 100},
+		UserID:  createPostRequest.UserID,
+		Title:   createPostRequest.Title,
+		Content: createPostRequest.Content,
+	}
+
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
 	postService := post.NewService(postRepository)
 
-	expectedPostToCreate := &model.Post{
-		Title:   "Title",
-		Content: "Content",
-		UserID:  100,
-	}
-
-	expectedCreatedPost := new(model.Post)
-	*expectedCreatedPost = *expectedPostToCreate
-	expectedCreatedPost.ID = 101
-
 	postRepository.
 		EXPECT().
-		Create(gomock.Any(), expectedPostToCreate).
-		DoAndReturn(func(_ context.Context, p *model.Post) error {
-			(*p) = *expectedCreatedPost
-			return nil
-		})
+		Create(gomock.Any(), postToCreate).
+		Return(createdPost, nil)
 
-	post, err := postService.Create(t.Context(), 100, "Title", "Content")
+	post, err := postService.Create(t.Context(), createPostRequest)
 	require.NoError(t, err)
 
-	assert.Equal(t, expectedCreatedPost, post)
+	assert.Equal(t, createdPost, post)
 }
 
-func TestPostService_Count(t *testing.T) {
+func TestService_Count(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
 	postService := post.NewService(postRepository)
@@ -61,7 +66,7 @@ func TestPostService_Count(t *testing.T) {
 	assert.Equal(t, wantCount, gotCount)
 }
 
-func TestPostService_List(t *testing.T) {
+func TestService_List(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
 	postService := post.NewService(postRepository)
@@ -88,7 +93,7 @@ func TestPostService_List(t *testing.T) {
 	assert.Equal(t, storedPosts, posts)
 }
 
-func TestPostService_GetByID(t *testing.T) {
+func TestService_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
 	postService := post.NewService(postRepository)
@@ -113,7 +118,50 @@ func TestPostService_GetByID(t *testing.T) {
 	assert.Equal(t, storedPost, post)
 }
 
-func TestPostService_UpdateByUser(t *testing.T) {
+func TestService_UpdateByUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	postRepository := NewMockpostRepository(ctrl)
+	postService := post.NewService(postRepository)
+
+	storedPost := &model.Post{
+		Model: gorm.Model{
+			ID: 101,
+		},
+		Title:   "Title",
+		Content: "Content",
+		UserID:  102,
+	}
+
+	updatedPost := &model.Post{
+		Model: gorm.Model{
+			ID: storedPost.ID,
+		},
+		Title:   "New Title",
+		Content: "New Content",
+		UserID:  storedPost.UserID,
+	}
+
+	postRepository.
+		EXPECT().GetByID(gomock.Any(), storedPost.ID).
+		Return(storedPost, nil)
+
+	postRepository.
+		EXPECT().
+		Update(gomock.Any(), updatedPost).
+		Return(nil)
+
+	gotPost, err := postService.UpdateByUser(t.Context(), domain.UpdatePostRequest{
+		PostID:  updatedPost.ID,
+		UserID:  updatedPost.UserID,
+		Title:   updatedPost.Title,
+		Content: updatedPost.Content,
+	})
+	require.NoError(t, err)
+
+	assert.Equal(t, updatedPost, gotPost)
+}
+
+func TestService_DeleteByUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	postRepository := NewMockpostRepository(ctrl)
 	postService := post.NewService(postRepository)
@@ -127,49 +175,16 @@ func TestPostService_UpdateByUser(t *testing.T) {
 		UserID:  102,
 	}
 
-	newPost := &model.Post{
-		Model: gorm.Model{
-			ID: 101,
-		},
-		Title:   "New Title",
-		Content: "New Content",
-		UserID:  102,
-	}
-
 	postRepository.
-		EXPECT().GetByID(gomock.Any(), post.ID).
+		EXPECT().
+		GetByID(gomock.Any(), post.ID).
 		Return(post, nil)
 
 	postRepository.
 		EXPECT().
-		Update(gomock.Any(), newPost).
+		Delete(gomock.Any(), post).
 		Return(nil)
 
-	gotPost, err := postService.UpdateByUser(t.Context(), post.UserID, post.ID, "New Title", "New Content")
-	require.NoError(t, err)
-
-	assert.Equal(t, newPost, gotPost)
+	err := postService.DeleteByUser(t.Context(), post.UserID, post.ID)
+	assert.NoError(t, err)
 }
-
-// func TestPostService_Delete(t *testing.T) {
-// 	ctrl := gomock.NewController(t)
-// 	postRepository := NewMockpostRepository(ctrl)
-// 	postService := post.NewService(postRepository)
-
-// 	post := &model.Post{
-// 		Model: gorm.Model{
-// 			ID: 101,
-// 		},
-// 		Title:   "Title",
-// 		Content: "Content",
-// 		UserID:  102,
-// 	}
-
-// 	postRepository.
-// 		EXPECT().
-// 		Delete(gomock.Any(), post).
-// 		Return(nil)
-
-// 	err := postService.Delete(t.Context(), post)
-// 	assert.Nil(t, err)
-// }

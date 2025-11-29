@@ -17,19 +17,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	defaultPostLimit = 10
-	maxPostLimit     = 100
-)
+const defaultPostLimit = 10
 
 //go:generate go tool mockgen -source=$GOFILE -destination=post_handler_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postService interface {
-	Create(ctx context.Context, userID uint, title, content string) (*model.Post, error)
+	Create(ctx context.Context, createPostRequest domain.CreatePostRequest) (*model.Post, error)
 	Count(ctx context.Context) (int64, error)
 	List(ctx context.Context, filers domain.PostFilters) ([]model.Post, error)
-	GetByID(ctx context.Context, id uint) (*model.Post, error)
-	UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error)
+	GetByID(ctx context.Context, postID uint) (*model.Post, error)
+	UpdateByUser(ctx context.Context, updatePostRequest domain.UpdatePostRequest) (*model.Post, error)
 	DeleteByUser(ctx context.Context, userID, postID uint) error
 }
 
@@ -75,12 +72,20 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.Create(
-		c.Request.Context(),
-		userID,
-		createPostRequest.Title,
-		createPostRequest.Content,
-	)
+	if err := createPostRequest.Validate(); err != nil {
+		c.Error(fmt.Errorf("validate: %w", err))
+		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
+			response.CodeBadRequest,
+			"Invalid request",
+		))
+		return
+	}
+
+	post, err := h.postService.Create(c.Request.Context(), domain.CreatePostRequest{
+		UserID:  userID,
+		Title:   createPostRequest.Title,
+		Content: createPostRequest.Content,
+	})
 	if err != nil {
 		c.Error(fmt.Errorf("create post: %w", err))
 		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
@@ -122,15 +127,6 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 			))
 			return
 		}
-	}
-
-	if limit > maxPostLimit {
-		c.Error(fmt.Errorf("extra large posts limit: %d", limit))
-		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-			response.CodeBadRequest,
-			"Invalid request",
-		))
-		return
 	}
 
 	var offset int64
@@ -297,13 +293,12 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.UpdateByUser(
-		c.Request.Context(),
-		userID,
-		postID,
-		updatePostRequest.Title,
-		updatePostRequest.Content,
-	)
+	post, err := h.postService.UpdateByUser(c.Request.Context(), domain.UpdatePostRequest{
+		PostID:  postID,
+		UserID:  userID,
+		Title:   updatePostRequest.Title,
+		Content: updatePostRequest.Content,
+	})
 	if err != nil {
 		c.Error(fmt.Errorf("update post by user: %w", err))
 		switch {

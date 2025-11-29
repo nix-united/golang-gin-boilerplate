@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"os"
 	"slices"
 	"testing"
 
@@ -28,14 +29,14 @@ func TestMain(m *testing.M) {
 	shutdown, err := setupMain(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to setup integration tests", "err", err)
-		return
+		os.Exit(1)
 	}
 
 	m.Run()
 
 	if err := shutdown(ctx); err != nil {
 		slog.ErrorContext(ctx, "Failed to shutdown integration tests", "err", err)
-		return
+		os.Exit(1)
 	}
 }
 

@@ -37,23 +37,23 @@ func NewService(userRepository userRepository, passwordService passwordService) 
 // CreateUser Create takes a request with new user credentials and registers it.
 // An error will be returned if a user exists in the system, or
 // if an error occurs during interaction with the database.
-func (s *Service) CreateUser(ctx context.Context, req request.RegisterRequest) error {
-	_, err := s.userRepository.GetByEmail(ctx, req.Email)
+func (s *Service) CreateUser(ctx context.Context, registerRequest request.RegisterRequest) error {
+	_, err := s.userRepository.GetByEmail(ctx, registerRequest.Email)
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
 		return fmt.Errorf("get user by email: %w", err)
 	} else if err == nil {
 		return domain.ErrAlreadyExists
 	}
 
-	encryptedPassword, err := s.passwordService.EncryptPassword(req.Password)
+	encryptedPassword, err := s.passwordService.EncryptPassword(registerRequest.Password)
 	if err != nil {
 		return fmt.Errorf("encrypt password: %w", err)
 	}
 
 	err = s.userRepository.Create(ctx, &model.User{
-		Email:    req.Email,
+		Email:    registerRequest.Email,
 		Password: encryptedPassword,
-		FullName: req.FullName,
+		FullName: registerRequest.FullName,
 	})
 	if err != nil {
 		return fmt.Errorf("store user: %w", err)
@@ -67,5 +67,6 @@ func (s *Service) GetUserByEmail(ctx context.Context, email string) (*model.User
 	if err != nil {
 		return nil, fmt.Errorf("get user by email from repository: %w", err)
 	}
+
 	return user, nil
 }

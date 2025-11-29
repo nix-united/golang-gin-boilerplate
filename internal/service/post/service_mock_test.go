@@ -81,11 +81,12 @@ func (c *MockpostRepositoryCountCall) DoAndReturn(f func(context.Context) (int64
 }
 
 // Create mocks base method.
-func (m *MockpostRepository) Create(ctx context.Context, post *model.Post) error {
+func (m *MockpostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, post)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
@@ -101,19 +102,19 @@ type MockpostRepositoryCreateCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockpostRepositoryCreateCall) Return(arg0 error) *MockpostRepositoryCreateCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockpostRepositoryCreateCall) Return(arg0 *model.Post, arg1 error) *MockpostRepositoryCreateCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockpostRepositoryCreateCall) Do(f func(context.Context, *model.Post) error) *MockpostRepositoryCreateCall {
+func (c *MockpostRepositoryCreateCall) Do(f func(context.Context, *model.Post) (*model.Post, error)) *MockpostRepositoryCreateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockpostRepositoryCreateCall) DoAndReturn(f func(context.Context, *model.Post) error) *MockpostRepositoryCreateCall {
+func (c *MockpostRepositoryCreateCall) DoAndReturn(f func(context.Context, *model.Post) (*model.Post, error)) *MockpostRepositoryCreateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

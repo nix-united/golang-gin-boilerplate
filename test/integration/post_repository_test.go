@@ -26,22 +26,24 @@ func TestPostRepository(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	post := &model.Post{
+	createdPost := &model.Post{
 		Title:   "test_post_repository_title",
 		Content: "test_post_repository_content",
 		UserID:  user.ID,
 	}
 
 	t.Run("It should create a post", func(t *testing.T) {
-		err := postRepository.Create(t.Context(), post)
+		post, err := postRepository.Create(t.Context(), createdPost)
 		require.NoError(t, err)
+
+		createdPost = post
 	})
 
 	t.Run("It should get post by ID", func(t *testing.T) {
-		gotPost, err := postRepository.GetByID(t.Context(), post.ID)
+		gotPost, err := postRepository.GetByID(t.Context(), createdPost.ID)
 		require.NoError(t, err)
 
-		assert.Equal(t, post.Title, gotPost.Title)
+		assert.Equal(t, createdPost.Title, gotPost.Title)
 	})
 
 	t.Run("It should return ErrNotFound error when post with such ID not found", func(t *testing.T) {
@@ -57,19 +59,19 @@ func TestPostRepository(t *testing.T) {
 	})
 
 	t.Run("It should update existing post", func(t *testing.T) {
-		post.Title = "test_post_repository_title_updated"
+		createdPost.Title = "test_post_repository_title_updated"
 
-		err := postRepository.Update(t.Context(), post)
+		err := postRepository.Update(t.Context(), createdPost)
 		require.NoError(t, err)
 
-		gotPost, err := postRepository.GetByID(t.Context(), post.ID)
+		gotPost, err := postRepository.GetByID(t.Context(), createdPost.ID)
 		require.NoError(t, err)
 
-		assert.Equal(t, post.Title, gotPost.Title)
+		assert.Equal(t, createdPost.Title, gotPost.Title)
 	})
 
 	t.Run("It should soft delete existing post", func(t *testing.T) {
-		err := postRepository.Delete(t.Context(), post)
+		err := postRepository.Delete(t.Context(), createdPost)
 		require.NoError(t, err)
 	})
 }

@@ -59,7 +59,7 @@ func newAuthHandler(t *testing.T) (*gin.Engine, authHandlerMocks) {
 
 func TestAuthHandler_RegisterUser(t *testing.T) {
 	registerRequest := request.RegisterRequest{
-		BasicAuthRequest: &request.BasicAuthRequest{
+		BasicAuthRequest: request.BasicAuthRequest{
 			Email:    "name.surname@gmail.com",
 			Password: "strong-password",
 		},
@@ -73,7 +73,7 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		engine, _ := newAuthHandler(t)
 
 		badRegisterRequest := registerRequest
-		badRegisterRequest.BasicAuthRequest = &request.BasicAuthRequest{
+		badRegisterRequest.BasicAuthRequest = request.BasicAuthRequest{
 			Email:    registerRequest.Email,
 			Password: "weak",
 		}
