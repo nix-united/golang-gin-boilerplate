@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/nix-united/golang-gin-boilerplate/internal/model"
 	"github.com/nix-united/golang-gin-boilerplate/internal/request"
 	"github.com/nix-united/golang-gin-boilerplate/internal/response"
+	"github.com/nix-united/golang-gin-boilerplate/internal/slogx"
 
 	ginjwt "github.com/appleboy/gin-jwt/v3"
 	"github.com/appleboy/gin-jwt/v3/core"
@@ -63,6 +65,7 @@ func NewAuthHandler(config AuthHandlerConfig) (*AuthHandler, error) {
 		Unauthorized:          authHandler.respondWithUnauthorized,
 		LoginResponse:         authHandler.respondWithAuthToken,
 		RefreshResponse:       authHandler.respondWithAuthToken,
+		IdentityHandler:       authHandler.identityHandler,
 	}
 
 	if err := authHandler.ginJWT.MiddlewareInit(); err != nil {
@@ -193,7 +196,7 @@ func (h *AuthHandler) payload(data any) jwt.MapClaims {
 	return jwt.MapClaims{identityKey: user.ID}
 }
 
-// mapHTTPStatusMessage propagates message to [AuthHandler.unauthorized] by lib.
+// mapHTTPStatusMessage propagates message to [AuthHandler.respondWithUnauthorized] by lib.
 func (h *AuthHandler) mapHTTPStatusMessage(_ *gin.Context, err error) string {
 	switch {
 	case errors.Is(err, ginjwt.ErrMissingLoginValues):
@@ -205,7 +208,7 @@ func (h *AuthHandler) mapHTTPStatusMessage(_ *gin.Context, err error) string {
 	}
 }
 
-// respondWithUnauthorized receives message from [AuthHandler.httpStatusMessage].
+// respondWithUnauthorized receives message from [AuthHandler.mapHTTPStatusMessage].
 func (h *AuthHandler) respondWithUnauthorized(c *gin.Context, code int, message string) {
 	c.JSON(code, response.NewErrorResponse(response.CodeAccessDenied, message))
 }
@@ -218,4 +221,19 @@ func (h *AuthHandler) respondWithAuthToken(c *gin.Context, token *core.Token) {
 		ExpiresIn:    token.ExpiresIn(),
 		RefreshToken: token.RefreshToken,
 	})
+}
+
+// identityHandler is called by [AuthHandler.Middleware] to determine user identity.
+func (h *AuthHandler) identityHandler(c *gin.Context) any {
+	ctx := c.Request.Context()
+	userID, err := getUserIDFromContext(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get user ID in identity handler", "err", err)
+		return 0
+	}
+
+	// Set user ID to propagate between log messages.
+	c.Request = c.Request.WithContext(slogx.ContextWithUserID(ctx, userID))
+
+	return userID
 }
