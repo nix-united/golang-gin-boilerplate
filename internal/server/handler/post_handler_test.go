@@ -141,16 +141,18 @@ func TestPostHandler_GetPosts(t *testing.T) {
 		},
 	}
 
+	filters := domain.PostFilters{Limit: 10}
+
 	engine, postService := newPostHandler(t, userID)
 
 	postService.
 		EXPECT().
-		Count(gomock.Any()).
+		Count(gomock.Any(), filters).
 		Return(totalPosts, nil)
 
 	postService.
 		EXPECT().
-		List(gomock.Any(), domain.PostFilters{Limit: 10}).
+		List(gomock.Any(), filters).
 		Return(storedPosts, nil)
 
 	httpRequest := httptest.NewRequest(http.MethodGet, "/posts", http.NoBody)

@@ -13,7 +13,7 @@ import (
 
 type postRepository interface {
 	Create(ctx context.Context, post *model.Post) (*model.Post, error)
-	Count(ctx context.Context) (int64, error)
+	Count(ctx context.Context, filters domain.PostFilters) (int64, error)
 	List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error)
 	GetByID(ctx context.Context, id uint) (*model.Post, error)
 	Update(ctx context.Context, post *model.Post) error
@@ -43,8 +43,8 @@ func (s *Service) Create(ctx context.Context, createPostRequest domain.CreatePos
 	return post, nil
 }
 
-func (s *Service) Count(ctx context.Context) (int64, error) {
-	count, err := s.postRepository.Count(ctx)
+func (s *Service) Count(ctx context.Context, filters domain.PostFilters) (int64, error) {
+	count, err := s.postRepository.Count(ctx, filters)
 	if err != nil {
 		return 0, fmt.Errorf("get posts count from repository: %w", err)
 	}

@@ -23,7 +23,7 @@ const defaultPostLimit = 10
 
 type postService interface {
 	Create(ctx context.Context, createPostRequest domain.CreatePostRequest) (*model.Post, error)
-	Count(ctx context.Context) (int64, error)
+	Count(ctx context.Context, filers domain.PostFilters) (int64, error)
 	List(ctx context.Context, filers domain.PostFilters) ([]model.Post, error)
 	GetByID(ctx context.Context, postID uint) (*model.Post, error)
 	UpdateByUser(ctx context.Context, updatePostRequest domain.UpdatePostRequest) (*model.Post, error)
@@ -156,7 +156,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		return
 	}
 
-	total, err := h.postService.Count(c.Request.Context())
+	total, err := h.postService.Count(c.Request.Context(), filters)
 	if err != nil {
 		c.Error(fmt.Errorf("count posts: %w", err))
 		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(

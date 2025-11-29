@@ -27,9 +27,17 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 	return post, nil
 }
 
-func (r *PostRepository) Count(ctx context.Context) (int64, error) {
+func (r *PostRepository) Count(ctx context.Context, filters domain.PostFilters) (int64, error) {
+	tx := r.db.WithContext(ctx)
+	if filters.UserID != 0 {
+		tx = tx.Where("user_id = ?", filters.UserID)
+	}
+	if filters.Title != "" {
+		tx = tx.Where("title LIKE CONCAT('%', ?, '%')", filters.Title)
+	}
+
 	var count int64
-	if err := r.db.WithContext(ctx).Model(&model.Post{}).Count(&count).Error; err != nil {
+	if err := tx.Model(&model.Post{}).Count(&count).Error; err != nil {
 		return 0, fmt.Errorf("execute count number of posts query: %w", err)
 	}
 
@@ -37,13 +45,16 @@ func (r *PostRepository) Count(ctx context.Context) (int64, error) {
 }
 
 func (r *PostRepository) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
+	tx := r.db.WithContext(ctx).Offset(int(filters.Offset)).Limit(int(filters.Limit))
+	if filters.UserID != 0 {
+		tx = tx.Where("user_id = ?", filters.UserID)
+	}
+	if filters.Title != "" {
+		tx = tx.Where("title LIKE CONCAT('%', ?, '%')", filters.Title)
+	}
+
 	var posts []model.Post
-	err := r.db.WithContext(ctx).
-		Offset(int(filters.Offset)).
-		Limit(int(filters.Limit)).
-		Find(&posts).
-		Error
-	if err != nil {
+	if err := tx.Find(&posts).Error; err != nil {
 		return nil, fmt.Errorf("execute select posts query: %w", err)
 	}
 

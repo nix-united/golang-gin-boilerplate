@@ -21,6 +21,8 @@ type UpdatePostRequest struct {
 }
 
 type PostFilters struct {
+	UserID uint
+	Title  string
 	Offset int64
 	Limit  int64
 }

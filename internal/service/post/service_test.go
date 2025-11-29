@@ -57,10 +57,10 @@ func TestService_Count(t *testing.T) {
 
 	postRepository.
 		EXPECT().
-		Count(gomock.Any()).
+		Count(gomock.Any(), domain.PostFilters{}).
 		Return(wantCount, nil)
 
-	gotCount, err := postService.Count(t.Context())
+	gotCount, err := postService.Count(t.Context(), domain.PostFilters{})
 	require.NoError(t, err)
 
 	assert.Equal(t, wantCount, gotCount)
