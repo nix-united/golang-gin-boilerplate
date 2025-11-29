@@ -40,9 +40,9 @@ func newPostHandler(t *testing.T, userID uint) (*gin.Engine, *MockpostService) {
 
 	engine.POST("/posts", postHandler.CreatePost)
 	engine.GET("/posts", postHandler.GetPosts)
-	engine.GET("/post/:id", postHandler.GetPostByID)
-	engine.PUT("/post/:id", postHandler.UpdatePost)
-	engine.DELETE("/post/:id", postHandler.DeletePost)
+	engine.GET("/posts/:id", postHandler.GetPostByID)
+	engine.PUT("/posts/:id", postHandler.UpdatePost)
+	engine.DELETE("/posts/:id", postHandler.DeletePost)
 
 	return engine, postService
 }
@@ -225,7 +225,7 @@ func TestPostHandler_GetPostByID(t *testing.T) {
 		GetByID(gomock.Any(), storedPost.ID).
 		Return(storedPost, nil)
 
-	httpRequest := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/post/%d", postID), http.NoBody)
+	httpRequest := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/posts/%d", postID), http.NoBody)
 
 	recorder := httptest.NewRecorder()
 	engine.ServeHTTP(recorder, httpRequest)
@@ -294,7 +294,7 @@ func TestPostHandler_UpdatePost(t *testing.T) {
 
 	httpRequest := httptest.NewRequest(
 		http.MethodPut,
-		fmt.Sprintf("/post/%d", newPost.ID),
+		fmt.Sprintf("/posts/%d", newPost.ID),
 		bytes.NewReader(rawUpdatePostRequest),
 	)
 
@@ -335,7 +335,7 @@ func TestPostHandler_DeletePost(t *testing.T) {
 		DeleteByUser(gomock.Any(), userID, uint(100)).
 		Return(nil)
 
-	httpRequest := httptest.NewRequest(http.MethodDelete, "/post/100", http.NoBody)
+	httpRequest := httptest.NewRequest(http.MethodDelete, "/posts/100", http.NoBody)
 
 	recorder := httptest.NewRecorder()
 	engine.ServeHTTP(recorder, httpRequest)

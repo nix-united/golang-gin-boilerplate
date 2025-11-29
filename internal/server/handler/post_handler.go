@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -105,6 +104,8 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "Limit" minimum(1) maximum(100)
 // @Param offset query int false "Offset" minimum(0)
+// @Param user_id query string false "User ID"
+// @Param title query string false "Title"
 // @Success 200 {object} response.PostResponse
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
@@ -112,43 +113,9 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
-	var (
-		limit int64
-		err   error
-	)
-
-	if param := c.Param("limit"); param != "" {
-		limit, err = strconv.ParseInt(param, 10, 64)
-		if err != nil {
-			c.Error(fmt.Errorf("parse limit: %w", err))
-			c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-				response.CodeBadRequest,
-				"Invalid request",
-			))
-			return
-		}
-	}
-
-	var offset int64
-	if param := c.Param("offset"); param != "" {
-		offset, err = strconv.ParseInt(param, 10, 64)
-		if err != nil {
-			c.Error(fmt.Errorf("parse offset: %w", err))
-			c.JSON(http.StatusBadRequest, response.NewErrorResponse(
-				response.CodeBadRequest,
-				"Invalid request",
-			))
-			return
-		}
-	}
-
-	filters := domain.PostFilters{
-		Offset: offset,
-		Limit:  cmp.Or(limit, defaultPostLimit),
-	}
-
-	if err := filters.Validate(); err != nil {
-		c.Error(fmt.Errorf("validate post filters: %w", err))
+	filters, err := h.parseFilters(c)
+	if err != nil {
+		c.Error(fmt.Errorf("parse post filters: %w", err))
 		c.JSON(http.StatusBadRequest, response.NewErrorResponse(
 			response.CodeBadRequest,
 			"Invalid request",
@@ -194,7 +161,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
-// @Router /post/{id} [get]
+// @Router /posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *gin.Context) {
 	parsedPostID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -251,7 +218,7 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
-// @Router /post/{id} [put]
+// @Router /posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
 	userID, err := getUserIDFromContext(c)
 	if err != nil {
@@ -336,7 +303,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
-// @Router /post/{id} [delete]
+// @Router /posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
 	userID, err := getUserIDFromContext(c)
 	if err != nil {
@@ -391,4 +358,46 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.NewMessageResponse("Post was deleted successfully"))
+}
+
+func (h *PostHandler) parseFilters(c *gin.Context) (domain.PostFilters, error) {
+	filters := domain.PostFilters{Limit: defaultPostLimit, Title: c.Query("title")}
+
+	if limitParam := c.Query("limit"); limitParam != "" {
+		limit, err := strconv.ParseInt(limitParam, 10, 64)
+		if err != nil {
+			return domain.PostFilters{}, fmt.Errorf("prase limit query param: %w", err)
+		}
+
+		filters.Limit = limit
+	}
+
+	if offsetParam := c.Query("offset"); offsetParam != "" {
+		offset, err := strconv.ParseInt(offsetParam, 10, 64)
+		if err != nil {
+			return domain.PostFilters{}, fmt.Errorf("prase offset query param: %w", err)
+		}
+
+		filters.Offset = offset
+	}
+
+	if userIDQuery := c.Query("user_id"); userIDQuery != "" {
+		userID, err := strconv.ParseUint(userIDQuery, 10, 64)
+		if err != nil {
+			return domain.PostFilters{}, fmt.Errorf("prase user_id query param: %w", err)
+		}
+
+		parsedUserID, err := safecast.ToUint(userID)
+		if err != nil {
+			return domain.PostFilters{}, fmt.Errorf("convert user id to uint: %w", err)
+		}
+
+		filters.UserID = parsedUserID
+	}
+
+	if err := filters.Validate(); err != nil {
+		return domain.PostFilters{}, fmt.Errorf("validate filters: %w", err)
+	}
+
+	return filters, nil
 }

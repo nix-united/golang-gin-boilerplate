@@ -58,9 +58,9 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 
 	authorizedAPI.POST("/posts", handlers.PostHandler.CreatePost)
 	authorizedAPI.GET("/posts", handlers.PostHandler.GetPosts)
-	authorizedAPI.GET("/post/:id", handlers.PostHandler.GetPostByID)
-	authorizedAPI.PUT("/post/:id", handlers.PostHandler.UpdatePost)
-	authorizedAPI.DELETE("/post/:id", handlers.PostHandler.DeletePost)
+	authorizedAPI.GET("/posts/:id", handlers.PostHandler.GetPostByID)
+	authorizedAPI.PUT("/posts/:id", handlers.PostHandler.UpdatePost)
+	authorizedAPI.DELETE("/posts/:id", handlers.PostHandler.DeletePost)
 
 	return engine
 }

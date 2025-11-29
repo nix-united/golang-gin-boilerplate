@@ -122,7 +122,7 @@ func TestAcceptance(t *testing.T) {
 	t.Run("It should fetch a newly created post", func(t *testing.T) {
 		httpRequest, err := http.NewRequest(
 			http.MethodGet,
-			applicationURL.JoinPath(fmt.Sprintf("/post/%d", createdPost.ID)).String(),
+			applicationURL.JoinPath(fmt.Sprintf("/posts/%d", createdPost.ID)).String(),
 			http.NoBody,
 		)
 		require.NoError(t, err)
@@ -148,5 +148,40 @@ func TestAcceptance(t *testing.T) {
 		assert.Equal(t, createdPost.ID, getPostResponse.ID)
 		assert.Equal(t, createdPost.Title, getPostResponse.Title)
 		assert.Equal(t, createdPost.Content, getPostResponse.Content)
+	})
+
+	t.Run("It should fetch a newly created post by title prefix", func(t *testing.T) {
+		httpRequest, err := http.NewRequest(
+			http.MethodGet,
+			applicationURL.JoinPath("/posts").String(),
+			http.NoBody,
+		)
+		require.NoError(t, err)
+
+		httpRequest.Header.Set("Content-Type", "application/json")
+		httpRequest.Header.Set("Authorization", "Bearer "+accessToken)
+
+		query := httpRequest.URL.Query()
+		query.Set("title", "Tit")
+		httpRequest.URL.RawQuery = query.Encode()
+
+		httpResponse, err := http.DefaultClient.Do(httpRequest)
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, httpResponse.Body.Close())
+		}()
+
+		require.Equal(t, http.StatusOK, httpResponse.StatusCode)
+
+		rawResponse, err := io.ReadAll(httpResponse.Body)
+		require.NoError(t, err)
+
+		var getPostResponse response.CollectionResponse[response.PostResponse]
+		err = json.Unmarshal(rawResponse, &getPostResponse)
+		require.NoError(t, err)
+
+		assert.Equal(t, createdPost.ID, getPostResponse.Data[0].ID)
+		assert.Equal(t, createdPost.Title, getPostResponse.Data[0].Title)
+		assert.Equal(t, createdPost.Content, getPostResponse.Data[0].Content)
 	})
 }
