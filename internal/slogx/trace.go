@@ -10,8 +10,11 @@ import (
 )
 
 type trace struct {
-	trace string
-	index *atomic.Int64
+	// traceID represents a common UUID that share logs during request processing.
+	traceID string
+
+	// spanID represents a number of a log within a span.
+	spanID *atomic.Int64
 }
 
 type TraceStarter struct {
@@ -28,7 +31,7 @@ func (s *TraceStarter) Start(ctx context.Context) (context.Context, error) {
 		return nil, fmt.Errorf("new trace id: %w", err)
 	}
 
-	return withTrace(ctx, trace{trace: traceID.String(), index: &atomic.Int64{}}), nil
+	return withTrace(ctx, trace{traceID: traceID.String(), spanID: &atomic.Int64{}}), nil
 }
 
 var _ slog.Handler = (*traceHandler)(nil)
@@ -73,20 +76,18 @@ func (h *traceHandler) addAttrs(ctx context.Context, record slog.Record) slog.Re
 		return record
 	}
 
-	record.AddAttrs(slog.Group("trace", slog.String("trace", t.trace), slog.Int64("index", t.index.Add(1))))
+	record.AddAttrs(slog.Group("trace", slog.String("trace_id", t.traceID), slog.Int64("span_id", t.spanID.Add(1))))
 
 	return record
 }
 
-type traceKeyType int8
-
-var traceKey traceKeyType = 1
+type traceKey struct{}
 
 func withTrace(ctx context.Context, trace trace) context.Context {
-	return context.WithValue(ctx, traceKey, trace)
+	return context.WithValue(ctx, traceKey{}, trace)
 }
 
 func traceFromContext(ctx context.Context) (trace, bool) {
-	trace, ok := ctx.Value(traceKey).(trace)
+	trace, ok := ctx.Value(traceKey{}).(trace)
 	return trace, ok
 }
