@@ -45,7 +45,7 @@ func (r *PostRepository) Count(ctx context.Context, filters domain.PostFilters) 
 }
 
 func (r *PostRepository) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
-	tx := r.db.WithContext(ctx).Offset(int(filters.Offset)).Limit(int(filters.Limit))
+	tx := r.db.WithContext(ctx).Offset(filters.Offset).Limit(filters.Limit)
 	if filters.UserID != 0 {
 		tx = tx.Where("user_id = ?", filters.UserID)
 	}

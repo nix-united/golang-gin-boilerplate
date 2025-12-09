@@ -364,7 +364,7 @@ func (h *PostHandler) parseFilters(c *gin.Context) (domain.PostFilters, error) {
 	filters := domain.PostFilters{Limit: defaultPostLimit, Title: c.Query("title")}
 
 	if limitParam := c.Query("limit"); limitParam != "" {
-		limit, err := strconv.ParseInt(limitParam, 10, 64)
+		limit, err := strconv.Atoi(limitParam)
 		if err != nil {
 			return domain.PostFilters{}, fmt.Errorf("prase limit query param: %w", err)
 		}
@@ -373,7 +373,7 @@ func (h *PostHandler) parseFilters(c *gin.Context) (domain.PostFilters, error) {
 	}
 
 	if offsetParam := c.Query("offset"); offsetParam != "" {
-		offset, err := strconv.ParseInt(offsetParam, 10, 64)
+		offset, err := strconv.Atoi(offsetParam)
 		if err != nil {
 			return domain.PostFilters{}, fmt.Errorf("prase offset query param: %w", err)
 		}

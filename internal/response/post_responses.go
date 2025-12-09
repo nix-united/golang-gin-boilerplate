@@ -26,10 +26,10 @@ func NewPostResponse(post *model.Post) PostResponse {
 	}
 }
 
-func NewPostCollectionResponse(posts []model.Post, total, offset, limit int64) CollectionResponse[PostResponse] {
+func NewPostCollectionResponse(posts []model.Post, total int64, offset, limit int) CollectionResponse[PostResponse] {
 	responses := make([]PostResponse, len(posts))
-	for i, post := range posts {
-		responses[i] = NewPostResponse(&post)
+	for i := range posts {
+		responses[i] = NewPostResponse(&posts[i])
 	}
 
 	return NewCollectionResponse(responses, total, offset, limit)

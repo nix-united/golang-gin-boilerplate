@@ -23,8 +23,8 @@ type UpdatePostRequest struct {
 type PostFilters struct {
 	UserID uint
 	Title  string
-	Offset int64
-	Limit  int64
+	Offset int
+	Limit  int
 }
 
 func (f PostFilters) Validate() error {
