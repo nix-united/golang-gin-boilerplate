@@ -19,7 +19,7 @@ func getUserIDFromContext(c *gin.Context) (uint, error) {
 		return 0, errors.New("missing user id in claims")
 	}
 
-	parsed, err := safecast.ToUint(id)
+	parsed, err := safecast.Convert[uint](id)
 	if err != nil {
 		return 0, fmt.Errorf("convert user id to uint: %w", err)
 	}

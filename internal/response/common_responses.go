@@ -13,7 +13,7 @@ type CollectionResponse[T any] struct {
 	Meta Meta `json:"meta"`
 }
 
-func NewCollectionResponse[T any](items []T, total, offset, limit int64) CollectionResponse[T] {
+func NewCollectionResponse[T any](items []T, total int64, offset, limit int) CollectionResponse[T] {
 	return CollectionResponse[T]{
 		Data: items,
 		Meta: Meta{
@@ -28,8 +28,8 @@ func NewCollectionResponse[T any](items []T, total, offset, limit int64) Collect
 type Meta struct {
 	Count  int64 `json:"count"`
 	Total  int64 `json:"total"`
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int   `json:"offset"`
+	Limit  int   `json:"limit"`
 }
 
 type ErrorResponseCode string
