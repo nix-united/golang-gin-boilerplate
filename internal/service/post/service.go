@@ -12,9 +12,10 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=service_mock_test.go -package=${GOPACKAGE}_test -typed=true
 
 type postRepository interface {
-	Create(ctx context.Context, post *model.Post) error
+	Create(ctx context.Context, post *model.Post) (*model.Post, error)
+	Count(ctx context.Context, filters domain.PostFilters) (int64, error)
+	List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error)
 	GetByID(ctx context.Context, id uint) (*model.Post, error)
-	List(ctx context.Context) ([]model.Post, error)
 	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, post *model.Post) error
 }
@@ -27,18 +28,37 @@ func NewService(postRepository postRepository) *Service {
 	return &Service{postRepository: postRepository}
 }
 
-func (s *Service) Create(ctx context.Context, userID uint, title, content string) (*model.Post, error) {
+func (s *Service) Create(ctx context.Context, createPostRequest domain.CreatePostRequest) (*model.Post, error) {
 	post := &model.Post{
-		Title:   title,
-		Content: content,
-		UserID:  userID,
+		UserID:  createPostRequest.UserID,
+		Title:   createPostRequest.Title,
+		Content: createPostRequest.Content,
 	}
 
-	if err := s.postRepository.Create(ctx, post); err != nil {
+	post, err := s.postRepository.Create(ctx, post)
+	if err != nil {
 		return nil, fmt.Errorf("create post in repository: %w", err)
 	}
 
 	return post, nil
+}
+
+func (s *Service) Count(ctx context.Context, filters domain.PostFilters) (int64, error) {
+	count, err := s.postRepository.Count(ctx, filters)
+	if err != nil {
+		return 0, fmt.Errorf("get posts count from repository: %w", err)
+	}
+
+	return count, nil
+}
+
+func (s *Service) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
+	posts, err := s.postRepository.List(ctx, filters)
+	if err != nil {
+		return nil, fmt.Errorf("get all posts from repository: %w", err)
+	}
+
+	return posts, nil
 }
 
 func (s *Service) GetByID(ctx context.Context, id uint) (*model.Post, error) {
@@ -50,27 +70,18 @@ func (s *Service) GetByID(ctx context.Context, id uint) (*model.Post, error) {
 	return post, nil
 }
 
-func (s *Service) List(ctx context.Context) ([]model.Post, error) {
-	posts, err := s.postRepository.List(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("get all posts from repository: %w", err)
-	}
-
-	return posts, nil
-}
-
-func (s *Service) UpdateByUser(ctx context.Context, userID, postID uint, title, content string) (*model.Post, error) {
-	post, err := s.postRepository.GetByID(ctx, postID)
+func (s *Service) UpdateByUser(ctx context.Context, request domain.UpdatePostRequest) (*model.Post, error) {
+	post, err := s.postRepository.GetByID(ctx, request.PostID)
 	if err != nil {
 		return nil, fmt.Errorf("get post by id: %w", err)
 	}
 
-	if post.UserID != userID {
+	if post.UserID != request.UserID {
 		return nil, fmt.Errorf("post belongs to a different user: %w", domain.ErrForbidden)
 	}
 
-	post.Title = cmp.Or(title, post.Title)
-	post.Content = cmp.Or(content, post.Content)
+	post.Title = cmp.Or(request.Title, post.Title)
+	post.Content = cmp.Or(request.Content, post.Content)
 
 	if err := s.postRepository.Update(ctx, post); err != nil {
 		return nil, fmt.Errorf("update post in repository: %w", err)

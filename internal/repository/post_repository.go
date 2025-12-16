@@ -19,12 +19,46 @@ func NewPostRepository(db *gorm.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (r *PostRepository) Create(ctx context.Context, post *model.Post) error {
+func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
 	if err := r.db.WithContext(ctx).Create(post).Error; err != nil {
-		return fmt.Errorf("execute insert post query: %w", err)
+		return nil, fmt.Errorf("execute insert post query: %w", err)
 	}
 
-	return nil
+	return post, nil
+}
+
+func (r *PostRepository) Count(ctx context.Context, filters domain.PostFilters) (int64, error) {
+	tx := r.db.WithContext(ctx)
+	if filters.UserID != 0 {
+		tx = tx.Where("user_id = ?", filters.UserID)
+	}
+	if filters.Title != "" {
+		tx = tx.Where("title LIKE CONCAT('%', ?, '%')", filters.Title)
+	}
+
+	var count int64
+	if err := tx.Model(&model.Post{}).Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("execute count number of posts query: %w", err)
+	}
+
+	return count, nil
+}
+
+func (r *PostRepository) List(ctx context.Context, filters domain.PostFilters) ([]model.Post, error) {
+	tx := r.db.WithContext(ctx).Offset(filters.Offset).Limit(filters.Limit)
+	if filters.UserID != 0 {
+		tx = tx.Where("user_id = ?", filters.UserID)
+	}
+	if filters.Title != "" {
+		tx = tx.Where("title LIKE CONCAT('%', ?, '%')", filters.Title)
+	}
+
+	var posts []model.Post
+	if err := tx.Find(&posts).Error; err != nil {
+		return nil, fmt.Errorf("execute select posts query: %w", err)
+	}
+
+	return posts, nil
 }
 
 func (r *PostRepository) GetByID(ctx context.Context, id uint) (*model.Post, error) {
@@ -38,15 +72,6 @@ func (r *PostRepository) GetByID(ctx context.Context, id uint) (*model.Post, err
 	}
 
 	return post, nil
-}
-
-func (r *PostRepository) List(ctx context.Context) ([]model.Post, error) {
-	var posts []model.Post
-	if err := r.db.WithContext(ctx).Find(&posts).Error; err != nil {
-		return nil, fmt.Errorf("execute select posts query: %w", err)
-	}
-
-	return posts, nil
 }
 
 func (r *PostRepository) Update(ctx context.Context, post *model.Post) error {

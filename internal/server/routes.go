@@ -3,7 +3,6 @@ package server
 import (
 	"net/http"
 
-	"github.com/nix-united/golang-gin-boilerplate/internal/provider"
 	"github.com/nix-united/golang-gin-boilerplate/internal/server/handler"
 
 	"github.com/gin-gonic/gin"
@@ -12,11 +11,9 @@ import (
 )
 
 type Handlers struct {
-	HomeHandler *handler.HomeHandler
 	AuthHandler *handler.AuthHandler
 	PostHandler *handler.PostHandler
 
-	JwtAuthMiddleware          provider.JwtAuthMiddleware
 	RequestLoggingMiddleware   gin.HandlerFunc
 	RequestDebuggingMiddleware gin.HandlerFunc
 }
@@ -41,12 +38,12 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	// Do NOT log request or response bodies; doing so could expose client information.
 	privateAPI := api.Group("/")
 
-	privateAPI.POST("/users", handlers.AuthHandler.RegisterUser)
-	privateAPI.POST("/login", handlers.JwtAuthMiddleware.Middleware().LoginHandler)
-	privateAPI.GET(
+	privateAPI.POST("/register", handlers.AuthHandler.RegisterUser)
+	privateAPI.POST("/login", handlers.AuthHandler.LoginUser)
+	privateAPI.POST(
 		"/refresh",
-		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
-		handlers.JwtAuthMiddleware.Middleware().RefreshHandler,
+		handlers.AuthHandler.Middleware,
+		handlers.AuthHandler.RefreshUserToken,
 	)
 
 	// Authorized API route initialization
@@ -55,16 +52,15 @@ func ConfigureRoutes(handlers Handlers) *gin.Engine {
 	// before they can be accessed.
 	authorizedAPI := api.Group(
 		"/",
-		handlers.JwtAuthMiddleware.Middleware().MiddlewareFunc(),
+		handlers.AuthHandler.Middleware,
 		handlers.RequestDebuggingMiddleware,
 	)
 
-	authorizedAPI.GET("/", handlers.HomeHandler.Index)
-	authorizedAPI.POST("/posts", handlers.PostHandler.SavePost)
+	authorizedAPI.POST("/posts", handlers.PostHandler.CreatePost)
 	authorizedAPI.GET("/posts", handlers.PostHandler.GetPosts)
-	authorizedAPI.GET("/post/:id", handlers.PostHandler.GetPostByID)
-	authorizedAPI.PUT("/post/:id", handlers.PostHandler.UpdatePost)
-	authorizedAPI.DELETE("/post/:id", handlers.PostHandler.DeletePost)
+	authorizedAPI.GET("/posts/:id", handlers.PostHandler.GetPostByID)
+	authorizedAPI.PUT("/posts/:id", handlers.PostHandler.UpdatePost)
+	authorizedAPI.DELETE("/posts/:id", handlers.PostHandler.DeletePost)
 
 	return engine
 }

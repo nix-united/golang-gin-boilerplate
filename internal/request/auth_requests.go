@@ -5,9 +5,7 @@ import (
 	"github.com/go-ozzo/ozzo-validation/is"
 )
 
-const (
-	minPathLength = 8
-)
+const minPasswordLength = 8
 
 type RefreshRequest struct {
 	Token string `json:"token" validate:"required" example:"refresh_token"`
@@ -18,9 +16,10 @@ type BasicAuthRequest struct {
 	Password string `json:"password" binding:"required" example:"11111111"`
 }
 
-func (ar BasicAuthRequest) Validate() error {
-	return validation.ValidateStruct(&ar,
-		validation.Field(&ar.Email, is.Email),
-		validation.Field(&ar.Password, validation.Length(minPathLength, 0)),
+func (r BasicAuthRequest) Validate() error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.Email, is.Email),
+		validation.Field(&r.Password, validation.Length(minPasswordLength, 0)),
 	)
 }

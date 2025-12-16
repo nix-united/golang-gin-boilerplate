@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"net/url"
 	"time"
 
@@ -12,7 +11,10 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-const appHTTPPort = "80"
+const (
+	appHTTPPort      = "80"
+	appContainerName = "golang_gin_boilerplate"
+)
 
 type AppConfig struct {
 	Port string
@@ -25,6 +27,8 @@ func SetupApplication(
 	networks []string,
 	mySQLConfig MySQLConfig,
 ) (_ AppConfig, _ func(ctx context.Context) error, err error) {
+	containerLogsConsumer := newContainerLogsConsumer(appContainerName)
+
 	container, err := testcontainers.GenericContainer(
 		ctx,
 		testcontainers.GenericContainerRequest{
@@ -34,7 +38,7 @@ func SetupApplication(
 					Dockerfile: "Dockerfile",
 				},
 				Env: map[string]string{
-					"LOG_APPLICATION":     "golang-gin-boilerplate-integration-tests",
+					"LOG_APPLICATION":     appContainerName,
 					"PORT":                appHTTPPort,
 					"DB_DRIVER":           "mysql",
 					"DB_USER":             mySQLConfig.User,
@@ -50,34 +54,29 @@ func SetupApplication(
 				WaitingFor: wait.
 					ForAll(wait.ForHTTP("/health")).
 					WithDeadline(time.Minute),
+				Name:         appContainerName,
 				Networks:     networks,
 				ExposedPorts: []string{appHTTPPort},
+				LogConsumerCfg: &testcontainers.LogConsumerConfig{
+					Consumers: []testcontainers.LogConsumer{containerLogsConsumer},
+				},
 			},
 			Started: true,
 		},
 	)
 	if err != nil {
+		// Print logs for container bootstrap failures, such as condition wait timeouts.
+		containerLogsConsumer.Print()
 		return AppConfig{}, nil, fmt.Errorf("generic container from app: %w", err)
 	}
 
 	shutdown := func(ctx context.Context) error {
-		containerLogs, err := container.Logs(ctx)
-		if err != nil {
-			return fmt.Errorf("get application container logs: %w", err)
-		}
-
-		rawContainerLogs, err := io.ReadAll(containerLogs)
-		if err != nil {
-			return fmt.Errorf("read container logs: %w", err)
-		}
-
-		fmt.Print("\n\n\n### Start of application logs\n\n")
-		fmt.Println(string(rawContainerLogs))
-		fmt.Print("### End of application logs\n\n\n\n")
-
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate app container: %w", err)
 		}
+
+		// Print container logs after tests complete during shutdown.
+		containerLogsConsumer.Print()
 
 		return nil
 	}

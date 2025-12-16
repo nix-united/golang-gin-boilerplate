@@ -1,37 +1,36 @@
 package response
 
-import "github.com/nix-united/golang-gin-boilerplate/internal/model"
+import (
+	"time"
 
-type CreatePostResponse struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	"github.com/nix-united/golang-gin-boilerplate/internal/model"
+)
+
+type PostResponse struct {
+	ID        uint   `json:"id"`
+	UserID    uint   `json:"user_id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
-type GetPostResponse struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
-
-type CollectionResponse struct {
-	Collection interface{} `json:"collection"`
-	Meta       Meta        `json:"meta"`
-}
-
-type Meta struct {
-	Amount int `json:"amount"`
-}
-
-func CreatePostsCollectionResponse(posts []model.Post) CollectionResponse {
-	collection := make([]GetPostResponse, 0)
-
-	for index := range posts {
-		collection = append(collection, GetPostResponse{
-			ID:      posts[index].ID,
-			Title:   posts[index].Title,
-			Content: posts[index].Content,
-		})
+func NewPostResponse(post *model.Post) PostResponse {
+	return PostResponse{
+		ID:        post.ID,
+		UserID:    post.UserID,
+		Title:     post.Title,
+		Content:   post.Content,
+		CreatedAt: post.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: post.UpdatedAt.Format(time.RFC3339),
 	}
-	return CollectionResponse{Collection: collection, Meta: Meta{Amount: len(collection)}}
+}
+
+func NewPostCollectionResponse(posts []model.Post, total int64, offset, limit int) CollectionResponse[PostResponse] {
+	responses := make([]PostResponse, len(posts))
+	for i := range posts {
+		responses[i] = NewPostResponse(&posts[i])
+	}
+
+	return NewCollectionResponse(responses, total, offset, limit)
 }

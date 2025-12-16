@@ -7,13 +7,14 @@ import (
 )
 
 type RegisterRequest struct {
-	*BasicAuthRequest
+	BasicAuthRequest
+
 	FullName string `json:"full_name" validate:"required" example:"John Doe"`
 }
 
-func (rr *RegisterRequest) Validate() error {
+func (r RegisterRequest) Validate() error {
 	return errors.Join(
-		rr.BasicAuthRequest.Validate(),
-		validation.ValidateStruct(rr, validation.Field(&rr.FullName, validation.Required)),
+		r.BasicAuthRequest.Validate(),
+		validation.ValidateStruct(&r, validation.Field(&r.FullName, validation.Required)),
 	)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/testcontainers/testcontainers-go"
@@ -32,7 +31,9 @@ type MySQLConfig struct {
 	ContainerName string
 }
 
-func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(ctx context.Context) error, err error) {
+func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx context.Context) error, error) {
+	containerLogsConsumer := newContainerLogsConsumer(mysqlContainerName)
+
 	container, err := mysql.Run(
 		ctx,
 		mysqlImage,
@@ -47,31 +48,25 @@ func SetupMySQL(ctx context.Context, networks []string) (_ MySQLConfig, _ func(c
 			ContainerRequest: testcontainers.ContainerRequest{
 				Name:     mysqlContainerName,
 				Networks: networks,
+				LogConsumerCfg: &testcontainers.LogConsumerConfig{
+					Consumers: []testcontainers.LogConsumer{containerLogsConsumer},
+				},
 			},
 		}),
 	)
 	if err != nil {
+		// Print logs for container bootstrap failures, such as condition wait timeouts.
+		containerLogsConsumer.Print()
 		return MySQLConfig{}, nil, fmt.Errorf("run mysql container: %w", err)
 	}
 
 	shutdown := func(ctx context.Context) error {
-		containerLogs, err := container.Logs(ctx)
-		if err != nil {
-			return fmt.Errorf("get application container logs: %w", err)
-		}
-
-		rawContainerLogs, err := io.ReadAll(containerLogs)
-		if err != nil {
-			return fmt.Errorf("read container logs: %w", err)
-		}
-
-		fmt.Print("\n\n\n### Start of database logs\n\n")
-		fmt.Println(string(rawContainerLogs))
-		fmt.Print("### End of database logs\n\n\n\n")
-
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate mysql container: %w", err)
 		}
+
+		// Print container logs after tests complete during shutdown.
+		containerLogsConsumer.Print()
 
 		return nil
 	}
