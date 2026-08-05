@@ -343,18 +343,10 @@ func TestPostHandler_DeletePost(t *testing.T) {
 	httpResponse := recorder.Result()
 	defer httpResponse.Body.Close()
 
-	assert.Equal(t, http.StatusOK, httpResponse.StatusCode)
+	assert.Equal(t, http.StatusNoContent, httpResponse.StatusCode)
 
 	responseBody, err := io.ReadAll(httpResponse.Body)
 	require.NoError(t, err)
 
-	var gotMessageResponse response.MessageResponse
-	err = json.Unmarshal(responseBody, &gotMessageResponse)
-	require.NoError(t, err)
-
-	wantMessageRespone := response.MessageResponse{
-		Message: "Post was deleted successfully",
-	}
-
-	assert.Equal(t, wantMessageRespone, gotMessageResponse)
+	assert.Empty(t, responseBody)
 }

@@ -184,4 +184,47 @@ func TestAcceptance(t *testing.T) {
 		assert.Equal(t, createdPost.Title, getPostResponse.Data[0].Title)
 		assert.Equal(t, createdPost.Content, getPostResponse.Data[0].Content)
 	})
+
+	t.Run("It should delete a newly created post", func(t *testing.T) {
+		httpRequest, err := http.NewRequest(
+			http.MethodDelete,
+			applicationURL.JoinPath(fmt.Sprintf("/posts/%d", createdPost.ID)).String(),
+			http.NoBody,
+		)
+		require.NoError(t, err)
+
+		httpRequest.Header.Set("Authorization", "Bearer "+accessToken)
+
+		httpResponse, err := http.DefaultClient.Do(httpRequest)
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, httpResponse.Body.Close())
+		}()
+
+		require.Equal(t, http.StatusNoContent, httpResponse.StatusCode)
+
+		rawResponse, err := io.ReadAll(httpResponse.Body)
+		require.NoError(t, err)
+
+		assert.Empty(t, rawResponse)
+	})
+
+	t.Run("It should not fetch a deleted post", func(t *testing.T) {
+		httpRequest, err := http.NewRequest(
+			http.MethodGet,
+			applicationURL.JoinPath(fmt.Sprintf("/posts/%d", createdPost.ID)).String(),
+			http.NoBody,
+		)
+		require.NoError(t, err)
+
+		httpRequest.Header.Set("Authorization", "Bearer "+accessToken)
+
+		httpResponse, err := http.DefaultClient.Do(httpRequest)
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, httpResponse.Body.Close())
+		}()
+
+		require.Equal(t, http.StatusNotFound, httpResponse.StatusCode)
+	})
 }
