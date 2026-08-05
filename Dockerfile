@@ -11,7 +11,7 @@ COPY . /app
 WORKDIR /app
 
 RUN go install github.com/githubnemo/CompileDaemon@latest
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@v3.26.0
 RUN go install github.com/swaggo/swag/cmd/swag@v1.8.10
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /wait

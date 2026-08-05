@@ -106,7 +106,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @Param offset query int false "Offset" minimum(0)
 // @Param user_id query string false "User ID"
 // @Param title query string false "Title"
-// @Success 200 {object} response.PostResponse
+// @Success 200 {object} response.PostCollectionResponse
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
@@ -293,10 +293,10 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 
 // DeletePost godoc
 // @Summary Delete post
-// @ID detelePost
+// @ID deletePost
 // @Tags Posts Actions
 // @Param id path int true "Post ID"
-// @Success 200 {string} response.MessageResponse
+// @Success 204 "No Content"
 // @Failure 400 {string} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
@@ -357,7 +357,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.NewMessageResponse("Post was deleted successfully"))
+	c.Status(http.StatusNoContent)
 }
 
 func (h *PostHandler) parseFilters(c *gin.Context) (domain.PostFilters, error) {
