@@ -29,27 +29,34 @@ func SetupApplication(
 ) (_ AppConfig, _ func(ctx context.Context) error, err error) {
 	containerLogsConsumer := newContainerLogsConsumer(appContainerName)
 
+	gitDomain := "github.com"
+	webPrivateKey := ""
+
 	container, err := testcontainers.GenericContainer(
 		ctx,
 		testcontainers.GenericContainerRequest{
 			ContainerRequest: testcontainers.ContainerRequest{
 				FromDockerfile: testcontainers.FromDockerfile{
 					Context:    "../../",
-					Dockerfile: "Dockerfile",
+					Dockerfile: "deploy/Dockerfile",
+					BuildArgs: map[string]*string{
+						"GIT_DOMAIN":      &gitDomain,
+						"WEB_PRIVATE_KEY": &webPrivateKey,
+					},
 				},
 				Env: map[string]string{
 					"LOG_APPLICATION":     appContainerName,
 					"PORT":                appHTTPPort,
 					"DB_DRIVER":           "mysql",
 					"DB_USER":             mySQLConfig.User,
+					"DB_USERNAME":         mySQLConfig.User,
 					"DB_PASSWORD":         mySQLConfig.Password,
 					"DB_HOST":             mySQLConfig.ContainerName,
 					"DB_PORT":             mySQLConfig.LocalPort,
 					"DB_NAME":             mySQLConfig.Name,
-					"JWT_SECRET":          "jwt-secret",
-					"JWT_REALM":           "jwt-realm",
-					"JWT_EXPIRATION_TIME": "300",
-					"JWT_REFRESH_TIME":    "300",
+					"WAIT_HOSTS":          mySQLConfig.ContainerName + ":" + mySQLConfig.LocalPort,
+					"WAIT_SLEEP_INTERVAL": "1",
+					"AUTH_JWT_SECRET":     "jwt-secret",
 				},
 				WaitingFor: wait.
 					ForAll(wait.ForHTTP("/health")).
