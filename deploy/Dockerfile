@@ -37,7 +37,7 @@ WORKDIR /app
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /wait
 RUN chmod +x /wait
 
-ENV DB_USERNAME ''
+ENV DB_USER     ''
 ENV DB_PASSWORD ''
 ENV DB_NAME     ''
 ENV DB_HOST     ''
@@ -50,5 +50,5 @@ COPY --from=build /go/bin/goose /app/migrations
 RUN ["chmod", "+x", "./demo-gin"]
 
 CMD /wait &&\
-    ./migrations/goose -dir "./migrations" mysql "$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\
+    ./migrations/goose -dir "./migrations" mysql "$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\
     ./demo-gin
