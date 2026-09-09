@@ -49,7 +49,6 @@ func SetupApplication(
 					"PORT":                appHTTPPort,
 					"DB_DRIVER":           "mysql",
 					"DB_USER":             mySQLConfig.User,
-					"DB_USERNAME":         mySQLConfig.User,
 					"DB_PASSWORD":         mySQLConfig.Password,
 					"DB_HOST":             mySQLConfig.ContainerName,
 					"DB_PORT":             mySQLConfig.LocalPort,
