@@ -22,13 +22,13 @@ COPY . .
 
 RUN  git config --global http.sslVerify true &&\
      # install swagger and initialize documentation
-     go install github.com/pressly/goose/v3/cmd/goose@latest &&\
+     go install github.com/pressly/goose/v3/cmd/goose@v3.26.0 &&\
      go install github.com/swaggo/swag/cmd/swag@v1.8.10 &&\
      swag init -g cmd/service/main.go &&\
      # install project dependecies
      go get -v ./... &&\
      # build application
-     go build -o demo-gin ./cmd
+     go build -o demo-gin ./cmd/service
 
 FROM alpine
 
@@ -44,11 +44,11 @@ ENV DB_HOST     ''
 ENV DB_PORT     ''
 
 COPY --from=build /go/src/api/demo-gin /app/demo-gin
-COPY --from=build /go/src/api/db/migrations /app/migrations
-COPY --from=build /go/bin/goose /app/migrations
+COPY --from=build /go/src/api/internal/db/migrations /app/migrations
+COPY --from=build /go/bin/goose /usr/local/bin/goose
 
 RUN ["chmod", "+x", "./demo-gin"]
 
 CMD /wait &&\
-    ./migrations/goose -dir "./migrations" mysql "$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\
+    goose -dir "./migrations" mysql "$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_NAME?parseTime=true" up &&\
     ./demo-gin
