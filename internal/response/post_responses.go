@@ -26,7 +26,9 @@ func NewPostResponse(post *model.Post) PostResponse {
 	}
 }
 
-func NewPostCollectionResponse(posts []model.Post, total int64, offset, limit int) CollectionResponse[PostResponse] {
+type PostCollectionResponse = CollectionResponse[PostResponse]
+
+func NewPostCollectionResponse(posts []model.Post, total int64, offset, limit int) PostCollectionResponse {
 	responses := make([]PostResponse, len(posts))
 	for i := range posts {
 		responses[i] = NewPostResponse(&posts[i])
