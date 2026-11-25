@@ -34,6 +34,7 @@ test:
     - dind
     - docker
   stage: test
+  timeout: 30m
   before_script:
     - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
@@ -44,7 +45,7 @@ test:
     # get dependencies
     - go get -v ./...
     - goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
-    - go test -v ./...
+    - go test -v -timeout 20m ./...
 
 build:
   tags:

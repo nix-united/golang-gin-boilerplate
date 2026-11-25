@@ -9,6 +9,7 @@ import (
 	"os"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/nix-united/golang-gin-boilerplate/internal/config"
 	"github.com/nix-united/golang-gin-boilerplate/internal/db"
@@ -23,21 +24,44 @@ var (
 	applicationURL *url.URL
 )
 
+const setupTimeout = 15 * time.Minute
+
 func TestMain(m *testing.M) {
-	ctx := context.Background()
+	os.Exit(runTests(m))
+}
+
+func runTests(m *testing.M) int {
+	ctx, cancel := context.WithTimeout(context.Background(), setupTimeout)
+	defer cancel()
+
+	startedAt := time.Now()
 
 	shutdown, err := setupMain(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "Failed to setup integration tests", "err", err)
-		os.Exit(1)
+		attrs := []any{"err", err, "elapsed", time.Since(startedAt).Round(time.Second).String()}
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			attrs = append(attrs, "hint", fmt.Sprintf("setup exceeded its %s budget; see the container logs above", setupTimeout))
+		}
+
+		slog.Error("Failed to setup integration tests", attrs...)
+
+		return 1
 	}
 
-	m.Run()
+	code := m.Run()
 
-	if err := shutdown(ctx); err != nil {
-		slog.ErrorContext(ctx, "Failed to shutdown integration tests", "err", err)
-		os.Exit(1)
+	cleanupCtx, cancelCleanup := setup.CleanupContext(ctx)
+	defer cancelCleanup()
+
+	if err := shutdown(cleanupCtx); err != nil {
+		slog.Error("Failed to shutdown integration tests", "err", err)
+
+		if code == 0 {
+			code = 1
+		}
 	}
+
+	return code
 }
 
 func setupMain(ctx context.Context) (_ func(context.Context) error, err error) {
@@ -70,7 +94,10 @@ func setupMain(ctx context.Context) (_ func(context.Context) error, err error) {
 			return
 		}
 
-		if errShutdown := shutdown(context.WithoutCancel(ctx)); errShutdown != nil {
+		cleanupCtx, cancel := setup.CleanupContext(ctx)
+		defer cancel()
+
+		if errShutdown := shutdown(cleanupCtx); errShutdown != nil {
 			err = errors.Join(err, errShutdown)
 		}
 	}()

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
@@ -40,7 +39,7 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 		mysql.WithUsername(mysqlUsername),
 		mysql.WithPassword(mysqlPassword),
 		testcontainers.WithWaitStrategyAndDeadline(
-			time.Minute,
+			mysqlReadinessTimeout,
 			wait.ForLog("X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock"),
 		),
 		testcontainers.CustomizeRequest(testcontainers.GenericContainerRequest{
@@ -56,7 +55,11 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 	if err != nil {
 		// Print logs for container bootstrap failures, such as condition wait timeouts.
 		containerLogsConsumer.Print()
-		return MySQLConfig{}, nil, fmt.Errorf("run mysql container: %w", err)
+
+		return MySQLConfig{}, nil, errors.Join(
+			fmt.Errorf("run mysql container (readiness timeout %s): %w", mysqlReadinessTimeout, err),
+			terminateFailedContainer(ctx, container),
+		)
 	}
 
 	shutdown := func(ctx context.Context) error {
@@ -76,7 +79,10 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 			return
 		}
 
-		if errShutdown := shutdown(ctx); errShutdown != nil {
+		cleanupCtx, cancel := CleanupContext(ctx)
+		defer cancel()
+
+		if errShutdown := shutdown(cleanupCtx); errShutdown != nil {
 			err = errors.Join(err, errShutdown)
 		}
 	}()
