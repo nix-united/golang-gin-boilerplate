@@ -108,6 +108,8 @@ linters:
 
 run:
   tests: false
+  # The 1m default is too short on a cold cache (e.g. after a Go or go.sum change).
+  timeout: 5m
 
 issues:
   exclude-dirs:
