@@ -58,11 +58,29 @@ jobs:
           go install github.com/swaggo/swag/cmd/swag@0b9e347c196710ea155a147782bf51707a600c2c # https://github.com/swaggo/swag/releases/tag/v1.16.4
           swag init -g cmd/service/main.go
       - name: Run tests
+        env:
+          # Builds the app image with -cover and collects its coverage data.
+          INTEGRATION_COVERDIR: ${{ github.workspace }}/coverage/integration
         run: |
           cp .env.testing.github-ci .env.testing
           go install github.com/pressly/goose/cmd/goose@latest
           goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
           go test -race ./...
+      - name: Integration coverage report
+        run: |
+          go tool covdata textfmt -i=coverage/integration -o coverage/integration.out
+          go tool cover -html=coverage/integration.out -o coverage/integration.html
+          {
+            echo "### Integration-test coverage"
+            echo '```'
+            go tool covdata percent -i=coverage/integration
+            go tool cover -func=coverage/integration.out | tail -n 1
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integration-coverage
+          path: coverage/
 
   detect-secrets:
     name: Detect Secrets

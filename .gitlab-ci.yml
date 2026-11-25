@@ -34,6 +34,9 @@ test:
     - dind
     - docker
   stage: test
+  variables:
+    # Builds the app image with -cover and collects its coverage data.
+    INTEGRATION_COVERDIR: $CI_PROJECT_DIR/coverage/integration
   before_script:
     - apk add --no-cache --update git build-base openssh-client curl tar
     - cp .env.testing.gitlab-ci .env.testing
@@ -45,6 +48,14 @@ test:
     - go get -v ./...
     - goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(mysql:3306)/test?parseTime=true" up
     - go test -v ./...
+    - go tool covdata textfmt -i=coverage/integration -o coverage/integration.out
+    - go tool covdata percent -i=coverage/integration
+    - go tool cover -func=coverage/integration.out | tail -n 1
+  coverage: '/^total:\s+\(statements\)\s+(\d+(?:\.\d+)?)%/'
+  artifacts:
+    paths:
+      - coverage/
+    expire_in: 1 week
 
 build:
   tags:

@@ -29,39 +29,22 @@ func SetupApplication(
 ) (_ AppConfig, _ func(ctx context.Context) error, err error) {
 	containerLogsConsumer := newContainerLogsConsumer(appContainerName)
 
+	cover, err := newCoverageFromEnv()
+	if err != nil {
+		return AppConfig{}, nil, fmt.Errorf("setup coverage: %w", err)
+	}
+
+	request := newApplicationRequest(networks, mySQLConfig, containerLogsConsumer)
+
+	if cover != nil {
+		cover.apply(&request)
+	}
+
 	container, err := testcontainers.GenericContainer(
 		ctx,
 		testcontainers.GenericContainerRequest{
-			ContainerRequest: testcontainers.ContainerRequest{
-				FromDockerfile: testcontainers.FromDockerfile{
-					Context:    "../../",
-					Dockerfile: "Dockerfile",
-				},
-				Env: map[string]string{
-					"LOG_APPLICATION":     appContainerName,
-					"PORT":                appHTTPPort,
-					"DB_DRIVER":           "mysql",
-					"DB_USER":             mySQLConfig.User,
-					"DB_PASSWORD":         mySQLConfig.Password,
-					"DB_HOST":             mySQLConfig.ContainerName,
-					"DB_PORT":             mySQLConfig.LocalPort,
-					"DB_NAME":             mySQLConfig.Name,
-					"JWT_SECRET":          "jwt-secret",
-					"JWT_REALM":           "jwt-realm",
-					"JWT_EXPIRATION_TIME": "300",
-					"JWT_REFRESH_TIME":    "300",
-				},
-				WaitingFor: wait.
-					ForAll(wait.ForHTTP("/health")).
-					WithDeadline(time.Minute),
-				Name:         appContainerName,
-				Networks:     networks,
-				ExposedPorts: []string{appHTTPPort},
-				LogConsumerCfg: &testcontainers.LogConsumerConfig{
-					Consumers: []testcontainers.LogConsumer{containerLogsConsumer},
-				},
-			},
-			Started: true,
+			ContainerRequest: request,
+			Started:          true,
 		},
 	)
 	if err != nil {
@@ -70,7 +53,7 @@ func SetupApplication(
 		return AppConfig{}, nil, fmt.Errorf("generic container from app: %w", err)
 	}
 
-	shutdown := func(ctx context.Context) error {
+	terminate := func(ctx context.Context) error {
 		if err := container.Terminate(ctx); err != nil {
 			return fmt.Errorf("terminate app container: %w", err)
 		}
@@ -81,13 +64,24 @@ func SetupApplication(
 		return nil
 	}
 
+	shutdown := func(ctx context.Context) error {
+		var errCover error
+		if cover != nil {
+			if errCover = cover.collect(ctx, container); errCover != nil {
+				errCover = fmt.Errorf("collect coverage: %w", errCover)
+			}
+		}
+
+		return errors.Join(errCover, terminate(ctx))
+	}
+
 	// This defer function exists to shutdown the container if any error occurs in next steps.
 	defer func() {
 		if err == nil {
 			return
 		}
 
-		if errShutdown := shutdown(ctx); errShutdown != nil {
+		if errShutdown := terminate(ctx); errShutdown != nil {
 			err = errors.Join(err, errShutdown)
 		}
 	}()
@@ -112,4 +106,47 @@ func SetupApplication(
 	}
 
 	return config, shutdown, nil
+}
+
+// newApplicationRequest describes the application container built from the deployment image.
+func newApplicationRequest(
+	networks []string,
+	mySQLConfig MySQLConfig,
+	logConsumer testcontainers.LogConsumer,
+) testcontainers.ContainerRequest {
+	gitDomain := "github.com"
+	webPrivateKey := ""
+
+	return testcontainers.ContainerRequest{
+		FromDockerfile: testcontainers.FromDockerfile{
+			Context:    "../../",
+			Dockerfile: "deploy/Dockerfile",
+			BuildArgs: map[string]*string{
+				"GIT_DOMAIN":      &gitDomain,
+				"WEB_PRIVATE_KEY": &webPrivateKey,
+			},
+		},
+		Env: map[string]string{
+			"LOG_APPLICATION":     appContainerName,
+			"PORT":                appHTTPPort,
+			"DB_DRIVER":           "mysql",
+			"DB_USER":             mySQLConfig.User,
+			"DB_PASSWORD":         mySQLConfig.Password,
+			"DB_HOST":             mySQLConfig.ContainerName,
+			"DB_PORT":             mySQLConfig.LocalPort,
+			"DB_NAME":             mySQLConfig.Name,
+			"WAIT_HOSTS":          mySQLConfig.ContainerName + ":" + mySQLConfig.LocalPort,
+			"WAIT_SLEEP_INTERVAL": "1",
+			"AUTH_JWT_SECRET":     "jwt-secret",
+		},
+		WaitingFor: wait.
+			ForAll(wait.ForHTTP("/health")).
+			WithDeadline(time.Minute),
+		Name:         appContainerName,
+		Networks:     networks,
+		ExposedPorts: []string{appHTTPPort},
+		LogConsumerCfg: &testcontainers.LogConsumerConfig{
+			Consumers: []testcontainers.LogConsumer{logConsumer},
+		},
+	}
 }
