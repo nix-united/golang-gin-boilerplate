@@ -13,7 +13,7 @@ type ApplicationConfig struct {
 }
 
 type AuthConfig struct {
-	Secret               string        `env:"AUTH_JWT_SECRET"`
+	Secret               string        `env:"AUTH_JWT_SECRET,notEmpty"`
 	TokenDuration        time.Duration `env:"AUTH_JWT_TOKEN_DURATION" envDefault:"1h"`
 	RefreshTokenDuration time.Duration `env:"AUTH_JWT_REFRESH_TOKEN_DURATION" envDefault:"1h"`
 }

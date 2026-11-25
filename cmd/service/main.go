@@ -44,6 +44,7 @@ import (
 func main() {
 	if err := run(); err != nil {
 		slog.Error("Service run error", "err", err.Error())
+		os.Exit(1)
 	}
 }
 
