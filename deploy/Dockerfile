@@ -17,6 +17,10 @@ RUN mkdir ~/.ssh && \
     chmod 600 ~/.ssh/id_rsa && \
     ssh-keyscan -H $GIT_DOMAIN >> ~/.ssh/known_hosts
 
+# extra `go build` flags; empty for release images. Integration tests pass
+# "-cover -coverpkg=..." to collect coverage from the running binary.
+ARG GO_BUILD_FLAGS=""
+
 # copy project
 COPY . .
 
@@ -28,7 +32,7 @@ RUN  git config --global http.sslVerify true &&\
      # install project dependecies
      go get -v ./... &&\
      # build application
-     go build -o demo-gin ./cmd/service
+     go build $GO_BUILD_FLAGS -o demo-gin ./cmd/service
 
 FROM alpine
 

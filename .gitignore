@@ -4,3 +4,4 @@ main
 .env.testing
 .idea
 docs
+coverage/
