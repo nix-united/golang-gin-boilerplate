@@ -50,9 +50,7 @@ func SetupApplication(
 					"JWT_EXPIRATION_TIME": "300",
 					"JWT_REFRESH_TIME":    "300",
 				},
-				WaitingFor: wait.
-					ForAll(wait.ForHTTP("/health")).
-					WithDeadline(appReadinessTimeout),
+				WaitingFor:   wait.ForHTTP("/health").WithStartupTimeout(appReadinessTimeout),
 				Name:         appContainerName,
 				Networks:     networks,
 				ExposedPorts: []string{appHTTPPort},

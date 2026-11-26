@@ -40,7 +40,8 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 		mysql.WithPassword(mysqlPassword),
 		testcontainers.WithWaitStrategyAndDeadline(
 			mysqlReadinessTimeout,
-			wait.ForLog("X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock"),
+			wait.ForLog("X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock").
+				WithStartupTimeout(mysqlReadinessTimeout),
 		),
 		testcontainers.CustomizeRequest(testcontainers.GenericContainerRequest{
 			ContainerRequest: testcontainers.ContainerRequest{
