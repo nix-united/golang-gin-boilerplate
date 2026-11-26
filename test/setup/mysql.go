@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+
+	"github.com/docker/go-connections/nat"
+	mysqldriver "github.com/go-sql-driver/mysql"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
@@ -40,8 +44,7 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 		mysql.WithPassword(mysqlPassword),
 		testcontainers.WithWaitStrategyAndDeadline(
 			mysqlReadinessTimeout,
-			wait.ForLog("X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock").
-				WithStartupTimeout(mysqlReadinessTimeout),
+			wait.ForSQL(mysqlPort+"/tcp", "mysql", mysqlDSN).WithStartupTimeout(mysqlReadinessTimeout),
 		),
 		testcontainers.CustomizeRequest(testcontainers.GenericContainerRequest{
 			ContainerRequest: testcontainers.ContainerRequest{
@@ -58,7 +61,7 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 		containerLogsConsumer.Print()
 
 		return MySQLConfig{}, nil, errors.Join(
-			fmt.Errorf("run mysql container (readiness timeout %s): %w", mysqlReadinessTimeout, err),
+			fmt.Errorf("run mysql container %s (readiness timeout %s): %w", mysqlImage, mysqlReadinessTimeout, err),
 			terminateFailedContainer(ctx, container),
 		)
 	}
@@ -109,4 +112,15 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 	}
 
 	return config, shutdown, nil
+}
+
+func mysqlDSN(host string, port nat.Port) string {
+	cfg := mysqldriver.NewConfig()
+	cfg.User = mysqlUsername
+	cfg.Passwd = mysqlPassword
+	cfg.Net = "tcp"
+	cfg.Addr = net.JoinHostPort(host, port.Port())
+	cfg.DBName = mysqlDatabase
+
+	return cfg.FormatDSN()
 }

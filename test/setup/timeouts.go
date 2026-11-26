@@ -10,7 +10,7 @@ import (
 
 const (
 	appReadinessTimeout   = 5 * time.Minute
-	mysqlReadinessTimeout = time.Minute
+	mysqlReadinessTimeout = 5 * time.Minute
 	cleanupTimeout        = 2 * time.Minute
 )
 
