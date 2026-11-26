@@ -139,6 +139,39 @@ func TestAuthHandler_RegisterUser(t *testing.T) {
 		assert.JSONEq(t, expectedResponse, string(responseBody))
 	})
 
+	t.Run("It should respond with 500 status if failed to create an user", func(t *testing.T) {
+		engine, mocks := newAuthHandler(t)
+
+		mocks.userService.
+			EXPECT().
+			CreateUser(gomock.Any(), registerRequest).
+			Return(errors.New("database is down"))
+
+		httpRequest := httptest.NewRequest(
+			http.MethodPost,
+			"https://example.com/register",
+			bytes.NewReader(rawRegisterRequest),
+		)
+
+		recorder := httptest.NewRecorder()
+		engine.ServeHTTP(recorder, httpRequest)
+
+		response := recorder.Result()
+		defer response.Body.Close()
+
+		responseBody, err := io.ReadAll(response.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, http.StatusInternalServerError, response.StatusCode)
+
+		expectedResponse := `{
+			"code": "internal_server_error",
+			"message": "Oops, something went wrong..."
+		}`
+
+		assert.JSONEq(t, expectedResponse, string(responseBody))
+	})
+
 	t.Run("It should create an user", func(t *testing.T) {
 		engine, mocks := newAuthHandler(t)
 

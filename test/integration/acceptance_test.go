@@ -226,5 +226,10 @@ func TestAcceptance(t *testing.T) {
 		}()
 
 		require.Equal(t, http.StatusNotFound, httpResponse.StatusCode)
+
+		var gotResponse response.ErrorResponse
+		require.NoError(t, json.NewDecoder(httpResponse.Body).Decode(&gotResponse))
+
+		assert.Equal(t, response.CodeNotFound, gotResponse.Code)
 	})
 }

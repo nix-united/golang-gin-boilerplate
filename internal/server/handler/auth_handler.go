@@ -117,7 +117,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, response.NewErrorResponse(
-			response.CodeBadRequest,
+			response.CodeInternalServerError,
 			"Oops, something went wrong...",
 		))
 		return
@@ -133,7 +133,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param params body request.BasicAuthRequest true "User's credentials"
-// @Failure 200 {object} response.AuthTokenResponse
+// @Success 200 {object} response.AuthTokenResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /login [post]
@@ -146,7 +146,7 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 // @ID refreshUserToken
 // @Tags User Actions
 // @Produce json
-// @Failure 200 {object} response.AuthTokenResponse
+// @Success 200 {object} response.AuthTokenResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
@@ -210,7 +210,12 @@ func (h *AuthHandler) mapHTTPStatusMessage(_ *gin.Context, err error) string {
 
 // respondWithUnauthorized receives message from [AuthHandler.mapHTTPStatusMessage].
 func (h *AuthHandler) respondWithUnauthorized(c *gin.Context, code int, message string) {
-	c.JSON(code, response.NewErrorResponse(response.CodeAccessDenied, message))
+	errorCode := response.CodeAccessDenied
+	if code >= http.StatusInternalServerError {
+		errorCode = response.CodeInternalServerError
+	}
+
+	c.JSON(code, response.NewErrorResponse(errorCode, message))
 }
 
 // respondWithAuthToken maps generated token to ersponse.
