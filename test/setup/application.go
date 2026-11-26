@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"time"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -51,9 +50,7 @@ func SetupApplication(
 					"JWT_EXPIRATION_TIME": "300",
 					"JWT_REFRESH_TIME":    "300",
 				},
-				WaitingFor: wait.
-					ForAll(wait.ForHTTP("/health")).
-					WithDeadline(time.Minute),
+				WaitingFor:   wait.ForHTTP("/health").WithStartupTimeout(appReadinessTimeout),
 				Name:         appContainerName,
 				Networks:     networks,
 				ExposedPorts: []string{appHTTPPort},
@@ -67,7 +64,11 @@ func SetupApplication(
 	if err != nil {
 		// Print logs for container bootstrap failures, such as condition wait timeouts.
 		containerLogsConsumer.Print()
-		return AppConfig{}, nil, fmt.Errorf("generic container from app: %w", err)
+
+		return AppConfig{}, nil, errors.Join(
+			fmt.Errorf("start app container (readiness timeout %s): %w", appReadinessTimeout, err),
+			terminateFailedContainer(ctx, container),
+		)
 	}
 
 	shutdown := func(ctx context.Context) error {
@@ -87,7 +88,10 @@ func SetupApplication(
 			return
 		}
 
-		if errShutdown := shutdown(ctx); errShutdown != nil {
+		cleanupCtx, cancel := CleanupContext(ctx)
+		defer cancel()
+
+		if errShutdown := shutdown(cleanupCtx); errShutdown != nil {
 			err = errors.Join(err, errShutdown)
 		}
 	}()
