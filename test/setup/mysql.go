@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
+	"net"
+
+	"github.com/docker/go-connections/nat"
+	mysqldriver "github.com/go-sql-driver/mysql"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
@@ -40,8 +43,8 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 		mysql.WithUsername(mysqlUsername),
 		mysql.WithPassword(mysqlPassword),
 		testcontainers.WithWaitStrategyAndDeadline(
-			time.Minute,
-			wait.ForLog("X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock"),
+			mysqlReadinessTimeout,
+			wait.ForSQL(mysqlPort+"/tcp", "mysql", mysqlDSN).WithStartupTimeout(mysqlReadinessTimeout),
 		),
 		testcontainers.CustomizeRequest(testcontainers.GenericContainerRequest{
 			ContainerRequest: testcontainers.ContainerRequest{
@@ -56,7 +59,11 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 	if err != nil {
 		// Print logs for container bootstrap failures, such as condition wait timeouts.
 		containerLogsConsumer.Print()
-		return MySQLConfig{}, nil, fmt.Errorf("run mysql container: %w", err)
+
+		return MySQLConfig{}, nil, errors.Join(
+			fmt.Errorf("run mysql container %s (readiness timeout %s): %w", mysqlImage, mysqlReadinessTimeout, err),
+			terminateFailedContainer(ctx, container),
+		)
 	}
 
 	shutdown := func(ctx context.Context) error {
@@ -76,7 +83,10 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 			return
 		}
 
-		if errShutdown := shutdown(ctx); errShutdown != nil {
+		cleanupCtx, cancel := CleanupContext(ctx)
+		defer cancel()
+
+		if errShutdown := shutdown(cleanupCtx); errShutdown != nil {
 			err = errors.Join(err, errShutdown)
 		}
 	}()
@@ -102,4 +112,15 @@ func SetupMySQL(ctx context.Context, networks []string) (MySQLConfig, func(ctx c
 	}
 
 	return config, shutdown, nil
+}
+
+func mysqlDSN(host string, port nat.Port) string {
+	cfg := mysqldriver.NewConfig()
+	cfg.User = mysqlUsername
+	cfg.Passwd = mysqlPassword
+	cfg.Net = "tcp"
+	cfg.Addr = net.JoinHostPort(host, port.Port())
+	cfg.DBName = mysqlDatabase
+
+	return cfg.FormatDSN()
 }

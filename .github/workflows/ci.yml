@@ -32,6 +32,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     services:
       mysql:
@@ -62,7 +63,7 @@ jobs:
           cp .env.testing.github-ci .env.testing
           go install github.com/pressly/goose/cmd/goose@latest
           goose -dir "./internal/db/migrations" mysql "root:db_password@tcp(localhost:3306)/test?parseTime=true" up
-          go test -race ./...
+          go test -race -timeout 20m ./...
 
   detect-secrets:
     name: Detect Secrets
