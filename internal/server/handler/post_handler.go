@@ -188,7 +188,7 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 		c.Error(fmt.Errorf("get post by id: %w", err))
 		if errors.Is(err, domain.ErrNotFound) {
 			c.JSON(http.StatusNotFound, response.NewErrorResponse(
-				response.CodeBadRequest,
+				response.CodeNotFound,
 				"Post not found",
 			))
 			return
@@ -211,8 +211,8 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Param params body request.UpdatePostRequest true "Post title and content"
-// @Success 200 {string} response.PostResponse
-// @Failure 400 {string} response.ErrorResponse
+// @Success 200 {object} response.PostResponse
+// @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
@@ -297,7 +297,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Tags Posts Actions
 // @Param id path int true "Post ID"
 // @Success 204 "No Content"
-// @Failure 400 {string} response.ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
